@@ -119,10 +119,16 @@ export default function Landing() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-2">
             <ThemeToggle />
-            <Button variant="ghost" className="text-foreground">
+            <Button
+              variant="ghost"
+              className="text-foreground"
+              onClick={() => router.push("/auth/sign-in")}
+            >
               Log In
             </Button>
-            <Button>Sign Up Free</Button>
+            <Button onClick={() => router.push("/auth/sign-up")}>
+              Sign Up Free
+            </Button>
           </nav>
           {/* Mobile Hamburger */}
           <button
@@ -168,13 +174,18 @@ export default function Landing() {
             and schedule pickup. Your academic documents, delivered with ease.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" variant="secondary">
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => router.push("/auth/sign-up")}
+            >
               Sign Up Free <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10"
+              onClick={() => router.push("/auth/sign-in")}
             >
               Log In
             </Button>
@@ -317,12 +328,20 @@ export default function Landing() {
               </h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
+                  <Button
+                    variant="link"
+                    className="h-auto p-0 text-primary"
+                    onClick={() => router.push("/auth/sign-in")}
+                  >
                     Login
                   </Button>
                 </li>
                 <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
+                  <Button
+                    variant="link"
+                    className="h-auto p-0 text-primary"
+                    onClick={() => router.push("/auth/sign-up")}
+                  >
                     Sign Up
                   </Button>
                 </li>
