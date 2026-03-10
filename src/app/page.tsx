@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FileText,
@@ -31,6 +32,7 @@ import {
 } from "@/components/ui/table";
 
 export default function Landing() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const features = [
     {
@@ -350,12 +352,20 @@ export default function Landing() {
               <h4 className="font-semibold mb-4 text-foreground">Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
+                  <Button
+                    onClick={() => router.push("./privacy")}
+                    variant="link"
+                    className="h-auto p-0 text-primary"
+                  >
                     Privacy Policy
                   </Button>
                 </li>
                 <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
+                  <Button
+                    onClick={() => router.push("./terms")}
+                    variant="link"
+                    className="h-auto p-0 text-primary"
+                  >
                     Terms of Service
                   </Button>
                 </li>
