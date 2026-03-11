@@ -389,7 +389,11 @@ export default function Landing() {
                   </Button>
                 </li>
                 <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
+                  <Button
+                    onClick={() => router.push("./data-protection")}
+                    variant="link"
+                    className="h-auto p-0 text-primary"
+                  >
                     Data Protection
                   </Button>
                 </li>
