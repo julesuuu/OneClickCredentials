@@ -123,7 +123,7 @@ export default function TermsPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
-                    <span>Scheduled pickup at designated locations</span>
+                    <span>Scheduled pickup at a designated time</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
@@ -146,14 +146,11 @@ export default function TermsPage() {
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>
-                      Be currently enrolled or have been enrolled at a partner
-                      educational institution
-                    </span>
+                    <span>Be currently enrolled to our institution</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>Be at least 13 years of age</span>
+                    <span>Be at least 18 years of age</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
@@ -208,7 +205,8 @@ export default function TermsPage() {
                   <p className="text-muted-foreground">
                     Requested documents must be picked up within 30 days from
                     the notification date. Unclaimed documents may be returned
-                    to the institution. A valid ID is required for pickup.
+                    to the institution. A valid identification is required for
+                    pickup.
                   </p>
                 </div>
                 <div>
