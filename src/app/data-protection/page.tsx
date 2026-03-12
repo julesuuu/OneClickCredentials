@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FileText, Menu, X, Shield, Lock, Eye, Database, Mail, Phone, MapPin } from "lucide-react";
+import {
+  FileText,
+  Menu,
+  X,
+  Shield,
+  Lock,
+  Eye,
+  Database,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -36,13 +47,19 @@ export default function DataProtection() {
             className="md:hidden p-2 text-foreground"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
         {mobileMenuOpen && (
           <div className="md:hidden border-t bg-background px-4 py-4 space-y-2">
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-bold text-muted-foreground">Theme</span>
+              <span className="text-sm font-bold text-muted-foreground">
+                Theme
+              </span>
               <ThemeToggle />
             </div>
             <Button variant="ghost" className="w-full justify-start" asChild>
@@ -59,7 +76,9 @@ export default function DataProtection() {
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
             <Shield className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">Data Protection Policy</h1>
+            <h1 className="text-4xl font-bold text-foreground">
+              Data Protection Policy
+            </h1>
           </div>
           <p className="text-muted-foreground text-lg">
             Last updated: March 2026
@@ -73,9 +92,11 @@ export default function DataProtection() {
               Introduction
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              OneClick Credentials is committed to protecting your personal information and your right to privacy. 
-              This Data Protection Policy explains how we collect, use, disclose, and safeguard your data when you 
-              use our platform to request academic credentials and documents.
+              OneClick Credentials is committed to protecting your personal
+              information and your right to privacy. This Data Protection Policy
+              explains how we collect, use, disclose, and safeguard your data
+              when you use our platform to request academic credentials and
+              documents.
             </p>
           </section>
 
@@ -87,7 +108,9 @@ export default function DataProtection() {
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Personal Information</h3>
+                  <h3 className="font-semibold text-foreground mb-2">
+                    Personal Information
+                  </h3>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     <li>Full name</li>
                     <li>Email address</li>
@@ -98,7 +121,9 @@ export default function DataProtection() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Academic Information</h3>
+                  <h3 className="font-semibold text-foreground mb-2">
+                    Academic Information
+                  </h3>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     <li>Enrollment history</li>
                     <li>Program/course information</li>
@@ -107,15 +132,21 @@ export default function DataProtection() {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Payment Information</h3>
+                  <h3 className="font-semibold text-foreground mb-2">
+                    Payment Information
+                  </h3>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                    <li>Payment method details (processed securely via PayMongo)</li>
+                    <li>
+                      Payment method details (processed securely via PayMongo)
+                    </li>
                     <li>Transaction history</li>
                     <li>Billing address (for payment verification)</li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground mb-2">Technical Data</h3>
+                  <h3 className="font-semibold text-foreground mb-2">
+                    Technical Data
+                  </h3>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     <li>IP address</li>
                     <li>Browser type and version</li>
@@ -141,7 +172,9 @@ export default function DataProtection() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
-                    <span>To communicate with you about your request status</span>
+                    <span>
+                      To communicate with you about your request status
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
@@ -169,7 +202,9 @@ export default function DataProtection() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Data Sharing & Disclosure</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Data Sharing & Disclosure
+            </h2>
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <p className="text-muted-foreground">
@@ -177,27 +212,39 @@ export default function DataProtection() {
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">School Registrar</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      School Registrar
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Your academic information is shared with the school registrar to process and verify document requests.
+                      Your academic information is shared with the school
+                      registrar to process and verify document requests.
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Payment Processors</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Payment Processors
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Payment data is processed securely by PayMongo. We do not store your complete payment details.
+                      Payment data is processed securely by PayMongo. We do not
+                      store your complete payment details.
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Service Providers</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Service Providers
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Third-party vendors who help us operate our platform (hosting, email delivery, SMS services).
+                      Third-party vendors who help us operate our platform
+                      (hosting, email delivery, SMS services).
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Legal Requirements</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Legal Requirements
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      When required by law or to protect our rights, safety, or property.
+                      When required by law or to protect our rights, safety, or
+                      property.
                     </p>
                   </div>
                 </div>
@@ -206,11 +253,14 @@ export default function DataProtection() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Data Security</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Data Security
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  We implement appropriate technical and organizational security measures to protect your personal information:
+                  We implement appropriate technical and organizational security
+                  measures to protect your personal information:
                 </p>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-2">
@@ -227,11 +277,15 @@ export default function DataProtection() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>Limited access to personal data on a need-to-know basis</span>
+                    <span>
+                      Limited access to personal data on a need-to-know basis
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>Secure payment processing via PayMongo (PCI-DSS compliant)</span>
+                    <span>
+                      Secure payment processing via PayMongo (PCI-DSS compliant)
+                    </span>
                   </li>
                 </ul>
               </CardContent>
@@ -239,35 +293,49 @@ export default function DataProtection() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Your Rights</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Your Rights
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  Under applicable data protection laws, you have the following rights:
+                  Under applicable data protection laws, you have the following
+                  rights:
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Access</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Right to Access
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      You can request a copy of the personal data we hold about you.
+                      You can request a copy of the personal data we hold about
+                      you.
                     </p>
                   </div>
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Correction</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Right to Correction
+                    </h4>
                     <p className="text-sm text-muted-foreground">
                       You can request correction of inaccurate personal data.
                     </p>
                   </div>
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Deletion</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Right to Deletion
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      You can request deletion of your personal data (subject to legal requirements).
+                      You can request deletion of your personal data (subject to
+                      legal requirements).
                     </p>
                   </div>
                   <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Data Portability</h4>
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Right to Data Portability
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      You can request your data in a structured, machine-readable format.
+                      You can request your data in a structured,
+                      machine-readable format.
                     </p>
                   </div>
                 </div>
@@ -276,13 +344,17 @@ export default function DataProtection() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Data Retention</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Data Retention
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  We retain your personal information only for as long as necessary to fulfill the purposes 
-                  for which we collected it, including for the purposes of satisfying any legal, accounting, 
-                  or reporting requirements. After this period, your data will be securely deleted.
+                  We retain your personal information only for as long as
+                  necessary to fulfill the purposes for which we collected it,
+                  including for the purposes of satisfying any legal,
+                  accounting, or reporting requirements. After this period, your
+                  data will be securely deleted.
                 </p>
               </CardContent>
             </Card>
@@ -293,47 +365,58 @@ export default function DataProtection() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  We use cookies and similar tracking technologies to enhance your experience on our platform. 
-                  You can control cookies through your browser settings. Disabling cookies may affect the 
-                  functionality of our service.
+                  We use cookies and similar tracking technologies to enhance
+                  your experience on our platform. You can control cookies
+                  through your browser settings. Disabling cookies may affect
+                  the functionality of our service.
                 </p>
               </CardContent>
             </Card>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Children&apos;s Privacy</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Children&apos;s Privacy
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  Our service is intended for students and alumni of educational institutions. We do not 
-                  knowingly collect personal information from children under 13 years of age. If you believe 
-                  we have collected information from a child under 13, please contact us immediately.
+                  Our service is intended for students and alumni of educational
+                  institutions. We do not knowingly collect personal information
+                  from children under 13 years of age. If you believe we have
+                  collected information from a child under 13, please contact us
+                  immediately.
                 </p>
               </CardContent>
             </Card>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Changes to This Policy</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Changes to This Policy
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
-                  We may update this Data Protection Policy from time to time. We will notify you of any 
-                  changes by posting the new policy on this page and updating the &quot;Last updated&quot; date. 
-                  You are advised to review this policy periodically for any changes.
+                  We may update this Data Protection Policy from time to time.
+                  We will notify you of any changes by posting the new policy on
+                  this page and updating the &quot;Last updated&quot; date. You
+                  are advised to review this policy periodically for any
+                  changes.
                 </p>
               </CardContent>
             </Card>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Contact Us</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-4">
+              Contact Us
+            </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  If you have any questions or concerns about this Data Protection Policy or our data practices, 
-                  please contact us:
+                  If you have any questions or concerns about this Data
+                  Protection Policy or our data practices, please contact us:
                 </p>
                 <div className="space-y-3 text-muted-foreground">
                   <div className="flex items-center gap-2">
