@@ -87,9 +87,13 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               This Privacy Policy is a legal notice that explains how OneClick Credentials handles your personal information. 
-              It satisfies transparency requirements under laws like the GDPR (General Data Protection Regulation) and CCPA 
-              (California Consumer Privacy Act). This document answers your questions about: what data we collect, how we 
-              use it, who we share it with, and what rights you have over your data.
+              It satisfies transparency requirements under the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong> of the Philippines, 
+              as well as other applicable laws such as the GDPR (General Data Protection Regulation) and CCPA (California Consumer Privacy Act). 
+              This document answers your questions about: what data we collect, how we use it, who we share it with, and what rights you have over your data.
+            </p>
+            <p className="text-muted-foreground leading-relaxed mt-4">
+              OneClick Credentials is registered as a Personal Information Controller (PIC) under the National Privacy Commission (NPC). 
+              We are committed to protecting your fundamental right to privacy as guaranteed under the Philippine Constitution and RA 10173.
             </p>
           </section>
 
@@ -135,8 +139,8 @@ export default function PrivacyPage() {
                 <div>
                   <h3 className="font-semibold text-foreground mb-2">Payment Information</h3>
                   <p className="text-muted-foreground">
-                    Payment data is processed directly through PayMongo. We do not store your credit card or banking details 
-                    on our servers. We only receive transaction confirmation and history from PayMongo.
+                    Payment data is processed directly through Xendit. We do not store your credit card or banking details 
+                    on our servers. We only receive transaction confirmation and history from Xendit.
                   </p>
                 </div>
                 <div>
@@ -178,7 +182,7 @@ export default function PrivacyPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">4.</span>
-                    <span><strong>Payment Processing</strong> - To process payments through PayMongo and maintain transaction records</span>
+                    <span><strong>Payment Processing</strong> - To process payments through Xendit and maintain transaction records</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">5.</span>
@@ -213,9 +217,9 @@ export default function PrivacyPage() {
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">PayMongo (Payment Processor)</h4>
+                    <h4 className="font-semibold text-foreground mb-2">Xendit (Payment Processor)</h4>
                     <p className="text-sm text-muted-foreground">
-                      Payment transactions are processed through PayMongo. They collect and process your payment 
+                      Payment transactions are processed through Xendit. They collect and process your payment 
                       information directly. We only receive confirmation of successful payments.
                     </p>
                   </div>
@@ -243,39 +247,56 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
               <Hand className="h-6 w-6 text-primary" />
-              Your Rights Under GDPR & CCPA
+              Your Rights Under RA 10173, GDPR & CCPA
             </h2>
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  Depending on your location, you may have the following rights:
+                  Depending on your location and applicable law, you may have the following rights. Under the 
+                  <strong> Data Privacy Act of 2012 (RA 10173)</strong>, as a data subject in the Philippines, you have the following rights:
+                </p>
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to be Informed (Sec. 16a)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the right to know whether personal information pertaining to you is being, has been, or will be processed.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to Access (Sec. 16c)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the reasonable access to the contents of your personal information and how it was processed.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to Rectification (Sec. 16d)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the right to dispute the inaccuracy or error in your personal information and have it corrected.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to Erasure / Blocking (Sec. 16e)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the right to suspend, withdraw, or order the blocking, removal, or destruction of your personal information.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to Data Portability (Sec. 18)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the right to obtain a copy of your personal data in an electronic or structured format.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Right to Damages (Sec. 16f)</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have the right to be indemnified for any damages sustained due to unlawful use of your data.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-muted-foreground mb-4">
+                  <strong>Additional Rights Under GDPR & CCPA:</strong>
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Access</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You can request a copy of all personal data we hold about you.
-                    </p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Rectification</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You can request correction of inaccurate or incomplete data.
-                    </p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Erasure</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You can request deletion of your personal data (&quot;Right to be Forgotten&quot;), 
-                      subject to legal retention requirements.
-                    </p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-semibold text-foreground mb-2">Right to Data Portability</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You can request your data in a structured, machine-readable format.
-                    </p>
-                  </div>
                   <div className="p-4 border rounded-lg">
                     <h4 className="font-semibold text-foreground mb-2">Right to Withdraw Consent</h4>
                     <p className="text-sm text-muted-foreground">
@@ -372,7 +393,7 @@ export default function PrivacyPage() {
                   If you have any questions, concerns, or requests regarding this Privacy Policy or our 
                   data practices, please contact us:
                 </p>
-                <div className="space-y-3 text-muted-foreground">
+                <div className="space-y-3 text-muted-foreground mb-6">
                   <div className="flex items-center gap-2">
                     <Mail className="h-5 w-5 text-primary" />
                     <span>support@oneclickcredentials.com</span>
@@ -385,6 +406,14 @@ export default function PrivacyPage() {
                     <MapPin className="h-5 w-5 text-primary" />
                     <span>OneClick Credentials, [Address]</span>
                   </div>
+                </div>
+                <div className="p-4 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">Complaints with the National Privacy Commission</h4>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    If you believe your rights under RA 10173 have been violated, you may file a complaint with the 
+                    National Privacy Commission (NPC). Visit <a href="https://privacy.gov.ph" target="_blank" rel="noopener" className="underline">privacy.gov.ph</a> or 
+                    contact the NPC at <strong>complaints@privacy.gov.ph</strong>.
+                  </p>
                 </div>
               </CardContent>
             </Card>
