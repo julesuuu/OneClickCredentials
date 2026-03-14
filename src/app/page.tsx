@@ -1,7 +1,3 @@
-"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   FileText,
@@ -11,7 +7,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Menu,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,8 +27,6 @@ import {
 } from "@/components/ui/table";
 
 export default function Landing() {
-  const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const features = [
     {
       icon: <FileText className="h-8 w-8 text-primary" />,
@@ -104,8 +97,7 @@ export default function Landing() {
   ];
   return (
     <div className="min-h-screen w-full bg-background overflow-x-hidden">
-      {/* Navigation */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative">
@@ -116,55 +108,41 @@ export default function Landing() {
               OneClick Credentials
             </span>
           </Link>
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-2">
             <ThemeToggle />
-            <Button
-              variant="ghost"
-              className="text-foreground"
-              onClick={() => router.push("/auth/sign-in")}
-            >
-              Log In
+            <Button asChild variant="ghost">
+              <Link href="/auth/sign-in">Log In</Link>
             </Button>
-            <Button onClick={() => router.push("/auth/sign-up")}>
-              Sign Up Free
+            <Button asChild>
+              <Link href="/auth/sign-up">Sign Up Free</Link>
             </Button>
           </nav>
-          {/* Mobile Hamburger */}
-          <button
-            className="md:hidden p-2 text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
+          <details className="md:hidden">
+            <summary className="list-none cursor-pointer p-2 text-foreground">
               <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-background px-4 py-4 space-y-2">
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-bold text-muted-foreground">
-                Theme
-              </span>
-              <ThemeToggle />
+            </summary>
+            <div className="absolute top-16 left-0 right-0 border-t bg-background px-4 py-4 space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm font-bold text-muted-foreground">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
+              <Button asChild variant="ghost" className="w-full justify-start">
+                <Link href="/auth/sign-in">Log In</Link>
+              </Button>
+              <Button
+                asChild
+                variant="link"
+                className="w-full justify-start pl-0 text-primary"
+              >
+                <Link href="/auth/sign-up">Sign Up</Link>
+              </Button>
             </div>
-            <Button variant="ghost" className="w-full justify-start">
-              Log In
-            </Button>
-            <Button
-              variant="link"
-              className="w-full justify-start pl-0 text-primary"
-            >
-              Sign Up
-            </Button>
-          </div>
-        )}
+          </details>
+        </div>
       </header>
-      {/* Hero Section */}
-      <section className="relative w-full bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground py-24">
+      <section className="relative w-full bg-linear-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground py-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
             Request School Credentials Online - Fast & Secure
@@ -174,25 +152,22 @@ export default function Landing() {
             and schedule pickup. Your academic documents, delivered with ease.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button
-              size="lg"
-              variant="secondary"
-              onClick={() => router.push("/auth/sign-up")}
-            >
-              Sign Up Free <ArrowRight className="ml-2 h-4 w-4" />
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/auth/sign-up">
+                Sign Up Free <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
             <Button
+              asChild
               size="lg"
               variant="outline"
               className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10"
-              onClick={() => router.push("/auth/sign-in")}
             >
-              Log In
+              <Link href="/auth/sign-in">Log In</Link>
             </Button>
           </div>
         </div>
       </section>
-      {/* Features Section */}
       <section className="w-full py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
@@ -222,7 +197,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      {/* Supported Documents */}
       <section className="w-full py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
@@ -243,7 +217,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      {/* Pricing Table */}
       <section className="w-full py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
@@ -283,7 +256,6 @@ export default function Landing() {
           </p>
         </div>
       </section>
-      {/* FAQ Section */}
       <section className="w-full py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
@@ -306,7 +278,6 @@ export default function Landing() {
           </Accordion>
         </div>
       </section>
-      {/* Footer */}
       <footer className="w-full border-t py-12 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
@@ -329,20 +300,20 @@ export default function Landing() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <Button
+                    asChild
                     variant="link"
                     className="h-auto p-0 text-primary"
-                    onClick={() => router.push("/auth/sign-in")}
                   >
-                    Login
+                    <Link href="/auth/sign-in">Login</Link>
                   </Button>
                 </li>
                 <li>
                   <Button
+                    asChild
                     variant="link"
                     className="h-auto p-0 text-primary"
-                    onClick={() => router.push("/auth/sign-up")}
                   >
-                    Sign Up
+                    <Link href="/auth/sign-up">Sign Up</Link>
                   </Button>
                 </li>
               </ul>
@@ -372,29 +343,29 @@ export default function Landing() {
               <ul className="space-y-2 text-sm">
                 <li>
                   <Button
-                    onClick={() => router.push("./privacy")}
+                    asChild
                     variant="link"
                     className="h-auto p-0 text-primary"
                   >
-                    Privacy Policy
+                    <Link href="./privacy">Privacy Policy</Link>
                   </Button>
                 </li>
                 <li>
                   <Button
-                    onClick={() => router.push("./terms")}
+                    asChild
                     variant="link"
                     className="h-auto p-0 text-primary"
                   >
-                    Terms of Service
+                    <Link href="./terms">Terms of Service</Link>
                   </Button>
                 </li>
                 <li>
                   <Button
-                    onClick={() => router.push("./data-protection")}
+                    asChild
                     variant="link"
                     className="h-auto p-0 text-primary"
                   >
-                    Data Protection
+                    <Link href="./data-protection">Data Protection</Link>
                   </Button>
                 </li>
               </ul>
