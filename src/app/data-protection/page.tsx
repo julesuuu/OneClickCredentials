@@ -1,11 +1,7 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import {
   FileText,
   Menu,
-  X,
   Shield,
   Lock,
   Eye,
@@ -19,11 +15,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function DataProtection() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen w-full bg-background overflow-x-hidden">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative">
@@ -43,33 +37,26 @@ export default function DataProtection() {
               <Link href="/auth/sign-up">Sign Up Free</Link>
             </Button>
           </nav>
-          <button
-            className="md:hidden p-2 text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
+          <details className="md:hidden">
+            <summary className="list-none cursor-pointer p-2 text-foreground">
               <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-background px-4 py-4 space-y-2">
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-bold text-muted-foreground">
-                Theme
-              </span>
-              <ThemeToggle />
+            </summary>
+            <div className="absolute top-16 left-0 right-0 border-t bg-background px-4 py-4 space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm font-bold text-muted-foreground">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/auth/sign-in">Log In</Link>
+              </Button>
+              <Button className="w-full justify-start" asChild>
+                <Link href="/auth/sign-up">Sign Up Free</Link>
+              </Button>
             </div>
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link href="/auth/sign-in">Log In</Link>
-            </Button>
-            <Button className="w-full justify-start" asChild>
-              <Link href="/auth/sign-up">Sign Up Free</Link>
-            </Button>
-          </div>
-        )}
+          </details>
+        </div>
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">
@@ -92,14 +79,20 @@ export default function DataProtection() {
               Introduction
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              OneClick Credentials is committed to protecting your personal information and your right to privacy. 
-              This Data Protection Policy explains the technical and organizational measures we implement to safeguard 
-              your data in compliance with the <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong> of the Philippines, 
-              specifically <strong>Section 20 (Security of Personal Information)</strong> and <strong>Section 21 (Principle of Accountability)</strong>.
+              OneClick Credentials is committed to protecting your personal
+              information and your right to privacy. This Data Protection Policy
+              explains the technical and organizational measures we implement to
+              safeguard your data in compliance with the{" "}
+              <strong>Data Privacy Act of 2012 (Republic Act No. 10173)</strong>{" "}
+              of the Philippines, specifically{" "}
+              <strong>Section 20 (Security of Personal Information)</strong> and{" "}
+              <strong>Section 21 (Principle of Accountability)</strong>.
             </p>
             <p className="text-muted-foreground leading-relaxed mt-4">
-              As a Personal Information Controller (PIC) registered with the National Privacy Commission (NPC), we are 
-              committed to ensuring the confidentiality, integrity, and security of your personal information.
+              As a Personal Information Controller (PIC) registered with the
+              National Privacy Commission (NPC), we are committed to ensuring
+              the confidentiality, integrity, and security of your personal
+              information.
             </p>
           </section>
 
@@ -262,42 +255,71 @@ export default function DataProtection() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  In compliance with Section 20 of the Data Privacy Act of 2012, we implement reasonable and appropriate 
-                  organizational, physical, and technical measures to protect personal information against accidental or 
-                  unlawful destruction, alteration, disclosure, as well as against any other unlawful processing.
+                  In compliance with Section 20 of the Data Privacy Act of 2012,
+                  we implement reasonable and appropriate organizational,
+                  physical, and technical measures to protect personal
+                  information against accidental or unlawful destruction,
+                  alteration, disclosure, as well as against any other unlawful
+                  processing.
                 </p>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Encryption</strong> - SSL/TLS encryption for data in transit; encrypted storage for sensitive data at rest</span>
+                    <span>
+                      <strong>Encryption</strong> - SSL/TLS encryption for data
+                      in transit; encrypted storage for sensitive data at rest
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Access Controls</strong> - Role-based access control (RBAC) with need-to-know principle</span>
+                    <span>
+                      <strong>Access Controls</strong> - Role-based access
+                      control (RBAC) with need-to-know principle
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Secure Infrastructure</strong> - Firewalls, intrusion detection/prevention systems (IDS/IPS)</span>
+                    <span>
+                      <strong>Secure Infrastructure</strong> - Firewalls,
+                      intrusion detection/prevention systems (IDS/IPS)
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Vulnerability Management</strong> - Regular security assessments, penetration testing, and patch management</span>
+                    <span>
+                      <strong>Vulnerability Management</strong> - Regular
+                      security assessments, penetration testing, and patch
+                      management
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Employee Confidentiality</strong> - All employees sign confidentiality agreements; mandatory data privacy training</span>
+                    <span>
+                      <strong>Employee Confidentiality</strong> - All employees
+                      sign confidentiality agreements; mandatory data privacy
+                      training
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Secure Development</strong> - Secure coding practices and code review processes</span>
+                    <span>
+                      <strong>Secure Development</strong> - Secure coding
+                      practices and code review processes
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>PCI-DSS Compliance</strong> - Secure payment processing via Xendit (PCI-DSS Level 1 compliant)</span>
+                    <span>
+                      <strong>PCI-DSS Compliance</strong> - Secure payment
+                      processing via Xendit (PCI-DSS Level 1 compliant)
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span><strong>Backup & Disaster Recovery</strong> - Regular automated backups with tested restore procedures</span>
+                    <span>
+                      <strong>Backup & Disaster Recovery</strong> - Regular
+                      automated backups with tested restore procedures
+                    </span>
                   </li>
                 </ul>
               </CardContent>
@@ -311,25 +333,40 @@ export default function DataProtection() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  In compliance with Section 20(f) of the Data Privacy Act of 2012, we have established procedures for 
-                  handling personal data breaches:
+                  In compliance with Section 20(f) of the Data Privacy Act of
+                  2012, we have established procedures for handling personal
+                  data breaches:
                 </p>
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">1.</span>
-                    <span><strong>Detection & Assessment</strong> - We monitor for security incidents and assess potential breaches promptly</span>
+                    <span>
+                      <strong>Detection & Assessment</strong> - We monitor for
+                      security incidents and assess potential breaches promptly
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">2.</span>
-                    <span><strong>NPC Notification</strong> - We will notify the National Privacy Commission within 72 hours of discovering a breach</span>
+                    <span>
+                      <strong>NPC Notification</strong> - We will notify the
+                      National Privacy Commission within 72 hours of discovering
+                      a breach
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">3.</span>
-                    <span><strong>Data Subject Notification</strong> - Affected individuals will be notified without undue delay when the breach is likely to result in serious harm</span>
+                    <span>
+                      <strong>Data Subject Notification</strong> - Affected
+                      individuals will be notified without undue delay when the
+                      breach is likely to result in serious harm
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">4.</span>
-                    <span><strong>Remediation</strong> - We will take immediate action to mitigate the breach and prevent future incidents</span>
+                    <span>
+                      <strong>Remediation</strong> - We will take immediate
+                      action to mitigate the breach and prevent future incidents
+                    </span>
                   </li>
                 </ul>
               </CardContent>
@@ -348,19 +385,32 @@ export default function DataProtection() {
                 <ul className="space-y-3 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>We are accountable for personal information under our control or custody, including information transferred to third parties for processing</span>
+                    <span>
+                      We are accountable for personal information under our
+                      control or custody, including information transferred to
+                      third parties for processing
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>We use contractual means to ensure third-party processors provide comparable protection</span>
+                    <span>
+                      We use contractual means to ensure third-party processors
+                      provide comparable protection
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>We have designated a Data Protection Officer (DPO) responsible for compliance</span>
+                    <span>
+                      We have designated a Data Protection Officer (DPO)
+                      responsible for compliance
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">✓</span>
-                    <span>Our privacy practices are documented and subject to regular review</span>
+                    <span>
+                      Our privacy practices are documented and subject to
+                      regular review
+                    </span>
                   </li>
                 </ul>
               </CardContent>
@@ -490,8 +540,9 @@ export default function DataProtection() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-muted-foreground mb-4">
-                  If you have any questions or concerns about this Data Protection Policy or our data practices, 
-                  please contact our Data Protection Officer (DPO):
+                  If you have any questions or concerns about this Data
+                  Protection Policy or our data practices, please contact our
+                  Data Protection Officer (DPO):
                 </p>
                 <div className="space-y-3 text-muted-foreground mb-6">
                   <div className="flex items-center gap-2">
@@ -508,11 +559,25 @@ export default function DataProtection() {
                   </div>
                 </div>
                 <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">National Privacy Commission</h4>
+                  <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                    National Privacy Commission
+                  </h4>
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    For complaints regarding potential data privacy violations, you may also contact the NPC:<br />
-                    <strong>Website:</strong> <a href="https://privacy.gov.ph" target="_blank" rel="noopener" className="underline">privacy.gov.ph</a><br />
-                    <strong>Email:</strong> complaints@privacy.gov.ph<br />
+                    For complaints regarding potential data privacy violations,
+                    you may also contact the NPC:
+                    <br />
+                    <strong>Website:</strong>{" "}
+                    <a
+                      href="https://privacy.gov.ph"
+                      target="_blank"
+                      rel="noopener"
+                      className="underline"
+                    >
+                      privacy.gov.ph
+                    </a>
+                    <br />
+                    <strong>Email:</strong> complaints@privacy.gov.ph
+                    <br />
                     <strong>Hotline:</strong> (02) 8-234-4567
                   </p>
                 </div>
