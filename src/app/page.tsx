@@ -45,7 +45,7 @@ export default function Landing() {
       icon: <CreditCard className="h-8 w-8 text-primary" />,
       title: "Hybrid Payment",
       description:
-        "Pay online via PayMongo or choose cash on pickup. Flexible options for your convenience.",
+        "Pay online via Xendit or choose cash on pickup. Flexible options for your convenience.",
     },
     {
       icon: <Clock className="h-8 w-8 text-primary" />,
