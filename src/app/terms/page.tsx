@@ -1,11 +1,7 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import {
   FileText,
   Menu,
-  X,
   Scale,
   AlertTriangle,
   CheckCircle,
@@ -15,11 +11,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function TermsPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen w-full bg-background overflow-x-hidden">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="relative">
@@ -39,33 +33,26 @@ export default function TermsPage() {
               <Link href="/auth/sign-up">Sign Up Free</Link>
             </Button>
           </nav>
-          <button
-            className="md:hidden p-2 text-foreground"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
+          <details className="md:hidden">
+            <summary className="list-none cursor-pointer p-2 text-foreground">
               <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t bg-background px-4 py-4 space-y-2">
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm font-bold text-muted-foreground">
-                Theme
-              </span>
-              <ThemeToggle />
+            </summary>
+            <div className="absolute top-16 left-0 right-0 border-t bg-background px-4 py-4 space-y-2">
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm font-bold text-muted-foreground">
+                  Theme
+                </span>
+                <ThemeToggle />
+              </div>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/auth/sign-in">Log In</Link>
+              </Button>
+              <Button className="w-full justify-start" asChild>
+                <Link href="/auth/sign-up">Sign Up Free</Link>
+              </Button>
             </div>
-            <Button variant="ghost" className="w-full justify-start" asChild>
-              <Link href="/auth/sign-in">Log In</Link>
-            </Button>
-            <Button className="w-full justify-start" asChild>
-              <Link href="/auth/sign-up">Sign Up Free</Link>
-            </Button>
-          </div>
-        )}
+          </details>
+        </div>
       </header>
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">
@@ -193,7 +180,7 @@ export default function TermsPage() {
                   </h3>
                   <p className="text-muted-foreground">
                     All document fees must be paid at the time of request
-                    submission. We accept payments via PayMongo (credit/debit
+                    submission. We accept payments via Xendit (credit/debit
                     cards, GCash, PayMaya) or cash on pickup. Additional fees
                     may apply for expedited processing.
                   </p>
