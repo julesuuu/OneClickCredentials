@@ -82,7 +82,7 @@ export default function Landing() {
     {
       question: "What payment methods are accepted?",
       answer:
-        "We accept online payments via PayMongo (credit/debit cards, GCash, PayMaya) or cash on pickup.",
+        "We accept online payments via Xendit (credit/debit cards, GCash, PayMaya) or cash on pickup.",
     },
     {
       question: "How will I know when my documents are ready?",
@@ -122,8 +122,8 @@ export default function Landing() {
               <Menu className="h-6 w-6" />
             </summary>
             <div className="absolute top-16 left-0 right-0 border-t bg-background px-4 py-4 space-y-2">
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm font-bold text-muted-foreground">
+              <div className="flex items-center justify-between m-0 pb-1">
+                <span className="text-sm font-bold text-muted-foreground pl-2.5">
                   Theme
                 </span>
                 <ThemeToggle />
@@ -134,7 +134,7 @@ export default function Landing() {
               <Button
                 asChild
                 variant="link"
-                className="w-full justify-start pl-0 text-primary"
+                className="w-full justify-start text-primary"
               >
                 <Link href="/auth/sign-up">Sign Up</Link>
               </Button>
