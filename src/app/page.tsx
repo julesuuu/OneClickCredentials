@@ -347,7 +347,7 @@ export default function Landing() {
                     variant="link"
                     className="h-auto p-0 text-primary"
                   >
-                    <Link href="./privacy">Privacy Policy</Link>
+                    <Link href="./privacy-policy">Privacy Policy</Link>
                   </Button>
                 </li>
                 <li>
@@ -356,7 +356,7 @@ export default function Landing() {
                     variant="link"
                     className="h-auto p-0 text-primary"
                   >
-                    <Link href="./terms">Terms of Service</Link>
+                    <Link href="./terms-of-service">Terms of Service</Link>
                   </Button>
                 </li>
                 <li>

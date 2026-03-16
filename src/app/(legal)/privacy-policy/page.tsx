@@ -556,7 +556,7 @@ export default function PrivacyPage() {
               <Link href="/data-protection">Data Protection Policy</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/terms">Terms of Service</Link>
+              <Link href="/terms-of-service">Terms of Service</Link>
             </Button>
             <Button asChild>
               <Link href="/">Back to Home</Link>

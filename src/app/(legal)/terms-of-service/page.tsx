@@ -426,7 +426,7 @@ export default function TermsPage() {
         <div className="mt-12 pt-8 border-t">
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button variant="outline" asChild>
-              <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/privacy-policy">Privacy Policy</Link>
             </Button>
             <Button variant="outline" asChild>
               <Link href="/data-protection">Data Protection</Link>
