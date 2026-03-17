@@ -25,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserButton } from "@daveyplate/better-auth-ui";
 
 const mainNavigation = [
   {
@@ -143,15 +144,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <div className="flex items-center gap-3 p-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-            <User className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">User Name</span>
-            <span className="text-xs text-muted-foreground">Role</span>
-          </div>
-        </div>
+        <UserButton />
       </SidebarFooter>
     </Sidebar>
   );
