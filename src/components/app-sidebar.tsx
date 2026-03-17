@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  LayoutDashboard,
   FileText,
   ClipboardList,
   Calendar,
@@ -29,17 +30,22 @@ const mainNavigation = [
     title: "Application",
     items: [
       {
-        title: "Documents",
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Document",
         url: "/documents",
         icon: FileText,
       },
       {
-        title: "Requests",
+        title: "Request",
         url: "/requests",
         icon: ClipboardList,
       },
       {
-        title: "Appointments",
+        title: "Appointment",
         url: "/appointments",
         icon: Calendar,
       },
