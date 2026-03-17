@@ -12,6 +12,7 @@ import {
   Scale,
   ShieldCheck,
   User,
+  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -53,6 +54,11 @@ const mainNavigation = [
         title: "Settings",
         url: "/settings",
         icon: Settings,
+      },
+      {
+        title: "Security",
+        url: "/account/security",
+        icon: Shield,
       },
     ],
   },

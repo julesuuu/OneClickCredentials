@@ -18,9 +18,11 @@ export function Providers({ children }: { children: ReactNode }) {
       onSessionChange={() => {
         router.refresh();
       }}
+      redirectTo="/dashboard"
       social={{
         providers: ["google", "github"],
       }}
+      twoFactor={["otp", "totp"]}
       Link={Link}
     >
       {children}
