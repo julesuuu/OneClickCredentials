@@ -1,59 +1,17 @@
 import Link from "next/link";
 import {
-  FileText,
-  Menu,
   Scale,
   AlertTriangle,
   CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { PublicHeader } from "@/components/public-header";
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen w-full bg-background overflow-x-hidden">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative">
-              <FileText className="h-8 w-8 text-primary" />
-              <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-teal-500" />
-            </div>
-            <span className="text-xl font-bold text-foreground">
-              OneClick Credentials
-            </span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-2">
-            <ThemeToggle />
-            <Button variant="ghost" className="text-foreground" asChild>
-              <Link href="/auth/sign-in">Log In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/sign-up">Sign Up Free</Link>
-            </Button>
-          </nav>
-          <details className="md:hidden">
-            <summary className="list-none cursor-pointer p-2 text-foreground">
-              <Menu className="h-6 w-6" />
-            </summary>
-            <div className="absolute top-16 left-0 right-0 border-t bg-background px-4 py-4 space-y-2">
-              <div className="flex items-center justify-between py-2">
-                <span className="text-sm font-bold text-muted-foreground">
-                  Theme
-                </span>
-                <ThemeToggle />
-              </div>
-              <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/auth/sign-in">Log In</Link>
-              </Button>
-              <Button className="w-full justify-start" asChild>
-                <Link href="/auth/sign-up">Sign Up Free</Link>
-              </Button>
-            </div>
-          </details>
-        </div>
-      </header>
+      <PublicHeader />
 
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="mb-12">
