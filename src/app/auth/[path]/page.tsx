@@ -23,19 +23,11 @@ export default async function AuthPage({
         {!["callback", "sign-out"].includes(path) && (
           <p className="w-full text-center text-muted-foreground text-xs">
             By continuing, you agree to our{" "}
-            <Link
-              className="text-warning underline"
-              href="/terms"
-              target="_blank"
-            >
+            <Link className="text-warning underline" href="/terms-of-service">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link
-              className="text-warning underline"
-              href="/privacy"
-              target="_blank"
-            >
+            <Link className="text-warning underline" href="/privacy-policy">
               Privacy Policy
             </Link>
             .
