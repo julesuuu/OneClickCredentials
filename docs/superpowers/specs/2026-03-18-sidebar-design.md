@@ -45,23 +45,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### 2. Remove from `src/app/(application)/layout.tsx`
 
-Delete sidebar-related imports and components, keeping only `{children}` wrapped in `<main>`.
-
-### 3. Legal pages
-
-Legal pages (`terms-of-service`, `privacy-policy`, `data-protection`) currently use `<PublicHeader>`. When signed in, users would see both sidebar AND PublicHeader. 
-
-**Solution:** Update legal page layouts to conditionally render `<PublicHeader>` only when signed out:
+Delete sidebar-related imports and components, keeping only:
 
 ```tsx
-import { SignedOut } from "@daveyplate/better-auth-ui";
-// In the legal page/component:
-<SignedOut>
-  <PublicHeader />
-</SignedOut>
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <main>{children}</main>;
+}
 ```
 
-This ensures signed-in users see only the sidebar, while guests see PublicHeader.
+### 3. PublicHeader already handles signed-in state
+
+The `<PublicHeader>` component already wraps content in `<SignedOut>`, so it auto-hides when signed in. No changes needed for legal pages.
+
+## Notes
+
+- `<SidebarTrigger>` is placed inside `<SignedIn>` but outside `<main>` - this matches the current `(application)/layout.tsx` behavior where the trigger sits alongside the sidebar.
+- Account pages (`/account/*`) don't have their own layout, so they'll inherit the root layout with sidebar when signed in.
 
 ## Notes
 
