@@ -1,18 +1,11 @@
 import Link from "next/link";
-import {
-  Scale,
-  AlertTriangle,
-  CheckCircle,
-} from "lucide-react";
+import { Scale, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PublicHeader } from "@/components/public-header";
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen w-full bg-background overflow-x-hidden">
-      <PublicHeader />
-
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-4">
