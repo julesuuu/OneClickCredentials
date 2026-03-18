@@ -97,7 +97,6 @@ export function AppSidebar() {
 
   return (
     <>
-      <RedirectToSignIn />
       <SignedIn>
         <Sidebar>
           <SidebarContent>
@@ -155,6 +154,7 @@ export function AppSidebar() {
           </SidebarFooter>
         </Sidebar>
       </SignedIn>
+      <RedirectToSignIn />
     </>
   );
 }
