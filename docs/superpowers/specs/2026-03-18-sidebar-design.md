@@ -61,9 +61,6 @@ The `<PublicHeader>` component already wraps content in `<SignedOut>`, so it aut
 
 - `<SidebarTrigger>` is placed inside `<SignedIn>` but outside `<main>` - this matches the current `(application)/layout.tsx` behavior where the trigger sits alongside the sidebar.
 - Account pages (`/account/*`) don't have their own layout, so they'll inherit the root layout with sidebar when signed in.
-
-## Notes
-
 - The `SidebarTrigger` appears everywhere. Users can collapse/expand the sidebar on any authenticated page.
 - Auth pages (`/sign-in`, `/sign-up`) naturally won't show the sidebar since users aren't signed in there.
 - The sidebar's navigation links already handle routing between sections.
