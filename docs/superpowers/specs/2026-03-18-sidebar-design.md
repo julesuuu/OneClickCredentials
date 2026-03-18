@@ -16,7 +16,7 @@ Move sidebar from `(application)/layout.tsx` to the root `layout.tsx`, wrapped i
 
 ### 1. Root `src/app/layout.tsx`
 
-Add sidebar components:
+Add sidebar components. Note: `<SidebarTrigger>` must be inside `<SignedIn>` so it only renders when sidebar is present.
 
 ```tsx
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -31,9 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SidebarProvider>
             <SignedIn>
               <AppSidebar />
+              <SidebarTrigger />
             </SignedIn>
-            <SidebarTrigger />
-            {children}
+            <main>{children}</main>
           </SidebarProvider>
           <Toaster />
         </ThemeProvider>
@@ -45,7 +45,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ### 2. Remove from `src/app/(application)/layout.tsx`
 
-Delete sidebar-related imports and components, keeping only the page content wrapper.
+Delete sidebar-related imports and components, keeping only `{children}` wrapped in `<main>`.
+
+### 3. Legal pages
+
+Legal pages (`terms-of-service`, `privacy-policy`, `data-protection`) currently use `<PublicHeader>`. When signed in, users would see both sidebar AND PublicHeader. 
+
+**Solution:** Update legal page layouts to conditionally render `<PublicHeader>` only when signed out:
+
+```tsx
+import { SignedOut } from "@daveyplate/better-auth-ui";
+// In the legal page/component:
+<SignedOut>
+  <PublicHeader />
+</SignedOut>
+```
+
+This ensures signed-in users see only the sidebar, while guests see PublicHeader.
 
 ## Notes
 
