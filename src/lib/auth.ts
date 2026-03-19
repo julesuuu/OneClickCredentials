@@ -1,4 +1,5 @@
 import VerifyEmail from "@/components/emails/verify-email";
+import ForgotPasswordEmail from "@/components/emails/password-reset";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { nextCookies } from "better-auth/next-js";
@@ -25,6 +26,9 @@ export const auth = betterAuth({
     },
     sendOnSignup: true,
     autoSignInAfterVerification: true,
+    async afterEmailVerification(user) {
+      console.log(`${user.email} has been successfully verified!`);
+    },
   },
   socialProviders: {
     google: {
@@ -38,6 +42,18 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      resend.emails.send({
+        from: `${process.env.EMAIL_DEFAULT_SENDER}`,
+        to: user.email,
+        subject: "Reset your password",
+        react: ForgotPasswordEmail({
+          username: user.name,
+          userEmail: user.email,
+          resetUrl: url,
+        }),
+      });
+    },
     requireEmailVerification: true,
   },
   plugins: [
