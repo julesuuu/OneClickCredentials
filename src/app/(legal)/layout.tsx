@@ -3,9 +3,11 @@ import { SignedOut } from "@daveyplate/better-auth-ui";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <SignedOut>
-      <PublicHeader />
+    <>
+      <SignedOut>
+        <PublicHeader />
+      </SignedOut>
       <main>{children}</main>
-    </SignedOut>
+    </>
   );
 }

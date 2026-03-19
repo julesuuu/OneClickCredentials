@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { UserAvatar, UserButton } from "@daveyplate/better-auth-ui";
 
 export function PublicHeader() {
   return (
@@ -35,12 +36,7 @@ export function PublicHeader() {
         </Link>
         <nav className="hidden md:flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="ghost" className="text-foreground" asChild>
-            <Link href="/auth/sign-in">Log In</Link>
-          </Button>
-          <Button asChild>
-            <Link href="/auth/sign-up">Sign Up Free</Link>
-          </Button>
+          <UserButton size="icon" />
         </nav>
         <details className="md:hidden">
           <summary className="list-none cursor-pointer p-2 text-foreground">
