@@ -95,242 +95,246 @@ export default function Landing() {
     },
   ];
   return (
-    <div className="min-h-screen w-full bg-background overflow-x-hidden">
+    <>
       <PublicHeader />
-      <section className="relative w-full bg-linear-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground py-24">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Request School Credentials Online - Fast & Secure
-          </h1>
-          <p className="text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
-            No more lines at the registrar. Pay online or cash, track status,
-            and schedule pickup. Your academic documents, delivered with ease.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button asChild size="lg" variant="secondary">
-              <Link href="/auth/sign-up">
-                Sign Up Free <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10"
-            >
-              <Link href="/auth/sign-in">Log In</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-      <section className="w-full py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-            Why Choose OneClick Credentials?
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            We make requesting your academic documents simple, fast, and
-            hassle-free
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card
-                key={index}
-                className="border-2 hover:border-primary/50 transition-colors shadow-lg"
+      <div className="min-h-screen w-full bg-background overflow-x-hidden">
+        <section className="relative w-full bg-linear-to-br from-primary via-primary/90 to-primary/80 text-primary-foreground py-24">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+              Request School Credentials Online - Fast & Secure
+            </h1>
+            <p className="text-xl text-primary-foreground/80 mb-8 max-w-3xl mx-auto">
+              No more lines at the registrar. Pay online or cash, track status,
+              and schedule pickup. Your academic documents, delivered with ease.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/dashboard">
+                  Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="bg-transparent text-primary-foreground border-primary-foreground hover:bg-primary-foreground/10"
               >
-                <CardHeader>
-                  <div className="mb-2">{feature.icon}</div>
-                  <CardTitle className="text-xl text-foreground">
-                    {feature.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                <Link href="/auth/sign-in">Log In</Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
-      <section className="w-full py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-            Available Documents
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            We offer a wide range of academic credentials to meet your needs
-          </p>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
-            {documents.map((doc, index) => (
-              <Card key={index} className="bg-muted/50 shadow-md">
-                <CardContent className="flex items-center gap-3 p-4">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                  <span className="font-medium text-foreground">{doc}</span>
-                </CardContent>
-              </Card>
-            ))}
+        </section>
+        <section className="w-full py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
+              Why Choose OneClick Credentials?
+            </h2>
+            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+              We make requesting your academic documents simple, fast, and
+              hassle-free
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, index) => (
+                <Card
+                  key={index}
+                  className="border-2 hover:border-primary/50 transition-colors shadow-lg"
+                >
+                  <CardHeader>
+                    <div className="mb-2">{feature.icon}</div>
+                    <CardTitle className="text-xl text-foreground">
+                      {feature.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-      <section className="w-full py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-            Transparent Pricing
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            No hidden fees. Simple and transparent pricing for all documents
-          </p>
-          <Card className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto overflow-hidden shadow-xl border-none rounded-2xl">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-primary hover:bg-primary">
-                  <TableHead className="text-primary-foreground font-bold w-full p-5">
-                    Document Type
-                  </TableHead>
-                  <TableHead className="text-primary-foreground font-bold text-right p-5">
-                    Price
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pricing.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium text-foreground p-5">
-                      {item.name}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-foreground p-5">
-                      ₱{item.price}
-                    </TableCell>
+        </section>
+        <section className="w-full py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
+              Available Documents
+            </h2>
+            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+              We offer a wide range of academic credentials to meet your needs
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+              {documents.map((doc, index) => (
+                <Card key={index} className="bg-muted/50 shadow-md">
+                  <CardContent className="flex items-center gap-3 p-4">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span className="font-medium text-foreground">{doc}</span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="w-full py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
+              Transparent Pricing
+            </h2>
+            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+              No hidden fees. Simple and transparent pricing for all documents
+            </p>
+            <Card className="w-full max-w-md md:max-w-2xl lg:max-w-4xl mx-auto overflow-hidden shadow-xl border-none rounded-2xl">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-primary hover:bg-primary">
+                    <TableHead className="text-primary-foreground font-bold w-full p-5">
+                      Document Type
+                    </TableHead>
+                    <TableHead className="text-primary-foreground font-bold text-right p-5">
+                      Price
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-          <p className="text-center text-muted-foreground mt-6 text-sm">
-            * Stamp: ₱30 each
-          </p>
-        </div>
-      </section>
-      <section className="w-full py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Got questions? We have answers.
-          </p>
-          <Accordion type="single" collapsible className="max-w-2xl mx-auto">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-foreground">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-      <footer className="w-full border-t py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <Link href="/" className="flex items-center gap-2 mb-4">
-                <FileText className="h-6 w-6 text-primary" />
-                <span className="font-bold text-foreground">
-                  OneClick Credentials
-                </span>
-              </Link>
-              <p className="text-sm text-muted-foreground">
-                Making credential requests fast, secure, and hassle-free for
-                students.
-              </p>
+                </TableHeader>
+                <TableBody>
+                  {pricing.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium text-foreground p-5">
+                        {item.name}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-foreground p-5">
+                        ₱{item.price}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Card>
+            <p className="text-center text-muted-foreground mt-6 text-sm">
+              * Stamp: ₱30 each
+            </p>
+          </div>
+        </section>
+        <section className="w-full py-20">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-4 text-foreground">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
+              Got questions? We have answers.
+            </p>
+            <Accordion type="single" collapsible className="max-w-2xl mx-auto">
+              {faqs.map((faq, index) => (
+                <AccordionItem key={index} value={`item-${index}`}>
+                  <AccordionTrigger className="text-foreground">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+        <footer className="w-full border-t py-12 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-8">
+              <div>
+                <Link href="/" className="flex items-center gap-2 mb-4">
+                  <FileText className="h-6 w-6 text-primary" />
+                  <span className="font-bold text-foreground">
+                    OneClick Credentials
+                  </span>
+                </Link>
+                <p className="text-sm text-muted-foreground">
+                  Making credential requests fast, secure, and hassle-free for
+                  students.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-foreground">
+                  Quick Links
+                </h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Button
+                      asChild
+                      variant="link"
+                      className="h-auto p-0 text-primary"
+                    >
+                      <Link href="/auth/sign-in">Login</Link>
+                    </Button>
+                  </li>
+                  <li>
+                    <Button
+                      asChild
+                      variant="link"
+                      className="h-auto p-0 text-primary"
+                    >
+                      <Link href="/auth/sign-up">Sign Up</Link>
+                    </Button>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-foreground">Support</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Button variant="link" className="h-auto p-0 text-primary">
+                      Help Center
+                    </Button>
+                  </li>
+                  <li>
+                    <Button variant="link" className="h-auto p-0 text-primary">
+                      Contact Us
+                    </Button>
+                  </li>
+                  <li>
+                    <Button variant="link" className="h-auto p-0 text-primary">
+                      FAQs
+                    </Button>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-4 text-foreground">Legal</h4>
+                <ul className="space-y-2 text-sm">
+                  <li>
+                    <Button
+                      asChild
+                      variant="link"
+                      className="h-auto p-0 text-primary"
+                    >
+                      <Link href="./privacy-policy">Privacy Policy</Link>
+                    </Button>
+                  </li>
+                  <li>
+                    <Button
+                      asChild
+                      variant="link"
+                      className="h-auto p-0 text-primary"
+                    >
+                      <Link href="./terms-of-service">Terms of Service</Link>
+                    </Button>
+                  </li>
+                  <li>
+                    <Button
+                      asChild
+                      variant="link"
+                      className="h-auto p-0 text-primary"
+                    >
+                      <Link href="./data-protection">Data Protection</Link>
+                    </Button>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-foreground">
-                Quick Links
-              </h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="h-auto p-0 text-primary"
-                  >
-                    <Link href="/auth/sign-in">Login</Link>
-                  </Button>
-                </li>
-                <li>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="h-auto p-0 text-primary"
-                  >
-                    <Link href="/auth/sign-up">Sign Up</Link>
-                  </Button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-foreground">Support</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
-                    Help Center
-                  </Button>
-                </li>
-                <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
-                    Contact Us
-                  </Button>
-                </li>
-                <li>
-                  <Button variant="link" className="h-auto p-0 text-primary">
-                    FAQs
-                  </Button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-foreground">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="h-auto p-0 text-primary"
-                  >
-                    <Link href="./privacy-policy">Privacy Policy</Link>
-                  </Button>
-                </li>
-                <li>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="h-auto p-0 text-primary"
-                  >
-                    <Link href="./terms-of-service">Terms of Service</Link>
-                  </Button>
-                </li>
-                <li>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="h-auto p-0 text-primary"
-                  >
-                    <Link href="./data-protection">Data Protection</Link>
-                  </Button>
-                </li>
-              </ul>
+            <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+              <p>&copy; 2026 OneClick Credentials. All rights reserved.</p>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2026 OneClick Credentials. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   );
 }

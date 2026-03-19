@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { UserAvatar, UserButton } from "@daveyplate/better-auth-ui";
+import { UserButton } from "@daveyplate/better-auth-ui";
 
 export function PublicHeader() {
   return (
@@ -34,10 +32,11 @@ export function PublicHeader() {
             OneClick Credentials
           </span>
         </Link>
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="md:flex items-center gap-2">
           <ThemeToggle />
           <UserButton size="icon" />
         </nav>
+        {/* hamburger dropdown
         <details className="md:hidden">
           <summary className="list-none cursor-pointer p-2 text-foreground">
             <Menu className="h-6 w-6" />
@@ -56,7 +55,7 @@ export function PublicHeader() {
               <Link href="/auth/sign-up">Sign Up Free</Link>
             </Button>
           </div>
-        </details>
+        </details> */}
       </div>
     </header>
   );
