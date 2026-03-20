@@ -11,7 +11,6 @@ import {
   Lock,
   Scale,
   ShieldCheck,
-  User,
   Shield,
 } from "lucide-react";
 import {
@@ -21,9 +20,11 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   RedirectToSignIn,
@@ -56,14 +57,14 @@ const mainNavigation = [
         icon: Calendar,
       },
       {
-        title: "Settings",
-        url: "/settings",
-        icon: Settings,
-      },
-      {
         title: "Security",
         url: "/account/security",
         icon: Shield,
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings,
       },
     ],
   },
@@ -94,6 +95,8 @@ const legalNavigation = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <>
@@ -150,7 +153,7 @@ export function AppSidebar() {
           </SidebarContent>
 
           <SidebarFooter>
-            <UserButton />
+            <UserButton size={isCollapsed ? "icon" : "default"} />
           </SidebarFooter>
         </Sidebar>
       </SignedIn>
