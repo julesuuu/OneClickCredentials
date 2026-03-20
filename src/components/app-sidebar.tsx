@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -102,6 +103,30 @@ export function AppSidebar() {
     <>
       <SignedIn>
         <Sidebar>
+          <SidebarHeader>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg">
+                  {/* <Link href="/dashboard"> */}
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <Image
+                      src="/icon.svg"
+                      alt="OneClick Credentials"
+                      width={20}
+                      height={20}
+                      className="size-5"
+                    />
+                  </div>
+                  <div className="grid flex-1 text-left leading-tight text-base">
+                    <span className="truncate font-semibold">
+                      OneClick Credentials
+                    </span>
+                  </div>
+                  {/* </Link> */}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarHeader>
           <SidebarContent>
             {mainNavigation.map((group) => (
               <SidebarGroup key={group.title}>
@@ -111,7 +136,7 @@ export function AppSidebar() {
                     {group.items.map((item) => {
                       const isActive = pathname === item.url;
                       return (
-                        <SidebarMenuItem key={item.title}>
+                        <SidebarMenuItem key={item.title} className="pb-1">
                           <SidebarMenuButton asChild isActive={isActive}>
                             <Link href={item.url}>
                               <item.icon className="h-4 w-4" />
@@ -135,7 +160,7 @@ export function AppSidebar() {
                       {group.items.map((item) => {
                         const isActive = pathname === item.url;
                         return (
-                          <SidebarMenuItem key={item.title}>
+                          <SidebarMenuItem key={item.title} className="pb-1">
                             <SidebarMenuButton asChild isActive={isActive}>
                               <Link href={item.url}>
                                 <item.icon className="h-4 w-4" />
