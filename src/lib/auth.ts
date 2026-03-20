@@ -3,7 +3,7 @@ import ForgotPasswordEmail from "@/components/emails/password-reset";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { nextCookies } from "better-auth/next-js";
-import { twoFactor, username } from "better-auth/plugins";
+import { admin, twoFactor } from "better-auth/plugins";
 import { getDatabase } from "./mongodb";
 import { Resend } from "resend";
 
@@ -58,6 +58,7 @@ export const auth = betterAuth({
   },
   plugins: [
     nextCookies(),
+    admin(),
     twoFactor({
       issuer: "OneClickCredentials",
       sendOTP: async ({
