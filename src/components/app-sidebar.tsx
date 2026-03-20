@@ -12,7 +12,6 @@ import {
   Lock,
   Scale,
   ShieldCheck,
-  Shield,
 } from "lucide-react";
 import {
   Sidebar,
@@ -44,27 +43,22 @@ const mainNavigation = [
       },
       {
         title: "Document",
-        url: "/documents",
+        url: "/dashboard/documents",
         icon: FileText,
       },
       {
         title: "Request",
-        url: "/requests",
+        url: "/dashboard/requests",
         icon: ClipboardList,
       },
       {
         title: "Appointment",
-        url: "/appointments",
+        url: "/dashboard/appointments",
         icon: Calendar,
       },
       {
-        title: "Security",
-        url: "/account/security",
-        icon: Shield,
-      },
-      {
         title: "Settings",
-        url: "/settings",
+        url: "/dashboard/settings",
         icon: Settings,
       },
     ],
