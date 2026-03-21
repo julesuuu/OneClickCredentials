@@ -26,7 +26,7 @@ export default async function AuthPage({
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center">
       <div className="absolute left-6 top-6">
-        <Button variant="ghost" size="lg" asChild>
+        <Button variant="ghost" size="default" asChild>
           <Link href={redirectUrl}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Go back
