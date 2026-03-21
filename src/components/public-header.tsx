@@ -32,7 +32,7 @@ export function PublicHeader() {
             OneClick Credentials
           </span>
         </Link>
-        <nav className="md:flex items-center gap-2">
+        <nav className="flex items-center gap-2">
           <ThemeToggle />
           <UserButton size="icon" />
         </nav>

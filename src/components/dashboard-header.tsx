@@ -45,7 +45,7 @@ export function DashboardHeader() {
                 <>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem>
-                    <BreadcrumbPage>                      {currentLabel}</BreadcrumbPage>
+                    <BreadcrumbPage> {currentLabel}</BreadcrumbPage>
                   </BreadcrumbItem>
                 </>
               )}
