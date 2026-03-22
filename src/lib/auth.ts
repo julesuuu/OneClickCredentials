@@ -17,18 +17,21 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      resend.emails.send({
-        from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
-        to: user.email,
-        subject: "Verify your email",
-        react: VerifyEmail({ username: user.name, verifyUrl: url }),
-      });
+      try {
+        await resend.emails.send({
+          from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
+          to: user.email,
+          subject: "Verify your email",
+          react: VerifyEmail({ username: user.name, verifyUrl: url }),
+        });
+        console.log(`Verification email sent to ${user.email}`);
+      } catch (error) {
+        console.error("Failed to send verification email:", error);
+        throw error;
+      }
     },
-    sendOnSignup: true,
+    sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    async afterEmailVerification(user) {
-      console.log(`${user.email} has been successfully verified!`);
-    },
   },
   socialProviders: {
     google: {
@@ -43,16 +46,22 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      resend.emails.send({
-        from: `${process.env.EMAIL_DEFAULT_SENDER}`,
-        to: user.email,
-        subject: "Reset your password",
-        react: ForgotPasswordEmail({
-          username: user.name,
-          userEmail: user.email,
-          resetUrl: url,
-        }),
-      });
+      try {
+        await resend.emails.send({
+          from: `${process.env.EMAIL_DEFAULT_SENDER}`,
+          to: user.email,
+          subject: "Reset your password",
+          react: ForgotPasswordEmail({
+            username: user.name,
+            userEmail: user.email,
+            resetUrl: url,
+          }),
+        });
+        console.log(`Password reset email sent to ${user.email}`);
+      } catch (error) {
+        console.error("Failed to send password reset email:", error);
+        throw error;
+      }
     },
     requireEmailVerification: true,
   },
@@ -68,12 +77,18 @@ export const auth = betterAuth({
         user: { email: string };
         otp: string;
       }) => {
-        await resend.emails.send({
-          from: "OneClickCredentials <onboarding@resend.dev>",
-          to: user.email,
-          subject: "Your 2FA Code",
-          html: `<p>Your verification code is: <strong>${otp}</strong></p>`,
-        });
+        try {
+          await resend.emails.send({
+            from: "OneClickCredentials <onboarding@resend.dev>",
+            to: user.email,
+            subject: "Your 2FA Code",
+            html: `<p>Your verification code is: <strong>${otp}</strong></p>`,
+          });
+          console.log(`2FA OTP sent to ${user.email}`);
+        } catch (error) {
+          console.error("Failed to send 2FA OTP:", error);
+          throw error;
+        }
       },
     }),
   ],

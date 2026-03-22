@@ -22,6 +22,7 @@ export function Providers({ children }: { children: ReactNode }) {
       social={{
         providers: ["google", "github"],
       }}
+      emailVerification
       twoFactor={["otp", "totp"]}
       Link={Link}
     >
