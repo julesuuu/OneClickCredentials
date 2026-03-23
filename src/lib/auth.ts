@@ -48,7 +48,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       try {
         await resend.emails.send({
-          from: `${process.env.EMAIL_DEFAULT_SENDER}`,
+          from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
           to: user.email,
           subject: "Reset your password",
           react: ForgotPasswordEmail({
@@ -79,7 +79,7 @@ export const auth = betterAuth({
       }) => {
         try {
           await resend.emails.send({
-            from: "OneClickCredentials <onboarding@resend.dev>",
+            from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
             to: user.email,
             subject: "Your 2FA Code",
             html: `<p>Your verification code is: <strong>${otp}</strong></p>`,

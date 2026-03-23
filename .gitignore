@@ -46,3 +46,6 @@ openspec*
 #opencode
 .opencode*
 
+#AI
+AGENTS.md
+QWEN.md
