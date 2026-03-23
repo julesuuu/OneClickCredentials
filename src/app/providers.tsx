@@ -23,7 +23,9 @@ export function Providers({ children }: { children: ReactNode }) {
         providers: ["google", "github"],
       }}
       emailOTP
-      emailVerification
+      emailVerification={{
+        otp: true,
+      }}
       twoFactor={["otp", "totp"]}
       Link={Link}
     >
