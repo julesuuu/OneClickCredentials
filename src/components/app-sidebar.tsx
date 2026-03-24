@@ -96,7 +96,7 @@ export function AppSidebar() {
   return (
     <>
       <SignedIn>
-        <Sidebar>
+        <Sidebar collapsible="icon" variant="floating" >
           <SidebarHeader>
             <SidebarMenu>
               <SidebarMenuItem>
