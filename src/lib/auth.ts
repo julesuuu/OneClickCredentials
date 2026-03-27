@@ -1,17 +1,17 @@
 import { betterAuth } from "better-auth";
-import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import prisma from "./prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, emailOTP, twoFactor } from "better-auth/plugins";
-import { getDatabase } from "./mongodb";
 import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/password-reset";
-
-const db = await getDatabase();
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db),
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   socialProviders: {

@@ -49,3 +49,4 @@ openspec*
 #AI
 AGENTS.md
 QWEN.md
+/src/generated/prisma
