@@ -29,7 +29,8 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "src/app/auth/layout."
+    "src/app/auth/layout.",
+    "src/generated/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
