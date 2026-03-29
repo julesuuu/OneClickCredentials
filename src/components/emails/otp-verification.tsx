@@ -12,7 +12,12 @@ import {
   Hr,
 } from "@react-email/components";
 
-type OTPType = "sign-in" | "email-verification" | "forget-password" | "two-factor" | "change-email";
+type OTPType =
+  | "sign-in"
+  | "email-verification"
+  | "forget-password"
+  | "two-factor"
+  | "change-email";
 
 interface OTPVerificationProps {
   username: string;
@@ -111,7 +116,8 @@ const OTPVerificationEmail = (props: OTPVerificationProps) => {
               </Section>
 
               <Text className="text-[14px] text-gray-500 mb-4 m-0">
-                ⏱️ This code will expire in <strong>1 minute</strong> for security reasons.
+                ⏱️ This code will expire in <strong>5 minutes</strong> for
+                security reasons.
               </Text>
 
               <Text className="text-[14px] text-gray-500 m-0">

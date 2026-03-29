@@ -54,7 +54,6 @@ export const auth = betterAuth({
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
       otpLength: 6,
-      expiresIn: 60,
       async sendVerificationOTP({ email, otp, type }) {
         try {
           await resend.emails.send({
