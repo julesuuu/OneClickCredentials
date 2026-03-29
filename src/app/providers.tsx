@@ -28,6 +28,9 @@ export function Providers({ children }: { children: ReactNode }) {
       }}
       twoFactor={["otp", "totp"]}
       Link={Link}
+      deleteUser={{
+        verification: true,
+      }}
     >
       {children}
     </AuthUIProvider>

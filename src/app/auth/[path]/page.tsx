@@ -34,7 +34,7 @@ export default async function AuthPage({
         </Button>
       </div>
       <main className="w-full max-w-sm flex flex-col items-center gap-4 p-4 md:p-6">
-        <AuthView path={path} />
+        <AuthView socialLayout="grid" redirectTo="/dashboard" path={path} />
 
         {!["callback", "sign-out"].includes(path) && (
           <p className="w-full text-center text-muted-foreground text-xs">

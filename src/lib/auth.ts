@@ -6,6 +6,7 @@ import { admin, emailOTP, twoFactor } from "better-auth/plugins";
 import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/password-reset";
 import OTPVerificationEmail from "@/components/emails/otp-verification";
+import DeleteAccountEmail from "@/components/emails/delete-account";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
@@ -46,6 +47,29 @@ export const auth = betterAuth({
       }
     },
     requireEmailVerification: true,
+  },
+  user: {
+    deleteUser: {
+      enabled: true,
+      async sendDeleteAccountVerification({ user, url }) {
+        try {
+          await resend.emails.send({
+            from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
+            to: user.email,
+            subject: "Confirm Account Deletion",
+            react: DeleteAccountEmail({
+              userEmail: user.email,
+              username: user.name || user.email.split("@")[0],
+              deleteUrl: url,
+            }),
+          });
+          console.log(`Account deletion verification sent to ${user.email}`);
+        } catch (error) {
+          console.error("Failed to send deletion verification email:", error);
+          throw error;
+        }
+      },
+    },
   },
   plugins: [
     nextCookies(),
