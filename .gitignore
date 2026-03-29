@@ -46,6 +46,9 @@ openspec*
 #opencode
 .opencode*
 
+#mongodb
+/src/lib/mongodb.ts
+
 #AI
 AGENTS.md
 QWEN.md

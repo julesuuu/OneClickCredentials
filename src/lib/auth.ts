@@ -5,6 +5,7 @@ import { nextCookies } from "better-auth/next-js";
 import { admin, emailOTP, twoFactor } from "better-auth/plugins";
 import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/password-reset";
+import OTPVerificationEmail from "@/components/emails/otp-verification";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
@@ -56,23 +57,20 @@ export const auth = betterAuth({
       expiresIn: 60,
       async sendVerificationOTP({ email, otp, type }) {
         try {
-          const subject =
-            type === "sign-in"
-              ? "Your Sign-In Code"
-              : type === "email-verification"
-                ? "Verify Your Email Address"
-                : "Password Reset Code";
-
           await resend.emails.send({
             from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
             to: email,
-            subject,
-            html: `
-              <p>Your verification code is:</p>
-              <p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">${otp}</p>
-              <p>This code will expire in one minute.</p>
-              ${type === "sign-in" ? "<p>If you didn't request this code, please ignore this email.</p>" : ""}
-            `,
+            subject:
+              type === "sign-in"
+                ? "Your Sign-In Code"
+                : type === "email-verification"
+                  ? "Verify Your Email Address"
+                  : "Password Reset Code",
+            react: OTPVerificationEmail({
+              username: email.split("@")[0],
+              otp,
+              type,
+            }),
           });
           console.log(`OTP ${type} email sent to ${email}`);
         } catch (error) {
@@ -89,11 +87,11 @@ export const auth = betterAuth({
               from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
               to: user.email,
               subject: "Your 2FA Code",
-              html: `
-              <p >Your verification code is:</p>
-              <p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">${otp}</p>
-              <p>This code will expire in one minute.</p>
-              `,
+              react: OTPVerificationEmail({
+                username: user.name || user.email.split("@")[0],
+                otp,
+                type: "two-factor",
+              }),
             });
             console.log(`2FA OTP sent to ${user.email}`);
           } catch (error) {
