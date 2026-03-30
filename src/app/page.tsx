@@ -75,12 +75,12 @@ export default function Landing() {
   ];
 
   const documents = [
-    { name: "Transcript of Records (TOR)", popular: true },
-    { name: "Diploma", popular: true },
-    { name: "Certificate of Good Moral Character", popular: false },
-    { name: "Certificate of Enrollment", popular: false },
-    { name: "Certificate of Grades", popular: false },
-    { name: "Honorable Dismissal", popular: false },
+    { name: "Transcript of Records (TOR)" },
+    { name: "Diploma" },
+    { name: "Certificate of Good Moral Character" },
+    { name: "Certificate of Enrollment" },
+    { name: "Certificate of Grades" },
+    { name: "Honorable Dismissal" },
   ];
 
   const pricing = [
@@ -118,37 +118,6 @@ export default function Landing() {
       answer:
         "Yes, you can cancel requests before they are processed. Contact support for modifications after submission.",
     },
-  ];
-
-  const testimonials = [
-    {
-      name: "Maria Santos",
-      role: "Graduate Student",
-      content:
-        "OneClick Credentials made getting my transcript so easy! I didn't have to take time off work to stand in line.",
-      avatar: "MS",
-    },
-    {
-      name: "Juan Dela Cruz",
-      role: "Working Professional",
-      content:
-        "The online payment and tracking feature is a game-changer. I knew exactly when my documents were ready.",
-      avatar: "JD",
-    },
-    {
-      name: "Ana Reyes",
-      role: "International Student",
-      content:
-        "Being able to request documents from abroad was incredibly helpful. Highly recommend this service!",
-      avatar: "AR",
-    },
-  ];
-
-  const stats = [
-    { value: "10,000+", label: "Documents Processed" },
-    { value: "5,000+", label: "Happy Students" },
-    { value: "99%", label: "Satisfaction Rate" },
-    { value: "24/7", label: "Online Access" },
   ];
 
   return (
@@ -192,20 +161,6 @@ export default function Landing() {
               >
                 <Link href="/auth/sign-in">Log In</Link>
               </Button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-8 border-t border-primary-foreground/20">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-sm text-primary-foreground/70">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </section>
@@ -280,63 +235,6 @@ export default function Landing() {
                       </div>
                       <span className="font-medium">{doc.name}</span>
                     </div>
-                    {doc.popular && (
-                      <Badge variant="default" className="bg-primary">
-                        Popular
-                      </Badge>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Testimonials Section */}
-        <section className="w-full py-20 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <Badge variant="outline" className="mb-4">
-                Testimonials
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                What Students Say
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Join thousands of satisfied students who trust OneClick
-                Credentials
-              </p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {testimonials.map((testimonial, index) => (
-                <Card key={index} className="shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {testimonial.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <CardTitle className="text-base">
-                          {testimonial.name}
-                        </CardTitle>
-                        <CardDescription>{testimonial.role}</CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="h-4 w-4 fill-primary text-primary"
-                        />
-                      ))}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground italic">
-                      &quot;{testimonial.content}&quot;
-                    </p>
                   </CardContent>
                 </Card>
               ))}
