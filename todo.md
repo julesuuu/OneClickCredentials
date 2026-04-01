@@ -418,48 +418,73 @@ Admin marks as Completed
 ## 🗂️ Database Schema
 
 ```prisma
+model User {
+  id               String          @id
+  name             String
+  email            String          @unique
+  emailVerified    Boolean         @default(false)
+  image            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  role             String?
+  banned           Boolean?        @default(false)
+  banReason        String?
+  banExpires       DateTime?
+  twoFactorEnabled Boolean?        @default(false)
+  studentProfile   StudentProfile?
+  documentRequests DocumentRequest[]
+  accounts         Account[]
+  sessions         Session[]
+  twofactors       TwoFactor[]
+
+  @@map("user")
+}
+
 model StudentProfile {
   id                    String   @id @default(cuid())
   userId                String   @unique
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Student Information (all required)
   gender                String
   birthdate             DateTime
   phoneNumber           String
-  lrn                   String
-  studentNumber         String
+  lrn                   String   @unique
+  studentNumber         String   @unique
   course                String
   yearLevel             Int
   proofOfEnrollmentUrl  String
-  
+
   // Status Tracking
   isProfileComplete     Boolean  @default(false)  // User completed form
   isVerified            Boolean  @default(false)  // Admin verified proof
-  
+  declineReason         String?
+
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-  
+
   @@index([userId])
-  @@unique([lrn])
-  @@unique([studentNumber])
+  @@map("studentProfile")
 }
 
 model DocumentType {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  requests    DocumentRequest[]
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  requests      DocumentRequest[]
+
+  @@map("documentType")
 }
 
 model DocumentRequest {
   id              String   @id @default(cuid())
   userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   documentTypeId  String
   documentType    DocumentType @relation(fields: [documentTypeId], references: [id])
   quantity        Int
@@ -469,29 +494,20 @@ model DocumentRequest {
   declineReason   String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  
-  payment         Payment?
-  appointment     Appointment?
-}
 
-model Appointment {
-  id              String   @id @default(cuid())
-  userId          String
-  documentRequestId String? @unique
-  documentRequest DocumentRequest? @relation(fields: [documentRequestId], references: [id])
-  date            DateTime
-  timeSlot        String   // AM or PM
-  status          String   // Scheduled, Completed, Cancelled, No-show
-  notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  paymentId       String?  @unique
+  payment         Payment? @relation(fields: [paymentId], references: [id])
+  appointmentId   String?  @unique
+  appointment     Appointment? @relation(fields: [appointmentId], references: [id])
+
+  @@index([userId])
+  @@map("documentRequest")
 }
 
 model Payment {
   id                String   @id @default(cuid())
-  userId            String
-  documentRequestId String? @unique
-  documentRequest   DocumentRequest? @relation(fields: [documentRequestId], references: [id])
+  documentRequestId String   @unique
+  documentRequest   DocumentRequest @relation(fields: [documentRequestId], references: [id], onDelete: Cascade)
   method            String   // cash, online
   referenceNumber   String?
   amount            Decimal
@@ -499,6 +515,22 @@ model Payment {
   proofImageUrl     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
+  @@map("payment")
+}
+
+model Appointment {
+  id                String   @id @default(cuid())
+  documentRequestId String   @unique
+  documentRequest   DocumentRequest @relation(fields: [documentRequestId], references: [id], onDelete: Cascade)
+  date              DateTime
+  timeSlot          String   // AM or PM
+  status            String   // Scheduled, Completed, Cancelled, No-show
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("appointment")
 }
 
 model Notification {
@@ -511,6 +543,8 @@ model Notification {
   link        String?  // Optional link to related page
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("notification")
 }
 ```
 

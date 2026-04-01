@@ -21,6 +21,7 @@ model User {
   banExpires       DateTime?
   twoFactorEnabled Boolean?        @default(false)
   studentProfile   StudentProfile?
+  documentRequests  DocumentRequest[]
   accounts         Account[]
   sessions         Session[]
   twofactors       TwoFactor[]
@@ -108,4 +109,36 @@ model StudentProfile {
 
   @@index([userId])
   @@map("studentProfile")
+}
+
+model DocumentType {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  requests       DocumentRequest[]
+  @@map("documentType")
+}
+
+model DocumentRequest {
+  id              String      @id   @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentTypeId  String
+  documentType    DocumentType @relation(fields: [documentTypeId], references: [id])
+  quantity        Int
+  totalPrice      Decimal
+  status          String      @default("Pending")
+  notes           String?
+  declineReason   String?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([userId])
+  @@map("documentRequest")
 }
