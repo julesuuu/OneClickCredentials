@@ -86,6 +86,20 @@ export const auth = betterAuth({
       },
     },
   },
+  session: {
+    expiresIn: 604800,
+    updateAge: 86400,
+    cookieCache: {
+      enabled: true,
+      maxAge: 300,
+    },
+  },
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+    ipAddress: {
+      ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+    },
+  },
   trustedOrigins: [
     "http://localhost:3000",
     "https://oneclickapp.online",
@@ -95,6 +109,7 @@ export const auth = betterAuth({
     nextCookies(),
     admin(),
     emailOTP({
+      storeOTP: "hashed",
       overrideDefaultEmailVerification: true,
       sendVerificationOnSignUp: true,
       otpLength: 6,
