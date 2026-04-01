@@ -107,7 +107,11 @@ export const auth = betterAuth({
     "https://one-click-credentials.vercel.app",
   ],
   plugins: [
-    passkey(),
+    passkey({
+      rpID: process.env.NODE_ENV === "production" ? "oneclickapp.online" : "localhost",
+      rpName: "OneClickCredentials",
+      origin: process.env.NEXT_PUBLIC_BASE_URL,
+    }),
     nextCookies(),
     admin(),
     emailOTP({
