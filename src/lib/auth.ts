@@ -86,6 +86,11 @@ export const auth = betterAuth({
       },
     },
   },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://oneclickapp.online",
+    "https://one-click-credentials.vercel.app",
+  ],
   plugins: [
     nextCookies(),
     admin(),
