@@ -29,6 +29,18 @@ export const auth = betterAuth({
   emailVerification: {
     autoSignInAfterVerification: true,
   },
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    modelName: "rateLimit",
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 3 },
+      "/reset-password/email": { window: 60, max: 3 },
+      "/otp/send-verification-otp": { window: 60, max: 3 },
+      "/two-factor/send-otp": { window: 60, max: 3 },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {

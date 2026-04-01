@@ -89,6 +89,15 @@ model TwoFactor {
   @@map("twoFactor")
 }
 
+model RateLimit {
+	id          String  @id
+	key         String  @unique
+	count       Int
+	lastRequest BigInt
+  
+	@@map("rateLimit")
+}
+
 model StudentProfile {
   id                   String   @id @default(cuid())
   userId               String   @unique
