@@ -7,6 +7,7 @@ import { Resend } from "resend";
 import ForgotPasswordEmail from "@/components/emails/password-reset";
 import OTPVerificationEmail from "@/components/emails/otp-verification";
 import DeleteAccountEmail from "@/components/emails/delete-account";
+import { passkey } from "@better-auth/passkey";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
@@ -106,6 +107,7 @@ export const auth = betterAuth({
     "https://one-click-credentials.vercel.app",
   ],
   plugins: [
+    passkey(),
     nextCookies(),
     admin(),
     emailOTP({

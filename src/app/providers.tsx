@@ -28,6 +28,7 @@ export function Providers({ children }: { children: ReactNode }) {
       }}
       twoFactor={["otp", "totp"]}
       Link={Link}
+      passkey
       deleteUser={{
         verification: true,
       }}
