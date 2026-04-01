@@ -21,7 +21,7 @@ model User {
   banExpires       DateTime?
   twoFactorEnabled Boolean?        @default(false)
   studentProfile   StudentProfile?
-  documentRequests  DocumentRequest[]
+  documentRequests DocumentRequest[]
   accounts         Account[]
   sessions         Session[]
   twofactors       TwoFactor[]
@@ -139,6 +139,40 @@ model DocumentRequest {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  paymentId       String?     @unique
+  payment         Payment?
+  appointmentId   String?     @unique
+  appointment     Appointment?
+
   @@index([userId])
   @@map("documentRequest")
+}
+
+model Payment {
+  id                String          @id @default(cuid())
+  documentRequestId String          @unique
+  documentRequest   DocumentRequest @relation(fields: [documentRequestId], references: [id], onDelete: Cascade)
+  method            String          @default("Cash")
+  referenceNumber   String?
+  amount            Decimal
+  status            String          @default("Pending")
+  proofOfImageUrl   String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("payment")
+}
+
+model Appointment {
+  id                String          @id @default(cuid())
+  documentRequestId String          @unique
+  documentRequest   DocumentRequest @relation(fields: [documentRequestId], references: [id], onDelete: Cascade)
+  date              DateTime
+  timeSlot          String
+  status            String          @default("Scheduled")
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("appointment")
 }
