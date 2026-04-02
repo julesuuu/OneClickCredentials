@@ -96,19 +96,19 @@ export function AppSidebar() {
   return (
     <>
       <SignedIn>
-        <Sidebar collapsible="icon" variant="floating" >
+        <Sidebar collapsible="icon" variant="floating">
           <SidebarHeader>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg">
                   {/* <Link href="/dashboard"> */}
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg ">
                     <Image
                       src="/icon.svg"
                       alt="OneClick Credentials"
                       width={20}
                       height={20}
-                      className="size-5"
+                      className="size-7"
                     />
                   </div>
                   <div className="grid flex-1 text-left leading-tight text-base">

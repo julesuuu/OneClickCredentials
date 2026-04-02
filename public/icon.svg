@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg 
-  xmlns="http://www.w3.org/2000/svg" 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  stroke="currentColor" 
-  stroke-width="2" 
-  stroke-linecap="round" 
-  stroke-linejoin="round"
->
-  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-  <polyline points="14 2 14 8 20 8" />
-  <line x1="16" y1="13" x2="8" y2="13" />
-  <line x1="16" y1="17" x2="8" y2="17" />
-  <polyline points="10 9 9 9 8 9" />
+<svg class="iconLeftSlogan" viewBox="103.60020000000002 102.79979999999999 82.80000000000001 85.8" xmlns="http://www.w3.org/2000/svg" data-v-fde0c5aa="" style="max-height: 500px; background: transparent;" width="82.80000000000001" height="85.8">
+  
+  <defs data-v-fde0c5aa="">
+    <linearGradient y2="0%" x2="100%" y1="0%" x1="0%" id="a35affbc-03e8-4e3d-81b3-654ad081ac4e" gradientTransform="rotate(25)" data-v-fde0c5aa="">
+      <stop stop-opacity="1" stop-color="#E98C00" offset="0" data-v-fde0c5aa=""/>
+      <stop stop-opacity="1" stop-color="#8F5BFE" offset="1" data-v-fde0c5aa=""/>
+    </linearGradient>
+  </defs>
+  <g transform="matrix(0.658855, 0, 0, 0.658855, 115.468628, 112.20961)" fill="url(#a35affbc-03e8-4e3d-81b3-654ad081ac4e)" stroke="none" id="fba1eef7-3531-4a5c-bca2-c40308d292ec" data-v-fde0c5aa="">
+    <path d="M16.842 56.843h37.895v6.315H16.842zM16.842 37.895h37.895v6.315H16.842zM16.842 18.948h37.895v6.315H16.842z"/>
+    <path d="M86.316 14.738H71.58V4.21c0-2.632-1.578-4.21-4.211-4.21H4.21C1.578 0 0 1.578 0 4.21v77.895c0 2.634 1.578 4.213 4.21 4.213h14.737v9.474c0 2.632 1.579 4.21 4.211 4.21h63.158c2.633 0 4.211-1.578 4.211-4.21V18.948c0-2.633-1.578-4.21-4.211-4.21m-80 63.158V8.421c0-1.316.789-2.106 2.105-2.106h54.737c1.316 0 2.105.79 2.105 2.106v69.475c0 1.315-.789 2.104-2.105 2.104H8.421c-1.316 0-2.105-.789-2.105-2.104M84.21 91.579c0 1.316-.789 2.104-2.104 2.104H28.421c-1.316 0-2.105-.787-2.105-2.104v-5.264h41.053c2.633 0 4.211-1.578 4.211-4.211V22.106h10.526c1.315 0 2.104.788 2.104 2.104z"/>
+  </g>
 </svg>
-
