@@ -1,9 +1,23 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
-import { RedirectToSignIn } from "@daveyplate/better-auth-ui";
+import { auth } from "@/lib/auth";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/auth/sign-in");
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />
@@ -11,7 +25,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <DashboardHeader />
         <main className="flex-1 p-6">{children}</main>
       </div>
-      <RedirectToSignIn />
     </SidebarProvider>
   );
 }
