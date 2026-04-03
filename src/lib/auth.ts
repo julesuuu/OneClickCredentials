@@ -88,8 +88,8 @@ export const auth = betterAuth({
     },
   },
   session: {
-    expiresIn: 604800,
-    updateAge: 86400,
+    expiresIn: 3600,
+    updateAge: 900,
     cookieCache: {
       enabled: true,
       maxAge: 300,
@@ -106,9 +106,13 @@ export const auth = betterAuth({
     "https://oneclickapp.online",
     "https://one-click-credentials.vercel.app",
   ],
+  hooks: {},
   plugins: [
     passkey({
-      rpID: process.env.NODE_ENV === "production" ? "oneclickapp.online" : "localhost",
+      rpID:
+        process.env.NODE_ENV === "production"
+          ? "oneclickapp.online"
+          : "localhost",
       rpName: "OneClickCredentials",
       origin: process.env.NEXT_PUBLIC_BASE_URL,
     }),
