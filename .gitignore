@@ -53,5 +53,8 @@ openspec*
 AGENTS.md
 QWEN.md
 
+#generated
 /src/generated/prisma
+
+#tool-specific
 .superpowers*

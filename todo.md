@@ -495,7 +495,7 @@ Timeline: Request creation → Admin approval/mark Ready → User prompt/unlock 
 **Payment Methods:**
 
 - Cash on pickup (default)
-- Online payment via Xendit (GCash, Maya, Cards, QRPh)
+- Online payment via Payrex (GCash, Maya, Cards, QRPh)
 
 **Payment Schema:**
 
