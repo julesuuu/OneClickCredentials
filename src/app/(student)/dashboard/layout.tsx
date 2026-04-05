@@ -18,6 +18,10 @@ export default async function Layout({
     redirect("/auth/sign-in");
   }
 
+  if (session.user.role === "admin") {
+    redirect("/admin");
+  }
+
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />
