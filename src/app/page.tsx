@@ -9,8 +9,8 @@ import {
   FAQSection,
   CTASection,
   FooterSection,
+  HeroSection,
 } from "@/components/landing";
-import { HeroSection } from "@/components/landing/hero-section";
 
 export default function Landing() {
   return (

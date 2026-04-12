@@ -1,3 +1,4 @@
+export { HeroSection } from "./hero-section";
 export { FeaturesSection } from "./features-section";
 export { DocumentsSection } from "./documents-section";
 export { PricingSection, HowItWorksSection } from "./pricing-section";
