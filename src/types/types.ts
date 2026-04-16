@@ -5,6 +5,7 @@ const gender = ["Male", "Female", "Other"] as const;
 const YearLevelSchema = z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6)]);
 
 export const studentProfileSchema = z.object({
+  fullName: z.string().min(1, "Full name is required").max(100),
   gender: z.enum(gender),
   birthDate: z.coerce.date(),
   phoneNumber: z.string().regex(/^09\d{9}$/, "Phone number must start with 09 and be 11 digits."),

@@ -1,3 +1,9 @@
+import { OnboardingStep1 } from "./_components/OnboardingStep1";
+
 export default function OnboardingPage() {
-  return <p>Student Onboarding</p>;
+  return (
+    <div>
+      <OnboardingStep1 />
+    </div>
+  );
 }
