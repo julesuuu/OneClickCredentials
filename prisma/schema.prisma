@@ -123,6 +123,7 @@ model Passkey {
 model StudentProfile {
   id                   String   @id @default(cuid())
   userId               String   @unique
+  fullName             String
   gender               String
   birthDate            DateTime
   phoneNumber          String
