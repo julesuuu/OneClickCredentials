@@ -124,7 +124,7 @@ model StudentProfile {
   id                   String   @id @default(cuid())
   userId               String   @unique
   gender               String
-  birthdate            DateTime
+  birthDate            DateTime
   phoneNumber          String
   lrn                  String   @unique
   studentNumber        String   @unique

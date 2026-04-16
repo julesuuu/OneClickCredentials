@@ -7,8 +7,11 @@ const YearLevelSchema = z.union([z.literal(1), z.literal(2), z.literal(3), z.lit
 export const studentProfileSchema = z.object({
   gender: z.enum(gender),
   birthDate: z.coerce.date(),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits."),
-  lrn: z.string().length(12, "LRN must be exactly 12 digits."),
+  phoneNumber: z.string().regex(/^09\d{9}$/, "Phone number must start with 09 and be 11 digits."),
+  lrn: z
+    .string()
+    .length(12, "LRN must be exactly 12 digits.")
+    .regex(/^\d{12}$/, "LRN must be exactly 12 digits."),
   studentNumber: z.string().min(5, "Invalid Student Number Format"),
   course: z.string().min(3, "Course name is required."),
   yearLevel: YearLevelSchema,
