@@ -130,7 +130,7 @@ model StudentProfile {
   lrn                  String   @unique
   studentNumber        String   
   course               String
-  yearLevel            Int
+  yearLevel            String
   proofOfEnrollmentUrl String
   isProfileComplete    Boolean  @default(false)
   isVerified           Boolean  @default(false)
