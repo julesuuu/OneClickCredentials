@@ -128,7 +128,7 @@ model StudentProfile {
   birthDate            DateTime
   phoneNumber          String
   lrn                  String   @unique
-  studentNumber        String   @unique
+  studentNumber        String   
   course               String
   yearLevel            Int
   proofOfEnrollmentUrl String
