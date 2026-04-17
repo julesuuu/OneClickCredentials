@@ -5,10 +5,10 @@ const gender = [
   "FEMALE",
   "NON_BINARY",
   "PREFER_NOT_TO_SAY",
-  "OTHERS",
+  "OTHER",
 ] as const;
 
-const course = ["BSIT", "BSHM", "BSBA", "BSED", "BSCrim", "BSCS"] as const;
+const course = ["BSIT", "BSHM", "BSBA", "BSED", "BSCRIM"] as const;
 
 const yearLevel = [
   "FIRST_YEAR",

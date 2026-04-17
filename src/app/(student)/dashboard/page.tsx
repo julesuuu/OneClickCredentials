@@ -1,3 +1,10 @@
+import OnboardingPage from "./onboarding/page";
+
 export default function DashboardPage() {
-  return <p>Dashboard</p>;
+  return (
+    <div>
+      <p>Dashboard</p> <br />
+      <OnboardingPage />
+    </div>
+  );
 }
