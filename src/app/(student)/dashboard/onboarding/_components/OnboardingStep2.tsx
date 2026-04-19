@@ -88,6 +88,24 @@ export const OnboardingStep2 = () => {
                 </SelectContent>
               </Select>
             </Field>
+            <Field>
+              <FieldLabel htmlFor="proofOfEnrollmentUrl">
+                Proof of Enrollment
+              </FieldLabel>
+              <Input
+                id="proofOfEnrollmentUrl"
+                type="file"
+                accept="image/*,.pdf"
+              />
+              <FieldDescription>
+                Acceptable documents include:
+                <span className="block">• Valid Student ID</span>
+                <span className="block">• Current Enrollment Form</span>
+                <span className="block">
+                  • Certificate of Registration (COR)
+                </span>
+              </FieldDescription>
+            </Field>
           </FieldGroup>
         </FieldSet>
       </CardContent>
