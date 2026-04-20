@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { course, yearLevel } from "../data";
 import {
   Card,
@@ -27,8 +28,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { step2Schema } from "../types";
 
-export const OnboardingStep2 = () => {
+interface OnboardingStep2Props {
+  form: any;
+  onNext: () => void;
+  onBack: () => void;
+}
+
+export const OnboardingStep2 = ({
+  form,
+  onNext,
+  onBack,
+}: OnboardingStep2Props) => {
+  const handleNext = async () => {
+    const values = form.state.values;
+    const result = step2Schema.safeParse({
+      lrn: values.lrn,
+      studentNumber: values.studentNumber,
+      course: values.course,
+      yearLevel: values.yearLevel,
+      proofOfEnrollmentUrl: values.proofOfEnrollmentUrl,
+    });
+
+    if (result.success) {
+      onNext();
+    } else {
+      form.validateAllFields("submit");
+    }
+  };
+
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>
@@ -38,83 +67,163 @@ export const OnboardingStep2 = () => {
       <CardContent>
         <FieldSet>
           <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="lrn">Learner's Reference Number</FieldLabel>
-              <Input id="lrn" type="number" />
-              <FieldDescription>Must be a 12-digit number.</FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="studentNumber">Student Number</FieldLabel>
-              <Input id="studentNumber" />
-              <FieldDescription>
-                Leave empty if not applicable.
-              </FieldDescription>
-            </Field>
+            <form.Field
+              name="lrn"
+              validators={{
+                onChange: ({ value }: { value: string }) => {
+                  const res = step2Schema.shape.lrn.safeParse(value);
+                  return res.success ? undefined : res.error.issues[0].message;
+                },
+              }}
+              children={(field: any) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>
+                    Learner's Reference Number
+                  </FieldLabel>
+                  <Input
+                    id={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  <FieldDescription>
+                    {field.state.meta.errors ? (
+                      <span className="text-destructive">
+                        {field.state.meta.errors}
+                      </span>
+                    ) : (
+                      "Must be a 12-digit number."
+                    )}
+                  </FieldDescription>
+                </Field>
+              )}
+            />
 
-            <Field>
-              <FieldLabel htmlFor="yearLevel">Year Level</FieldLabel>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Year Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Year Level</SelectLabel>
-                    {yearLevel.map((y) => (
-                      <SelectItem key={y.value} value={y.value}>
-                        {y.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
+            <form.Field
+              name="studentNumber"
+              children={(field: any) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>Student Number</FieldLabel>
+                  <Input
+                    id={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  <FieldDescription>
+                    Leave empty if not applicable.
+                  </FieldDescription>
+                </Field>
+              )}
+            />
 
-            <Field>
-              <FieldLabel htmlFor="course">Course</FieldLabel>
-              <Select>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Course" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Course</SelectLabel>
-                    {course.map((c) => (
-                      <SelectItem key={c.value} value={c.value}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="proofOfEnrollmentUrl">
-                Proof of Enrollment
-              </FieldLabel>
-              <Input
-                id="proofOfEnrollmentUrl"
-                type="file"
-                accept="image/*,.pdf"
-              />
-              <FieldDescription>
-                Acceptable documents include:
-                <span className="block">• Valid Student ID</span>
-                <span className="block">• Current Enrollment Form</span>
-                <span className="block">
-                  • Certificate of Registration (COR)
-                </span>
-              </FieldDescription>
-            </Field>
+            <form.Field
+              name="yearLevel"
+              children={(field: any) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>Year Level</FieldLabel>
+                  <Select
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Year Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Year Level</SelectLabel>
+                        {yearLevel.map((y) => (
+                          <SelectItem key={y.value} value={y.value}>
+                            {y.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <form.Field
+              name="course"
+              children={(field: any) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>Course</FieldLabel>
+                  <Select
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Course</SelectLabel>
+                        {course.map((c) => (
+                          <SelectItem key={c.value} value={c.value}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              )}
+            />
+
+            <form.Field
+              name="proofOfEnrollmentUrl"
+              validators={{
+                onChange: ({ value }: { value: any }) => {
+                  if (!value) return "Please upload your proof of enrollment";
+                  return undefined;
+                },
+              }}
+              children={(field: any) => (
+                <Field>
+                  <FieldLabel htmlFor={field.name}>
+                    Proof of Enrollment
+                  </FieldLabel>
+                  <Input
+                    id={field.name}
+                    type="file"
+                    accept="image/*,.pdf"
+                    onBlur={field.handleBlur}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        field.handleChange(file);
+                      }
+                    }}
+                  />
+                  <FieldDescription>
+                    {field.state.meta.errors ? (
+                      <span className="text-destructive">
+                        {field.state.meta.errors}
+                      </span>
+                    ) : (
+                      <>
+                        Acceptable documents include:
+                        <span className="block">• Valid Student ID</span>
+                        <span className="block">• Current Enrollment Form</span>
+                        <span className="block">
+                          • Certificate of Registration (COR)
+                        </span>
+                      </>
+                    )}
+                  </FieldDescription>
+                </Field>
+              )}
+            />
           </FieldGroup>
         </FieldSet>
       </CardContent>
 
       <CardFooter className="flex gap-4 mt-4 justify-center">
-        <Button type="reset" variant={"outline"}>
-          Reset
+        <Button variant={"outline"} onClick={onBack}>
+          Back
         </Button>
-        <Button type="submit">Submit</Button>
+        <Button onClick={handleNext}>Next</Button>
       </CardFooter>
     </Card>
   );
