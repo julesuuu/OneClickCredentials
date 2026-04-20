@@ -219,9 +219,17 @@ Pickup Documents
 
 ## Module 1: Student Profile System
 
-### 1.1 Student Onboarding
+### 1.1 Student Onboarding (In Progress)
 
-**Goal**: Collect student information from first-time users
+**Goal**: Collect student information from first-time users using a 3-step form.
+
+**Steps:**
+- [x] Phase 1: Refine Zod schemas & types (Split Step 1/2, Merge for Step 3)
+- [ ] Phase 2: Implement main form logic in `page.tsx` (TanStack Form + Step state)
+- [ ] Phase 3: Create/Refactor step components:
+    - [ ] `OnboardingStep1.tsx` (Personal Info)
+    - [ ] `OnboardingStep2.tsx` (Student Info + Proof Upload)
+    - [ ] `OnboardingStep3.tsx` (Review & Confirm)
 
 **Fields** (all required):
 
