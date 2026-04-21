@@ -199,11 +199,7 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
       </CardContent>
 
       <CardFooter className="flex gap-4 mt-4 justify-center">
-        <Button
-          type="reset"
-          variant={"outline"}
-          onClick={() => form.reset()}
-        >
+        <Button type="reset" variant={"outline"} onClick={() => form.reset()}>
           Reset
         </Button>
         <Button onClick={handleNext}>Next</Button>

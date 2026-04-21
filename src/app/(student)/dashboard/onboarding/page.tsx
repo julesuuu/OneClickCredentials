@@ -7,6 +7,7 @@ import { OnboardingStep2 } from "./_components/OnboardingStep2";
 import { OnboardingStep3 } from "./_components/OnboardingStep3";
 import { Check, User, GraduationCap, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { redirect } from "next/navigation";
 
 const steps = [
   { id: 1, title: "Personal", icon: User },
@@ -32,6 +33,7 @@ export default function OnboardingPage() {
     onSubmit: async ({ value }) => {
       console.log(value);
       alert("Onboarding complete! Your profile has been submitted for review.");
+      redirect("/dashboard");
     },
   });
 
@@ -39,7 +41,7 @@ export default function OnboardingPage() {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="flex flex-col items-center justify-start p-4 md:p-8 min-h-screen bg-slate-50/50 dark:bg-slate-950/50">
+    <div className="flex flex-col items-center justify-start md:p-8 min-h-screen  ">
       <div className="w-full max-w-2xl space-y-12 mt-8">
         {/* Onboarding Header / Steps */}
         <div className="relative px-4">
