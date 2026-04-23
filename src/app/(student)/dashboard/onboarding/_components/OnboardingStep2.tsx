@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react/no-children-prop */
 "use client";
 
 import { course, yearLevel } from "../data";
@@ -16,8 +17,8 @@ import {
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -27,8 +28,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UploadWithUrl } from "@/components/upload/upload-with-url";
 import { step2Schema } from "../types";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface OnboardingStep2Props {
   form: any;
   onNext: () => void;
@@ -74,6 +77,7 @@ export const OnboardingStep2 = ({
                   return res.success ? undefined : res.error.issues[0].message;
                 },
               }}
+              // eslint-disable-next-line react/no-children-prop
               children={(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>
@@ -180,27 +184,11 @@ export const OnboardingStep2 = ({
               }}
               children={(field: any) => (
                 <Field>
-                  <FieldLabel htmlFor={field.name}>
-                    Proof of Enrollment
-                  </FieldLabel>
-                  <Input
-                    id={field.name}
-                    type="file"
-                    accept="image/*,.pdf"
-                    onBlur={field.handleBlur}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        field.handleChange(file);
-                      }
-                    }}
-                  />
-                  <FieldDescription>
-                    {field.state.meta.errors ? (
-                      <span className="text-destructive">
-                        {field.state.meta.errors}
-                      </span>
-                    ) : (
+                  <UploadWithUrl
+                    endpoint="proofOfEnrollment"
+                    field={field}
+                    label="Proof of Enrollment"
+                    description={
                       <>
                         Acceptable documents include:
                         <span className="block">• Valid Student ID</span>
@@ -209,7 +197,14 @@ export const OnboardingStep2 = ({
                           • Certificate of Registration (COR)
                         </span>
                       </>
-                    )}
+                    }
+                  />
+                  <FieldDescription>
+                    {field.state.meta.errors ? (
+                      <span className="text-destructive">
+                        {field.state.meta.errors}
+                      </span>
+                    ) : null}
                   </FieldDescription>
                 </Field>
               )}

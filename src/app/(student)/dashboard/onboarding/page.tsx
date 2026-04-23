@@ -28,7 +28,7 @@ export default function OnboardingPage() {
       studentNumber: "",
       course: "BSIT" as const,
       yearLevel: "FIRST_YEAR" as const,
-      proofOfEnrollmentUrl: "" as any,
+      proofOfEnrollmentUrl: "",
     },
     onSubmit: async ({ value }) => {
       console.log(value);
