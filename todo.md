@@ -219,6 +219,60 @@ Pickup Documents
 
 ## Module 1: Student Profile System
 
+### 1.0 UploadThing Refactoring (New)
+
+**Goal**: Create reusable upload component to replace basic file inputs across the app.
+
+**Why Refactor:**
+- Current `ImageUploader.tsx` exists but is unused in `OnboardingStep2.tsx`
+- `OnboardingStep2.tsx` uses basic `<Input type="file">` that doesn't upload to UploadThing
+- Need upload functionality in multiple places: onboarding, payments, settings
+- Repeated code if we implement separately
+
+**Tasks:**
+
+- [ ] **Create reusable upload component**
+    - [ ] Create `src/components/upload/upload-with-url.tsx`
+    - [ ] Create `src/components/upload/upload-with-url.types.ts` with interfaces:
+        - `UploadEndpoint` type from `OurFileRouter`
+        - `UploadWithUrlProps` interface (endpoint, field, label, description, existingUrl, onUploadComplete)
+    - [ ] Component features:
+        - Accepts `endpoint` prop to specify UploadThing route
+        - Integrates with TanStack Form via `field` prop
+        - Shows file preview (image or link) after upload
+        - "Replace" button to re-upload
+        - Loading/error states
+        - Uses `UploadButton` or `UploadDropzone` from UploadThing
+
+- [ ] **Update UploadThing file router** (`src/app/api/uploadthing/core.ts`)
+    - [ ] Add `proofOfEnrollment` endpoint (image + pdf, 5MB limit)
+    - [ ] Add `paymentProof` endpoint (image + pdf, 5MB limit)
+    - [ ] Add `profileImage` endpoint (image only, 4MB limit, optional)
+    - [ ] Add middleware for auth checks (TODO)
+    - [ ] Return `{ url: file.ufsUrl }` on upload complete
+
+- [ ] **Update OnboardingStep2** to use new component
+    - [ ] Replace basic `<Input type="file">` with `<UploadWithUrl>` component
+    - [ ] Pass `endpoint="proofOfEnrollment"` prop
+    - [ ] Integrate with TanStack Form field
+    - [ ] Update validation schema if needed
+
+- [ ] **Cleanup tasks**
+    - [ ] Delete unused `src/app/(student)/dashboard/onboarding/_components/ImageUploader.tsx`
+    - [ ] Remove unused import in `src/app/(student)/dashboard/onboarding/page.tsx` (line 11)
+    - [ ] Verify no other references to old component
+
+- [ ] **Environment setup**
+    - [ ] Get `UPLOADTHING_TOKEN` from https://uploadthing.com/dashboard
+    - [ ] Add `UPLOADTHING_TOKEN` to `.env`
+    - [ ] Add `UPLOADTHING_TOKEN` to `.env.local`
+
+- [ ] **Future usage preparation**
+    - [ ] Document usage in Payments page (`endpoint="paymentProof"`)
+    - [ ] Document usage in Settings page (re-upload with `existingUrl` prop)
+
+---
+
 ### 1.1 Student Onboarding (In Progress)
 
 **Goal**: Collect student information from first-time users using a 3-step form.
@@ -228,7 +282,7 @@ Pickup Documents
 - [ ] Phase 2: Implement main form logic in `page.tsx` (TanStack Form + Step state)
 - [ ] Phase 3: Create/Refactor step components:
     - [ ] `OnboardingStep1.tsx` (Personal Info)
-    - [ ] `OnboardingStep2.tsx` (Student Info + Proof Upload)
+    - [ ] `OnboardingStep2.tsx` (Student Info + Proof Upload) - *Use UploadWithUrl component after 1.0*
     - [ ] `OnboardingStep3.tsx` (Review & Confirm)
 
 **Fields** (all required):
@@ -241,7 +295,7 @@ Pickup Documents
 - Student number
 - Course/Program
 - Year level
-- Proof of enrollment (file upload via UploadThing)
+- Proof of enrollment (file upload via UploadThing - *Use reusable component from 1.0*)
 
 **Flow:**
 
@@ -250,7 +304,7 @@ User signs up → No StudentProfile exists
   ↓
 Redirect to /dashboard/onboarding
   ↓
-Fill form (9 fields) + Upload proof of enrollment
+Fill form (9 fields) + Upload proof of enrollment (via UploadWithUrl)
   ↓
 Create StudentProfile record
   ↓
@@ -262,7 +316,7 @@ User can now request documents (pending admin verification)
 **Technical considerations:**
 
 - Add `StudentProfile` model to Prisma schema
-- Integrate UploadThing for file uploads
+- ~~Integrate UploadThing for file uploads~~ → *Done in section 1.0*
 - Create onboarding page/form (redirect if no profile exists)
 - Form validation with Zod (all fields required)
 - Unique constraint validation: LRN and student number must be unique
