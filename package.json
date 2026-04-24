@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
+    "effect": "^3.21.2",
     "lucide-react": "^0.577.0",
     "mongodb": "^7.1.0",
     "next": "^16.2.1",
@@ -44,6 +45,11 @@
     "uploadthing": "^7.7.4"
   },
   "devDependencies": {
+    "@effect/core": "^0.0.16",
+    "@effect/data": "^0.18.7",
+    "@effect/language-service": "^0.85.1",
+    "@effect/platform": "^0.96.1",
+    "@effect/schema": "^0.75.5",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "^8.20.0",
@@ -57,5 +63,8 @@
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "effect": "^3.21.2"
   }
 }
