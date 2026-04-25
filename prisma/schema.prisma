@@ -131,13 +131,14 @@ model StudentProfile {
   studentNumber        String   
   course               String
   yearLevel            String
-  proofOfEnrollmentUrl String
   isProfileComplete    Boolean  @default(false)
   isVerified           Boolean  @default(false)
   declineReason        String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  uploads              Upload[]
 
   @@index([userId])
   @@map("studentProfile")
@@ -189,9 +190,10 @@ model Payment {
   referenceNumber   String?
   amount            Decimal
   status            String          @default("Pending")
-  proofOfImageUrl   String?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+
+  uploads            Upload[]
 
   @@map("payment")
 }
@@ -208,4 +210,24 @@ model Appointment {
   updatedAt         DateTime        @updatedAt
 
   @@map("appointment")
+}
+
+model Upload {
+  id                String          @id @default(cuid())
+  name              String
+  url               String
+  fileType          String
+  fileSize          Int
+  category          String          @default("other")
+  createdAt         DateTime        @default(now())
+
+  studentProfileId   String?
+  studentProfile   StudentProfile? @relation(fields: [studentProfileId], references: [id])
+  paymentId        String?
+  payment         Payment?        @relation(fields: [paymentId], references: [id])
+
+  @@index([category])
+  @@index([studentProfileId])
+  @@index([paymentId])
+  @@map("upload")
 }
