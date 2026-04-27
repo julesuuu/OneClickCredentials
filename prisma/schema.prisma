@@ -139,6 +139,7 @@ model StudentProfile {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   uploads              Upload[]
+  notifications        Notification[]
 
   @@index([userId])
   @@map("studentProfile")
@@ -196,6 +197,24 @@ model Payment {
   uploads            Upload[]
 
   @@map("payment")
+}
+
+model Notification {
+  id                 String        @id @default(cuid())
+  studentProfileId   String
+  studentProfile     StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  title              String
+  message            String
+  type               String
+  isRead             Boolean       @default(false)
+  relatedEntityId    String?
+  relatedEntityType  String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([studentProfileId])
+  @@index([isRead])
+  @@map("notification")
 }
 
 model Appointment {
