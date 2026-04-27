@@ -10,10 +10,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Step1Values, step1Schema } from "../types";
 
 interface OnboardingStep3Props {
-  form: any; // Type it better if possible
+  form: any;
   onBack: () => void;
 }
 

@@ -17,13 +17,14 @@ export function UploadWithUrl({
   className,
 }: UploadWithUrlProps) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(
-    existingUrl || (typeof field.state.value === "string" ? field.state.value : null)
+    existingUrl ||
+      (typeof field.state.value === "string" ? field.state.value : null),
   );
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadComplete = (res: Array<{ url: string }>) => {
-    if (res?.[0]?.url) {
-      const url = res[0].url;
+  const handleUploadComplete = (res: Array<{ ufsUrl: string }>) => {
+    if (res?.[0]?.ufsUrl) {
+      const url = res[0].ufsUrl;
       setUploadedUrl(url);
       field.handleChange(url);
       onUploadComplete?.(url);
