@@ -54,11 +54,35 @@ export async function submitOnboardingAction(formData: OnboardingFormData) {
     });
 
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Onboarding submission error:", error);
-    if (error instanceof Error) {
-      return { success: false, error: error.message };
+
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "P2002" &&
+      "meta" in error
+    ) {
+      const meta = error.meta as { target?: string[] };
+      const target = meta?.target;
+      if (target?.includes("lrn")) {
+        return { success: false, error: "This LRN is already registered." };
+      }
+      if (target?.includes("studentNumber")) {
+        return {
+          success: false,
+          error: "This student number is already registered.",
+        };
+      }
+      if (target?.includes("userId")) {
+        return {
+          success: false,
+          error: "A profile already exists for this user.",
+        };
+      }
     }
+
     return {
       success: false,
       error: "An unexpected error occurred during onboarding.",
