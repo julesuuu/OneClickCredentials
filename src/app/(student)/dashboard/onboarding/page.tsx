@@ -8,6 +8,8 @@ import { OnboardingStep3 } from "./_components/OnboardingStep3";
 import { Check, User, GraduationCap, ClipboardCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { submitOnboardingAction } from "./actions";
+import { toast } from "sonner";
 
 const steps = [
   { id: 1, title: "Personal", icon: User },
@@ -31,9 +33,13 @@ export default function OnboardingPage() {
       proofOfEnrollmentUrl: "",
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
-      alert("Onboarding complete! Your profile has been submitted for review.");
-      redirect("/dashboard");
+      const result = await submitOnboardingAction(value);
+      if (result.success) {
+        toast.success("Onboarding complete! Your profile has been submitted for review.");
+        redirect("/dashboard");
+      } else {
+        toast.error(result.error || "Failed to submit onboarding. Please try again.");
+      }
     },
   });
 
