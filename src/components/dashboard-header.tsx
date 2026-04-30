@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 const routeLabels: Record<string, string> = {
+  onboarding: "Onboarding",
   requests: "Requests",
   documents: "Documents",
   appointments: "Appointments",
