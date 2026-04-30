@@ -33,9 +33,13 @@ export default function OnboardingPage() {
       proofOfEnrollmentUrl: "",
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
-      alert("Onboarding complete! Your profile has been submitted for review.");
-      redirect("/dashboard");
+      const result = await submitOnboardingAction(value);
+      if (result.success) {
+        toast.success("Onboarding complete! Your profile has been submitted for review.");
+        redirect("/dashboard");
+      } else {
+        toast.error(result.error || "Failed to submit onboarding.");
+      }
     },
   });
 
