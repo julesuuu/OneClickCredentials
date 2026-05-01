@@ -6,13 +6,13 @@
 
 ### Route Structure
 
-- [ ] Create `src/app/(student)/` route group
-- [ ] Create `src/app/(admin)/` route group
-- [ ] Move existing `/(application)/dashboard/` into `/(student)/dashboard/`
+- [x] Create `src/app/(student)/` route group
+- [x] Create `src/app/(admin)/` route group
+- [x] Move existing `/(application)/dashboard/` into `/(student)/dashboard/`
 - [ ] Create admin layout: `src/app/(admin)/layout.tsx`
 - [ ] Create student layout: `src/app/(student)/layout.tsx`
 - [ ] Create admin sidebar component: `src/components/admin-sidebar.tsx`
-- [ ] Role check: `user.role === "admin"` in admin layout (server component)
+- [x] Role check: `user.role === "admin"` in admin layout (server component)
 - [ ] Redirect non-admin from `/admin/*` → `/dashboard` with toast
 
 ### Student Dashboard (`/dashboard` page)
@@ -231,7 +231,7 @@ Pickup Documents
 
 **Tasks:**
 
-- [ ] **Create reusable upload component**
+- [x] **Create reusable upload component**
     - [ ] Create `src/components/upload/upload-with-url.tsx`
     - [ ] Create `src/components/upload/upload-with-url.types.ts` with interfaces:
         - `UploadEndpoint` type from `OurFileRouter`
@@ -244,21 +244,21 @@ Pickup Documents
         - Loading/error states
         - Uses `UploadButton` or `UploadDropzone` from UploadThing
 
-- [ ] **Update UploadThing file router** (`src/app/api/uploadthing/core.ts`)
+- [x] **Update UploadThing file router** (`src/app/api/uploadthing/core.ts`)
     - [ ] Add `proofOfEnrollment` endpoint (image + pdf, 5MB limit)
     - [ ] Add `paymentProof` endpoint (image + pdf, 5MB limit)
     - [ ] Add `profileImage` endpoint (image only, 4MB limit, optional)
-    - [ ] Add middleware for auth checks (TODO)
+    - [x] Add middleware for auth checks
     - [ ] Return `{ url: file.ufsUrl }` on upload complete
 
-- [ ] **Update OnboardingStep2** to use new component
+- [x] **Update OnboardingStep2** to use new component
     - [ ] Replace basic `<Input type="file">` with `<UploadWithUrl>` component
     - [ ] Pass `endpoint="proofOfEnrollment"` prop
     - [ ] Integrate with TanStack Form field
     - [ ] Update validation schema if needed
 
 - [ ] **Cleanup tasks**
-    - [ ] Delete unused `src/app/(student)/dashboard/onboarding/_components/ImageUploader.tsx`
+    - [x] Delete unused `src/app/(student)/dashboard/onboarding/_components/ImageUploader.tsx`
     - [ ] Remove unused import in `src/app/(student)/dashboard/onboarding/page.tsx` (line 11)
     - [ ] Verify no other references to old component
 
@@ -279,11 +279,11 @@ Pickup Documents
 
 **Steps:**
 - [x] Phase 1: Refine Zod schemas & types (Split Step 1/2, Merge for Step 3)
-- [ ] Phase 2: Implement main form logic in `page.tsx` (TanStack Form + Step state)
+- [x] Phase 2: Implement main form logic in `page.tsx` (TanStack Form + Step state)
 - [ ] Phase 3: Create/Refactor step components:
-    - [ ] `OnboardingStep1.tsx` (Personal Info)
-    - [ ] `OnboardingStep2.tsx` (Student Info + Proof Upload) - *Use UploadWithUrl component after 1.0*
-    - [ ] `OnboardingStep3.tsx` (Review & Confirm)
+    - [x] `OnboardingStep1.tsx` (Personal Info)
+    - [x] `OnboardingStep2.tsx` (Student Info + Proof Upload) - *Use UploadWithUrl component after 1.0*
+    - [x] `OnboardingStep3.tsx` (Review & Confirm)
 
 **Fields** (all required):
 
