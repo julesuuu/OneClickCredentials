@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { z } from "zod";
 
@@ -9,8 +10,11 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 1 },
     pdf: { maxFileSize: "4MB", maxFileCount: 1 },
   })
-    .middleware(async () => {
-      // TODO: Add auth check using getSession()
+    .middleware(async ({ req }) => {
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session) {
+        throw new Error("Unauthorized: You must be signed in to upload files.");
+      }
       return {};
     })
     .onUploadComplete(async ({ file }) => {
@@ -30,7 +34,11 @@ export const ourFileRouter = {
     pdf: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .input(z.object({ paymentId: z.string().optional() }))
-    .middleware(async ({ input }) => {
+    .middleware(async ({ req, input }) => {
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session) {
+        throw new Error("Unauthorized: You must be signed in to upload files.");
+      }
       return { paymentId: input.paymentId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
@@ -51,7 +59,11 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .input(z.object({ studentProfileId: z.string().optional() }))
-    .middleware(async ({ input }) => {
+    .middleware(async ({ req, input }) => {
+      const session = await auth.api.getSession({ headers: req.headers });
+      if (!session) {
+        throw new Error("Unauthorized: You must be signed in to upload files.");
+      }
       return { studentProfileId: input.studentProfileId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
