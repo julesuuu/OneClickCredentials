@@ -105,7 +105,7 @@ export function OnboardingForm() {
         </div>
 
         {/* Form Content */}
-        <div className="flex justify-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex justify-center">
           {currentStep === 1 && (
             <OnboardingStep1 form={form} onNext={nextStep} />
           )}
