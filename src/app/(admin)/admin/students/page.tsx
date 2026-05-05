@@ -1,4 +1,6 @@
-import prisma from "@/lib/prisma";
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -8,20 +10,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { getStudents } from "./actions";
 
-export default async function AdminStudentVerificationPage() {
-  const students = await prisma.studentProfile.findMany({
-    include: {
-      user: {
-        select: {
-          email: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+export default function AdminStudentVerificationPage() {
+  const { data: students, isLoading } = useQuery({
+    queryKey: ["students"],
+    queryFn: getStudents,
   });
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-10">
+        <h1 className="text-2xl font-bold tracking-tight mb-6">
+          Student Verification
+        </h1>
+        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center">
+          Loading students...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-10">
@@ -43,7 +51,7 @@ export default async function AdminStudentVerificationPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {students.length === 0 ? (
+            {!students || students.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
