@@ -31,17 +31,18 @@ import {
 import { UploadWithUrl } from "@/components/upload/upload-with-url";
 import { step2Schema } from "../types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface OnboardingStep2Props {
   form: any;
   onNext: () => void;
   onBack: () => void;
+  studentProfileId: string;
 }
 
 export const OnboardingStep2 = ({
   form,
   onNext,
   onBack,
+  studentProfileId,
 }: OnboardingStep2Props) => {
   const handleNext = async () => {
     const values = form.state.values;
@@ -198,6 +199,7 @@ export const OnboardingStep2 = ({
                         </span>
                       </>
                     }
+                    studentProfileId={studentProfileId}
                   />
                   <FieldDescription>
                     {field.state.meta.errors ? (

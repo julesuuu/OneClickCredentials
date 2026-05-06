@@ -15,18 +15,24 @@ export const ourFileRouter = {
       if (!session) {
         throw new Error("Unauthorized: You must be signed in to upload files.");
       }
-      return {};
+      const studentProfile = await prisma.studentProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { id: true },
+      });
+      return { studentProfileId: studentProfile?.id };
     })
-    .onUploadComplete(async ({ file }) => {
-      await prisma.upload.create({
+    .onUploadComplete(async ({ metadata, file }) => {
+      const upload = await prisma.upload.create({
         data: {
           name: file.name,
           url: file.ufsUrl,
           fileType: file.type,
           fileSize: file.size,
           category: "proofOfEnrollment",
+          studentProfileId: metadata.studentProfileId,
         },
       });
+      return { url: file.ufsUrl, uploadId: upload.id };
     }),
 
   paymentProof: f({

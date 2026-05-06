@@ -17,7 +17,11 @@ const steps = [
   { id: 3, title: "Review", icon: ClipboardCheck },
 ];
 
-export function OnboardingForm() {
+interface OnboardingFormProps {
+  studentProfileId: string;
+}
+
+export function OnboardingForm({ studentProfileId }: OnboardingFormProps) {
   const [currentStep, setCurrentStep] = React.useState(1);
   const router = useRouter();
 
@@ -110,7 +114,7 @@ export function OnboardingForm() {
             <OnboardingStep1 form={form} onNext={nextStep} />
           )}
           {currentStep === 2 && (
-            <OnboardingStep2 form={form} onNext={nextStep} onBack={prevStep} />
+            <OnboardingStep2 form={form} onNext={nextStep} onBack={prevStep} studentProfileId={studentProfileId} />
           )}
           {currentStep === 3 && (
             <OnboardingStep3 form={form} onBack={prevStep} />

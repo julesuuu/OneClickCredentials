@@ -17,14 +17,32 @@ export default async function OnboardingPage() {
     redirect("/admin");
   }
 
-  const studentProfile = await prisma.studentProfile.findUnique({
+  let studentProfile = await prisma.studentProfile.findUnique({
     where: { userId: session.user.id },
-    select: { isProfileComplete: true },
+    select: { id: true, isProfileComplete: true },
   });
 
-  if (studentProfile?.isProfileComplete) {
+  if (!studentProfile) {
+    studentProfile = await prisma.studentProfile.create({
+      data: {
+        userId: session.user.id,
+        fullName: "",
+        gender: "MALE",
+        birthDate: new Date(),
+        phoneNumber: "",
+        lrn: "",
+        studentNumber: "",
+        course: "BSIT",
+        yearLevel: "FIRST_YEAR",
+        isProfileComplete: false,
+      },
+      select: { id: true, isProfileComplete: true },
+    });
+  }
+
+  if (studentProfile.isProfileComplete) {
     redirect("/dashboard");
   }
 
-  return <OnboardingForm />;
+  return <OnboardingForm studentProfileId={studentProfile.id} />;
 }
