@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Table,
@@ -10,12 +11,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { getStudents } from "./actions";
+import { Search } from "lucide-react";
 
 export default function AdminStudentVerificationPage() {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
+
   const { data: students, isLoading } = useQuery({
-    queryKey: ["students"],
-    queryFn: getStudents,
+    queryKey: ["students", search, filter],
+    queryFn: () => getStudents({ search, filter }),
   });
 
   if (isLoading) {
@@ -31,11 +38,42 @@ export default function AdminStudentVerificationPage() {
     );
   }
 
+  const filterButtons = [
+    { value: "all", label: "All" },
+    { value: "pending", label: "Pending" },
+    { value: "verified", label: "Verified" },
+  ] as const;
+
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-2xl font-bold tracking-tight mb-6">
         Student Verification
       </h1>
+
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, student number, or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex gap-2">
+          {filterButtons.map(({ value, label }) => (
+            <Button
+              key={value}
+              variant={filter === value ? "default" : "outline"}
+              onClick={() => setFilter(value)}
+              size="sm"
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <Table>
           <TableHeader>
