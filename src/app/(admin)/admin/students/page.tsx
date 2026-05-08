@@ -21,8 +21,8 @@ export default function AdminStudentVerificationPage() {
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
 
   const { data: students, isLoading } = useQuery({
-    queryKey: ["students", search, filter],
-    queryFn: () => getStudents({ search, filter }),
+    queryKey: ["students"],
+    queryFn: getStudents,
   });
 
   if (isLoading) {
@@ -39,10 +39,28 @@ export default function AdminStudentVerificationPage() {
   }
 
   const filterButtons = [
-    { value: "all", label: "All" },
-    { value: "pending", label: "Pending" },
-    { value: "verified", label: "Verified" },
-  ] as const;
+    { value: "all" as const, label: "All" },
+    { value: "pending" as const, label: "Pending" },
+    { value: "verified" as const, label: "Verified" },
+  ];
+
+  const filteredStudents = !students
+    ? []
+    : students
+        .filter((s) => {
+          if (filter === "verified") return s.isVerified;
+          if (filter === "pending") return !s.isVerified;
+          return true;
+        })
+        .filter((s) => {
+          if (!search) return true;
+          const searchLower = search.toLowerCase();
+          return (
+            s.fullName.toLowerCase().includes(searchLower) ||
+            s.studentNumber.toLowerCase().includes(searchLower) ||
+            s.user.email.toLowerCase().includes(searchLower)
+          );
+        });
 
   return (
     <div className="container mx-auto py-10">
@@ -89,17 +107,17 @@ export default function AdminStudentVerificationPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!students || students.length === 0 ? (
+            {!filteredStudents || filteredStudents.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={8}
                   className="h-24 text-center text-muted-foreground"
                 >
-                  No students have registered yet.
+                  No students found.
                 </TableCell>
               </TableRow>
             ) : (
-              students.map((student) => (
+              filteredStudents.map((student) => (
                 <TableRow key={student.id}>
                   <TableCell className="font-medium">
                     {student.fullName}
