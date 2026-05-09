@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatEnumValue } from "@/lib/utils";
 
 interface OnboardingStep3Props {
   form: any;
@@ -34,7 +35,7 @@ export const OnboardingStep3 = ({ form, onBack }: OnboardingStep3Props) => {
               <div>{values.fullName}</div>
 
               <div className="font-semibold">Gender:</div>
-              <div>{values.gender}</div>
+              <div>{formatEnumValue(values.gender)}</div>
 
               <div className="font-semibold">Birth Date:</div>
               <div>{values.birthDate?.toLocaleDateString()}</div>
@@ -54,7 +55,7 @@ export const OnboardingStep3 = ({ form, onBack }: OnboardingStep3Props) => {
               <div>{values.course}</div>
 
               <div className="font-semibold">Year Level:</div>
-              <div>{values.yearLevel}</div>
+              <div>{formatEnumValue(values.yearLevel)}</div>
 
               <div className="font-semibold">Proof of Enrollment:</div>
               <div>
