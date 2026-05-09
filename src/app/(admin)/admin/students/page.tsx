@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getStudents } from "./actions";
 import { Search } from "lucide-react";
+import { formatEnumValue } from "@/lib/utils";
 
 export default function AdminStudentVerificationPage() {
   const [search, setSearch] = useState("");
@@ -124,7 +125,7 @@ export default function AdminStudentVerificationPage() {
                   </TableCell>
                   <TableCell>{student.studentNumber}</TableCell>
                   <TableCell>{student.course}</TableCell>
-                  <TableCell>{student.yearLevel}</TableCell>
+                  <TableCell>{formatEnumValue(student.yearLevel)}</TableCell>
                   <TableCell>{student.user.email}</TableCell>
                   <TableCell>
                     <Badge
