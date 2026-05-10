@@ -13,13 +13,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { getStudents } from "./actions";
-import { Search } from "lucide-react";
+import { Search, Eye } from "lucide-react";
 import { formatEnumValue } from "@/lib/utils";
 
 export default function AdminStudentVerificationPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
+  const [selectedUpload, setSelectedUpload] = useState<{ url: string; fileType: string } | null>(null);
 
   const { data: students, isLoading } = useQuery({
     queryKey: ["students"],
@@ -104,6 +112,7 @@ export default function AdminStudentVerificationPage() {
               <TableHead>Email</TableHead>
               <TableHead>Verification Status</TableHead>
               <TableHead>Profile Status</TableHead>
+              <TableHead>Document</TableHead>
               <TableHead>Registered On</TableHead>
             </TableRow>
           </TableHeader>
@@ -111,51 +120,101 @@ export default function AdminStudentVerificationPage() {
             {!filteredStudents || filteredStudents.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="h-24 text-center text-muted-foreground"
                 >
                   No students found.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredStudents.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell className="font-medium">
-                    {student.fullName}
-                  </TableCell>
-                  <TableCell>{student.studentNumber}</TableCell>
-                  <TableCell>{student.course}</TableCell>
-                  <TableCell>{formatEnumValue(student.yearLevel)}</TableCell>
-                  <TableCell>{student.user.email}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={student.isVerified ? "default" : "secondary"}
-                    >
-                      {student.isVerified ? "Verified" : "Pending"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        student.isProfileComplete ? "default" : "outline"
-                      }
-                    >
-                      {student.isProfileComplete ? "Complete" : "Incomplete"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {student.createdAt.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                </TableRow>
-              ))
+              filteredStudents.map((student) => {
+                const proofOfEnrollment = student.uploads[0];
+                return (
+                  <TableRow key={student.id}>
+                    <TableCell className="font-medium">
+                      {student.fullName}
+                    </TableCell>
+                    <TableCell>{student.studentNumber}</TableCell>
+                    <TableCell>{student.course}</TableCell>
+                    <TableCell>{formatEnumValue(student.yearLevel)}</TableCell>
+                    <TableCell>{student.user.email}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={student.isVerified ? "default" : "secondary"}
+                      >
+                        {student.isVerified ? "Verified" : "Pending"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          student.isProfileComplete ? "default" : "outline"
+                        }
+                      >
+                        {student.isProfileComplete ? "Complete" : "Incomplete"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {proofOfEnrollment ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            setSelectedUpload({
+                              url: proofOfEnrollment.url,
+                              fileType: proofOfEnrollment.fileType,
+                            })
+                          }
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {student.createdAt.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog
+        open={!!selectedUpload}
+        onOpenChange={() => setSelectedUpload(null)}
+      >
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Proof of Enrollment</DialogTitle>
+            <DialogDescription>
+              Document preview for student verification
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUpload && (
+            selectedUpload.fileType.startsWith("image/") ? (
+              <img
+                src={selectedUpload.url}
+                alt="Proof of Enrollment"
+                className="w-full h-auto object-contain max-h-[70vh]"
+              />
+            ) : (
+              <iframe
+                src={selectedUpload.url}
+                className="w-full h-[500px]"
+                title="Proof of Enrollment"
+              />
+            )
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

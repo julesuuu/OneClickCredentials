@@ -10,6 +10,10 @@ export async function getStudents() {
           email: true,
         },
       },
+      uploads: {
+        where: { category: "proofOfEnrollment" },
+        select: { id: true, url: true, fileType: true },
+      },
     },
     orderBy: {
       createdAt: "desc",
