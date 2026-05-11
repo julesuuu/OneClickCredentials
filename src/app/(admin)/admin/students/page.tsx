@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -13,6 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -20,18 +21,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getStudents } from "./actions";
-import { Search, Eye } from "lucide-react";
+import { getStudents, verifyStudent } from "./actions";
+import { Search, Eye, Check, X, RefreshCw } from "lucide-react";
 import { formatEnumValue } from "@/lib/utils";
 
 export default function AdminStudentVerificationPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
   const [selectedUpload, setSelectedUpload] = useState<{ url: string; fileType: string } | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<{ id: string; fullName: string } | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const queryClient = useQueryClient();
 
   const { data: students, isLoading } = useQuery({
     queryKey: ["students"],
     queryFn: getStudents,
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: ({ studentId, isVerified, declineReason }: { studentId: string; isVerified: boolean; declineReason?: string }) =>
+      verifyStudent(studentId, isVerified, declineReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      setSelectedStudent(null);
+    },
   });
 
   if (isLoading) {
@@ -113,7 +126,7 @@ export default function AdminStudentVerificationPage() {
               <TableHead>Verification Status</TableHead>
               <TableHead>Profile Status</TableHead>
               <TableHead>Document</TableHead>
-              <TableHead>Registered On</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -139,11 +152,13 @@ export default function AdminStudentVerificationPage() {
                     <TableCell>{formatEnumValue(student.yearLevel)}</TableCell>
                     <TableCell>{student.user.email}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={student.isVerified ? "default" : "secondary"}
-                      >
-                        {student.isVerified ? "Verified" : "Pending"}
-                      </Badge>
+                      {student.isVerified ? (
+                        <Badge variant="default">Verified</Badge>
+                      ) : student.declineReason ? (
+                        <Badge variant="destructive">Rejected</Badge>
+                      ) : (
+                        <Badge variant="secondary">Pending</Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge
@@ -173,11 +188,52 @@ export default function AdminStudentVerificationPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {student.createdAt.toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {student.isVerified ? (
+                        <span className="text-muted-foreground text-sm">Verified</span>
+                      ) : student.declineReason ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            verifyMutation.mutate({
+                              studentId: student.id,
+                              isVerified: true,
+                            })
+                          }
+                          disabled={verifyMutation.isPending}
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() =>
+                              verifyMutation.mutate({
+                                studentId: student.id,
+                                isVerified: true,
+                              })
+                            }
+                            disabled={verifyMutation.isPending}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              setSelectedStudent({
+                                id: student.id,
+                                fullName: student.fullName,
+                              })
+                            }
+                            disabled={verifyMutation.isPending}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
@@ -213,6 +269,45 @@ export default function AdminStudentVerificationPage() {
               />
             )
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!selectedStudent} onOpenChange={() => { setSelectedStudent(null); setRejectReason(""); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Student</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting {selectedStudent?.fullName}. This will be shown to the student.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Enter rejection reason..."
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => { setSelectedStudent(null); setRejectReason(""); }}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (selectedStudent && rejectReason.trim()) {
+                  verifyMutation.mutate({
+                    studentId: selectedStudent.id,
+                    isVerified: false,
+                    declineReason: rejectReason.trim(),
+                  });
+                }
+              }}
+              disabled={verifyMutation.isPending || !rejectReason.trim()}
+            >
+              Confirm Reject
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

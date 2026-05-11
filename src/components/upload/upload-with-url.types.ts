@@ -14,6 +14,7 @@ export interface UploadWithUrlProps {
   description?: React.ReactNode;
   existingUrl?: string;
   onUploadComplete?: (url: string) => void;
+  onUploadIdComplete?: (uploadId: string) => void;
   className?: string;
   studentProfileId?: string;
   paymentId?: string;

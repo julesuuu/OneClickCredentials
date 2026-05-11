@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,12 +19,20 @@ async function getNotifications() {
 }
 
 export function NotificationBell() {
+  const router = useRouter();
+  
   const { data: notifications, isLoading } = useQuery({
     queryKey: ["notifications"],
     queryFn: getNotifications,
   });
 
   const unreadCount = notifications?.filter((n: any) => !n.isRead).length ?? 0;
+
+  const handleNotificationClick = (notification: any) => {
+    if (notification.type === "REJECTED" || notification.type === "VERIFIED" || notification.type === "PENDING") {
+      router.push("/dashboard/verification");
+    }
+  };
 
   return (
     <Popover>
@@ -55,6 +64,7 @@ export function NotificationBell() {
               {notifications?.map((notification: any) => (
                 <div
                   key={notification.id}
+                  onClick={() => handleNotificationClick(notification)}
                   className={`px-4 py-3 hover:bg-muted/50 cursor-pointer ${
                     !notification.isRead ? "bg-muted/30" : ""
                   }`}

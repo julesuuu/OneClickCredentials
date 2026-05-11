@@ -14,7 +14,10 @@ export function UploadWithUrl({
   description,
   existingUrl,
   onUploadComplete,
+  onUploadIdComplete,
   className,
+  studentProfileId,
+  paymentId,
 }: UploadWithUrlProps) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(
     existingUrl ||
@@ -22,12 +25,14 @@ export function UploadWithUrl({
   );
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadComplete = (res: Array<{ ufsUrl: string }>) => {
+  const handleUploadComplete = (res: Array<{ ufsUrl: string; uploadId?: string }>) => {
     if (res?.[0]?.ufsUrl) {
       const url = res[0].ufsUrl;
+      const uploadId = res[0].uploadId;
       setUploadedUrl(url);
       field.handleChange(url);
       onUploadComplete?.(url);
+      if (uploadId) onUploadIdComplete?.(uploadId);
     }
     setIsUploading(false);
   };
