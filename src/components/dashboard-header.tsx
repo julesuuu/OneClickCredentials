@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserButton } from "@daveyplate/better-auth-ui";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -55,6 +56,7 @@ export function DashboardHeader() {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <NotificationBell />
           <UserButton size="icon" />
         </div>
       </div>
