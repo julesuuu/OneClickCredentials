@@ -15,6 +15,7 @@ export function UploadWithUrl({
   existingUrl,
   onUploadComplete,
   onUploadIdComplete,
+  onPreview,
   className,
   studentProfileId,
   paymentId,
@@ -89,6 +90,16 @@ export function UploadWithUrl({
                 </div>
               )}
             </div>
+            {onPreview && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onPreview(uploadedUrl)}
+              >
+                Preview
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"

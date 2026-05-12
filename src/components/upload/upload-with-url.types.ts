@@ -15,6 +15,7 @@ export interface UploadWithUrlProps {
   existingUrl?: string;
   onUploadComplete?: (url: string) => void;
   onUploadIdComplete?: (uploadId: string) => void;
+  onPreview?: (url: string) => void;
   className?: string;
   studentProfileId?: string;
   paymentId?: string;

@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -34,8 +40,8 @@ export function VerificationStatus({
   const router = useRouter();
   const [uploadUrl, setUploadUrl] = useState(lastUpload?.url || "");
   const [uploadId, setUploadId] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!uploadUrl) {
@@ -59,11 +65,17 @@ export function VerificationStatus({
     }
   };
 
-  const status = isVerified ? "verified" : declineReason ? "rejected" : "pending";
+  const status = isVerified
+    ? "verified"
+    : declineReason
+      ? "rejected"
+      : "pending";
 
   return (
     <div className="container max-w-2xl mx-auto py-10">
-      <h1 className="text-2xl font-bold tracking-tight mb-6">Verification Status</h1>
+      <h1 className="text-2xl font-bold tracking-tight mb-6">
+        Verification Status
+      </h1>
 
       <Card className="mb-6">
         <CardHeader>
@@ -114,11 +126,14 @@ export function VerificationStatus({
                   <p className="text-sm font-medium">Proof of Enrollment</p>
                   <p className="text-xs text-muted-foreground">
                     Uploaded on{" "}
-                    {new Date(lastUpload.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    {new Date(lastUpload.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}
                   </p>
                 </div>
               </div>
@@ -147,12 +162,15 @@ export function VerificationStatus({
                 }}
                 label="Proof of Enrollment"
                 onUploadIdComplete={setUploadId}
+                onPreview={(url) => setPreviewUrl(url)}
                 description={
                   <>
                     Acceptable documents include:
                     <span className="block">• Valid Student ID</span>
                     <span className="block">• Current Enrollment Form</span>
-                    <span className="block">• Certificate of Registration (COR)</span>
+                    <span className="block">
+                      • Certificate of Registration (COR)
+                    </span>
                   </>
                 }
               />
@@ -172,12 +190,10 @@ export function VerificationStatus({
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Proof of Enrollment</DialogTitle>
-            <DialogDescription>
-              Document preview
-            </DialogDescription>
+            <DialogDescription>Document preview</DialogDescription>
           </DialogHeader>
-          {previewUrl && (
-            previewUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+          {previewUrl &&
+            (previewUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
               <img
                 src={previewUrl}
                 alt="Proof of Enrollment"
@@ -186,11 +202,10 @@ export function VerificationStatus({
             ) : (
               <iframe
                 src={previewUrl}
-                className="w-full h-[500px]"
+                className="w-full h-125"
                 title="Proof of Enrollment"
               />
-            )
-          )}
+            ))}
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react/no-children-prop */
 "use client";
 
+import { useState } from "react";
 import { course, yearLevel } from "../data";
 import {
   Card,
@@ -30,7 +31,15 @@ import {
 } from "@/components/ui/select";
 import { UploadWithUrl } from "@/components/upload/upload-with-url";
 import { step2Schema } from "../types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface OnboardingStep2Props {
   form: any;
   onNext: () => void;
@@ -44,6 +53,7 @@ export const OnboardingStep2 = ({
   onBack,
   studentProfileId,
 }: OnboardingStep2Props) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const handleNext = async () => {
     const values = form.state.values;
     const result = step2Schema.safeParse({
@@ -200,6 +210,7 @@ export const OnboardingStep2 = ({
                       </>
                     }
                     studentProfileId={studentProfileId}
+                    onPreview={(url) => setPreviewUrl(url)}
                   />
                   <FieldDescription>
                     {field.state.meta.errors ? (
@@ -221,6 +232,29 @@ export const OnboardingStep2 = ({
         </Button>
         <Button onClick={handleNext}>Next</Button>
       </CardFooter>
+
+      <Dialog open={!!previewUrl} onOpenChange={() => setPreviewUrl(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Proof of Enrollment</DialogTitle>
+            <DialogDescription>Document preview</DialogDescription>
+          </DialogHeader>
+          {previewUrl &&
+            (previewUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+              <img
+                src={previewUrl}
+                alt="Proof of Enrollment"
+                className="w-full h-auto object-contain max-h-[70vh]"
+              />
+            ) : (
+              <iframe
+                src={previewUrl}
+                className="w-full h-125"
+                title="Proof of Enrollment"
+              />
+            ))}
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
