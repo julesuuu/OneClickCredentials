@@ -28,8 +28,14 @@ import { formatEnumValue } from "@/lib/utils";
 export default function AdminStudentVerificationPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pending" | "verified">("all");
-  const [selectedUpload, setSelectedUpload] = useState<{ url: string; fileType: string } | null>(null);
-  const [selectedStudent, setSelectedStudent] = useState<{ id: string; fullName: string } | null>(null);
+  const [selectedUpload, setSelectedUpload] = useState<{
+    url: string;
+    fileType: string;
+  } | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<{
+    id: string;
+    fullName: string;
+  } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const queryClient = useQueryClient();
 
@@ -39,8 +45,15 @@ export default function AdminStudentVerificationPage() {
   });
 
   const verifyMutation = useMutation({
-    mutationFn: ({ studentId, isVerified, declineReason }: { studentId: string; isVerified: boolean; declineReason?: string }) =>
-      verifyStudent(studentId, isVerified, declineReason),
+    mutationFn: ({
+      studentId,
+      isVerified,
+      declineReason,
+    }: {
+      studentId: string;
+      isVerified: boolean;
+      declineReason?: string;
+    }) => verifyStudent(studentId, isVerified, declineReason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       setSelectedStudent(null);
@@ -189,7 +202,9 @@ export default function AdminStudentVerificationPage() {
                     </TableCell>
                     <TableCell>
                       {student.isVerified ? (
-                        <span className="text-muted-foreground text-sm">Verified</span>
+                        <span className="text-muted-foreground text-sm">
+                          Verified
+                        </span>
                       ) : student.declineReason ? (
                         <Button
                           variant="outline"
@@ -254,8 +269,8 @@ export default function AdminStudentVerificationPage() {
               Document preview for student verification
             </DialogDescription>
           </DialogHeader>
-          {selectedUpload && (
-            selectedUpload.fileType.startsWith("image/") ? (
+          {selectedUpload &&
+            (selectedUpload.fileType.startsWith("image/") ? (
               <img
                 src={selectedUpload.url}
                 alt="Proof of Enrollment"
@@ -267,17 +282,23 @@ export default function AdminStudentVerificationPage() {
                 className="w-full h-[500px]"
                 title="Proof of Enrollment"
               />
-            )
-          )}
+            ))}
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!selectedStudent} onOpenChange={() => { setSelectedStudent(null); setRejectReason(""); }}>
+      <Dialog
+        open={!!selectedStudent}
+        onOpenChange={() => {
+          setSelectedStudent(null);
+          setRejectReason("");
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reject Student</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting {selectedStudent?.fullName}. This will be shown to the student.
+              Please provide a reason for rejecting {selectedStudent?.fullName}.
+              This will be shown to the student.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -289,7 +310,13 @@ export default function AdminStudentVerificationPage() {
             />
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => { setSelectedStudent(null); setRejectReason(""); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSelectedStudent(null);
+                setRejectReason("");
+              }}
+            >
               Cancel
             </Button>
             <Button
