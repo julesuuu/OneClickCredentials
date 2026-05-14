@@ -55,7 +55,8 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
     },
   });
 
-  const quantity = form.state.values.quantity ?? 1;
+  const values = form.state.values;
+  const quantity = values.quantity ?? 1;
 
   const incrementQuantity = () => {
     form.setFieldValue("quantity", Math.max(1, quantity + 1));
@@ -141,13 +142,13 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
                 variant="outline"
                 size="icon"
                 onClick={decrementQuantity}
-                disabled={form.values.quantity <= 1}
+                disabled={quantity <= 1}
               >
                 <ChevronDown className="h-4 w-4" />
               </Button>
               <Input
                 type="number"
-                value={form.values.quantity}
+                value={quantity}
                 onChange={(e) => {
                   const val = parseInt(e.target.value, 10);
                   if (val >= 1) {
@@ -172,7 +173,7 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
           <CardContent>
             <Textarea
               placeholder="Any special instructions or notes..."
-              value={form.values.notes}
+              value={values.notes}
               onChange={(e) => form.setFieldValue("notes", e.target.value)}
               maxLength={500}
               rows={4}
