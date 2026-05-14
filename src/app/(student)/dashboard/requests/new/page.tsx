@@ -28,5 +28,5 @@ export default async function NewRequestPage() {
     },
   });
 
-  return <NewRequestForm documentTypes={documentTypes} />;
+  return <NewRequestForm documentTypes={documentTypes.map(d => ({ ...d, price: Number(d.price) }))} />;
 }

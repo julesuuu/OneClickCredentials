@@ -179,7 +179,7 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
               rows={4}
             />
             <p className="text-xs text-muted-foreground mt-2 text-right">
-              {form.values.notes.length}/500
+              {values.notes.length}/500
             </p>
           </CardContent>
         </Card>
@@ -200,12 +200,12 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Quantity</span>
-                <span>{form.values.quantity}</span>
+                <span>{quantity}</span>
               </div>
               <Separator />
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total</span>
-                <span className="text-primary">₱{(selectedDoc.price * form.values.quantity).toFixed(2)}</span>
+                <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
               </div>
             </CardContent>
           </Card>
@@ -218,9 +218,9 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
           <Button
             type="submit"
             className="flex-1"
-            disabled={!selectedType || form.isSubmitting}
+            disabled={!selectedType || form.state.isSubmitting}
           >
-            {form.isSubmitting ? (
+            {form.state.isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Submitting...

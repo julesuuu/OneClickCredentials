@@ -33,5 +33,5 @@ export default async function RequestsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <RequestsList requests={requests} />;
+  return <RequestsList requests={requests.map(r => ({ ...r, totalPrice: Number(r.totalPrice), documentType: { ...r.documentType, price: Number(r.documentType.price) } }))} />;
 }
