@@ -43,7 +43,7 @@ const ForgotPasswordEmail = (props: ForgotPasswordEmailProps) => {
                 associated with <strong>{userEmail}</strong>.
               </Text>
               <Text className="text-[16px] text-gray-700 leading-6 m-0 mb-4 text-center">
-                If you didn't request this, you can safely ignore this email.
+                If you didn&apos;t request this, you can safely ignore this email.
               </Text>
             </Section>
 
