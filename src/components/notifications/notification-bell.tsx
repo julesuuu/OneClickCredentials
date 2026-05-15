@@ -12,7 +12,16 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
 
-async function getNotifications() {
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  type: string;
+  createdAt: string;
+}
+
+async function getNotifications(): Promise<Notification[]> {
   const res = await fetch("/api/notifications");
   if (!res.ok) throw new Error("Failed to fetch notifications");
   return res.json();
@@ -26,9 +35,9 @@ export function NotificationBell() {
     queryFn: getNotifications,
   });
 
-  const unreadCount = notifications?.filter((n: any) => !n.isRead).length ?? 0;
+  const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (notification.type === "REJECTED" || notification.type === "VERIFIED" || notification.type === "PENDING") {
       router.push("/dashboard/verification");
     }
@@ -61,7 +70,7 @@ export function NotificationBell() {
             </div>
           ) : (
             <div className="divide-y">
-              {notifications?.map((notification: any) => (
+              {notifications?.map((notification) => (
                 <div
                   key={notification.id}
                   onClick={() => handleNotificationClick(notification)}
