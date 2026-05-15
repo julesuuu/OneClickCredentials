@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, react/no-children-prop */
 "use client";
 
 import { useState } from "react";
@@ -39,8 +38,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 interface OnboardingStep2Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
   onNext: () => void;
   onBack: () => void;
@@ -88,11 +87,12 @@ export const OnboardingStep2 = ({
                   return res.success ? undefined : res.error.issues[0].message;
                 },
               }}
-              // eslint-disable-next-line react/no-children-prop
-              children={(field: any) => (
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>
-                    Learner's Reference Number
+                    Learner&apos;s Reference Number
                   </FieldLabel>
                   <Input
                     id={field.name}
@@ -111,11 +111,11 @@ export const OnboardingStep2 = ({
                   </FieldDescription>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="studentNumber"
-              children={(field: any) => (
+            <form.Field name="studentNumber">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>Student Number</FieldLabel>
                   <Input
@@ -129,11 +129,11 @@ export const OnboardingStep2 = ({
                   </FieldDescription>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="yearLevel"
-              children={(field: any) => (
+            <form.Field name="yearLevel">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>Year Level</FieldLabel>
                   <Select
@@ -156,11 +156,11 @@ export const OnboardingStep2 = ({
                   </Select>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="course"
-              children={(field: any) => (
+            <form.Field name="course">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>Course</FieldLabel>
                   <Select
@@ -183,17 +183,19 @@ export const OnboardingStep2 = ({
                   </Select>
                 </Field>
               )}
-            />
+            </form.Field>
 
             <form.Field
               name="proofOfEnrollmentUrl"
               validators={{
-                onChange: ({ value }: { value: any }) => {
+                onChange: ({ value }: { value: string }) => {
                   if (!value) return "Please upload your proof of enrollment";
                   return undefined;
                 },
               }}
-              children={(field: any) => (
+            >
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <UploadWithUrl
                     endpoint="proofOfEnrollment"
@@ -202,10 +204,10 @@ export const OnboardingStep2 = ({
                     description={
                       <>
                         Acceptable documents include:
-                        <span className="block">• Valid Student ID</span>
-                        <span className="block">• Current Enrollment Form</span>
+                        <span className="block">&bull; Valid Student ID</span>
+                        <span className="block">&bull; Current Enrollment Form</span>
                         <span className="block">
-                          • Certificate of Registration (COR)
+                          &bull; Certificate of Registration (COR)
                         </span>
                       </>
                     }
@@ -221,13 +223,13 @@ export const OnboardingStep2 = ({
                   </FieldDescription>
                 </Field>
               )}
-            />
+            </form.Field>
           </FieldGroup>
         </FieldSet>
       </CardContent>
 
       <CardFooter className="flex gap-4 mt-4 justify-center">
-        <Button variant={"outline"} onClick={onBack}>
+        <Button variant="outline" onClick={onBack}>
           Back
         </Button>
         <Button onClick={handleNext}>Next</Button>

@@ -37,6 +37,7 @@ import { gender } from "../data";
 import { step1Schema } from "../types";
 
 interface OnboardingStep1Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
   onNext: () => void;
 }
@@ -45,7 +46,6 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
   const [open, setOpen] = React.useState(false);
 
   const handleNext = async () => {
-    // Validate fields for Step 1
     const values = form.state.values;
     const result = step1Schema.safeParse({
       fullName: values.fullName,
@@ -57,7 +57,6 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
     if (result.success) {
       onNext();
     } else {
-      // Trigger field level validation to show errors
       form.validateAllFields("submit");
     }
   };
@@ -71,15 +70,9 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
       <CardContent>
         <FieldSet>
           <FieldGroup>
-            <form.Field
-              name="fullName"
-              validators={{
-                onChange: ({ value }: { value: string }) => {
-                  const res = step1Schema.shape.fullName.safeParse(value);
-                  return res.success ? undefined : res.error.issues[0].message;
-                },
-              }}
-              children={(field: any) => (
+            <form.Field name="fullName">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>Name</FieldLabel>
                   <Input
@@ -100,17 +93,11 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
                   </FieldDescription>
                 </Field>
               )}
-            />
+            </form.Field>
 
-            <form.Field
-              name="phoneNumber"
-              validators={{
-                onChange: ({ value }: { value: string }) => {
-                  const res = step1Schema.shape.phoneNumber.safeParse(value);
-                  return res.success ? undefined : res.error.issues[0].message;
-                },
-              }}
-              children={(field: any) => (
+            <form.Field name="phoneNumber">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
                 <Field>
                   <FieldLabel htmlFor={field.name}>Phone Number</FieldLabel>
                   <Input
@@ -127,12 +114,12 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
                   )}
                 </Field>
               )}
-            />
+            </form.Field>
 
             <div className="flex gap-4 mt-4 w-full">
-              <form.Field
-                name="birthDate"
-                children={(field: any) => (
+              <form.Field name="birthDate">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {(field: any) => (
                   <Field className="flex-1">
                     <FieldLabel htmlFor={field.name}>Date of Birth</FieldLabel>
                     <Popover open={open} onOpenChange={setOpen}>
@@ -165,11 +152,11 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
                     </Popover>
                   </Field>
                 )}
-              />
+              </form.Field>
 
-              <form.Field
-                name="gender"
-                children={(field: any) => (
+              <form.Field name="gender">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                {(field: any) => (
                   <Field className="flex-1">
                     <FieldLabel htmlFor={field.name}>Gender</FieldLabel>
                     <Select
@@ -192,7 +179,7 @@ export const OnboardingStep1 = ({ form, onNext }: OnboardingStep1Props) => {
                     </Select>
                   </Field>
                 )}
-              />
+              </form.Field>
             </div>
           </FieldGroup>
         </FieldSet>
