@@ -6,5 +6,17 @@ export default async function DocumentTypesPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <DocumentTypesManager documentTypes={documentTypes.map(d => ({ ...d, price: Number(d.price) }))} />;
+  return (
+    <DocumentTypesManager
+      documentTypes={documentTypes.map((d) => ({
+        id: d.id,
+        name: d.name,
+        description: d.description,
+        price: Number(d.price),
+        isActive: d.isActive,
+        createdAt: d.createdAt,
+        updatedAt: d.updatedAt,
+      }))}
+    />
+  );
 }
