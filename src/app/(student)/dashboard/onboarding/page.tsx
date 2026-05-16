@@ -17,28 +17,23 @@ export default async function OnboardingPage() {
     redirect("/admin");
   }
 
-  let studentProfile = await prisma.studentProfile.findUnique({
+  let studentProfile = await prisma.studentProfile.upsert({
     where: { userId: session.user.id },
+    create: {
+      userId: session.user.id,
+      fullName: "",
+      gender: "MALE",
+      birthDate: new Date(),
+      phoneNumber: "",
+      lrn: `temp_${session.user.id}_${Date.now()}`,
+      studentNumber: "",
+      course: "BSIT",
+      yearLevel: "FIRST_YEAR",
+      isProfileComplete: false,
+    },
+    update: {},
     select: { id: true, isProfileComplete: true },
   });
-
-  if (!studentProfile) {
-    studentProfile = await prisma.studentProfile.create({
-      data: {
-        userId: session.user.id,
-        fullName: "",
-        gender: "MALE",
-        birthDate: new Date(),
-        phoneNumber: "",
-        lrn: "",
-        studentNumber: "",
-        course: "BSIT",
-        yearLevel: "FIRST_YEAR",
-        isProfileComplete: false,
-      },
-      select: { id: true, isProfileComplete: true },
-    });
-  }
 
   if (studentProfile.isProfileComplete) {
     redirect("/dashboard");
