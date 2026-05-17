@@ -16,6 +16,7 @@ export function PublicHeader() {
               alt="OneClick Credentials"
               width={30}
               height={30}
+              loading="eager"
               className="size-8"
             />
           </div>
