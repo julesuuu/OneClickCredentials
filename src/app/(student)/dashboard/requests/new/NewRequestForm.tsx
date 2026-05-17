@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -54,17 +53,6 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
       }
     },
   });
-
-  const values = form.state.values;
-  const quantity = values.quantity ?? 1;
-
-  const incrementQuantity = () => {
-    form.setFieldValue("quantity", Math.max(1, quantity + 1));
-  };
-
-  const decrementQuantity = () => {
-    form.setFieldValue("quantity", Math.max(1, quantity - 1));
-  };
 
   if (documentTypes.length === 0) {
     return (
@@ -136,32 +124,40 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
             <CardDescription>Number of copies needed</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center gap-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={decrementQuantity}
-                disabled={quantity <= 1}
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-              <Input
-                type="number"
-                value={quantity}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  if (val >= 1) {
-                    form.setFieldValue("quantity", val);
-                  }
-                }}
-                className="w-20 text-center"
-                min={1}
-              />
-              <Button type="button" variant="outline" size="icon" onClick={incrementQuantity}>
-                <ChevronUp className="h-4 w-4" />
-              </Button>
-            </div>
+            <form.Field name="quantity">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => field.handleChange(Math.max(1, field.state.value - 1))}
+                    disabled={field.state.value <= 1}
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    value={field.state.value}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10);
+                      field.handleChange(isNaN(val) || val < 1 ? 1 : val);
+                    }}
+                    className="w-20 text-center"
+                    min={1}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => field.handleChange(field.state.value + 1)}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </form.Field>
           </CardContent>
         </Card>
 
@@ -171,44 +167,58 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
             <CardDescription>Any special instructions</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea
-              placeholder="Any special instructions or notes..."
-              value={values.notes}
-              onChange={(e) => form.setFieldValue("notes", e.target.value)}
-              maxLength={500}
-              rows={4}
-            />
-            <p className="text-xs text-muted-foreground mt-2 text-right">
-              {values.notes.length}/500
-            </p>
+            <form.Field name="notes">
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              {(field: any) => (
+                <>
+                  <Textarea
+                    placeholder="Any special instructions or notes..."
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    maxLength={500}
+                    rows={4}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2 text-right">
+                    {field.state.value.length}/500
+                  </p>
+                </>
+              )}
+            </form.Field>
           </CardContent>
         </Card>
 
         {selectedDoc && (
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Document</span>
-                <span className="font-medium">{selectedDoc.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Price per copy</span>
-                <span>₱{selectedDoc.price.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Quantity</span>
-                <span>{quantity}</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between text-lg font-semibold">
-                <span>Total</span>
-                <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
-              </div>
-            </CardContent>
-          </Card>
+          <form.Subscribe
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            selector={(state: any) => state.values.quantity}
+          >
+            {(quantity: number) => (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Document</span>
+                    <span className="font-medium">{selectedDoc.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Price per copy</span>
+                    <span>₱{selectedDoc.price.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Quantity</span>
+                    <span>{quantity}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total</span>
+                    <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </form.Subscribe>
         )}
 
         <div className="flex gap-4">
