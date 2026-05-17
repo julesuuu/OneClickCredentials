@@ -69,6 +69,11 @@ export async function createDocumentRequest(formData: FormData) {
     throw new Error("Quantity must be at least 1");
   }
 
+  const MAX_QUANTITY = 5;
+  if (quantity > MAX_QUANTITY) {
+    throw new Error(`Maximum quantity allowed is ${MAX_QUANTITY}`);
+  }
+
   const documentType = await prisma.documentType.findUnique({
     where: { id: documentTypeId },
   });

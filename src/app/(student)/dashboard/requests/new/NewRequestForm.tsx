@@ -12,6 +12,8 @@ import { createDocumentRequest } from "../actions";
 import { toast } from "sonner";
 import { FileText, ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 
+const MAX_QUANTITY = 5;
+
 interface DocumentType {
   id: string;
   name: string;
@@ -26,14 +28,14 @@ interface NewRequestFormProps {
 export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
   const router = useRouter();
   const [selectedType, setSelectedType] = React.useState<string | null>(null);
+  const [quantity, setQuantity] = React.useState(1);
+  const [notes, setNotes] = React.useState("");
 
   const selectedDoc = documentTypes.find((d) => d.id === selectedType);
 
   const form = useForm({
     defaultValues: {
       documentTypeId: "",
-      quantity: 1,
-      notes: "",
     },
     onSubmit: async ({ value }) => {
       if (!value.documentTypeId) {
@@ -44,8 +46,8 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
       try {
         const formData = new FormData();
         formData.append("documentTypeId", value.documentTypeId);
-        formData.append("quantity", value.quantity.toString());
-        formData.append("notes", value.notes || "");
+        formData.append("quantity", quantity.toString());
+        formData.append("notes", notes || "");
 
         await createDocumentRequest(formData);
       } catch (error) {
@@ -124,40 +126,42 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
             <CardDescription>Number of copies needed</CardDescription>
           </CardHeader>
           <CardContent>
-            <form.Field name="quantity">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <div className="flex items-center gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => field.handleChange(Math.max(1, field.state.value - 1))}
-                    disabled={field.state.value <= 1}
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Input
-                    type="number"
-                    value={field.state.value}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value, 10);
-                      field.handleChange(isNaN(val) || val < 1 ? 1 : val);
-                    }}
-                    className="w-20 text-center"
-                    min={1}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => field.handleChange(field.state.value + 1)}
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </form.Field>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setQuantity(isNaN(val) || val < 1 ? 1 : Math.min(val, MAX_QUANTITY));
+                  }}
+                  className="w-20 text-center"
+                  min={1}
+                  max={MAX_QUANTITY}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setQuantity((q) => Math.min(MAX_QUANTITY, q + 1))}
+                  disabled={quantity >= MAX_QUANTITY}
+                >
+                  <ChevronUp className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Maximum {MAX_QUANTITY} copies per request
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -167,58 +171,44 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
             <CardDescription>Any special instructions</CardDescription>
           </CardHeader>
           <CardContent>
-            <form.Field name="notes">
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              {(field: any) => (
-                <>
-                  <Textarea
-                    placeholder="Any special instructions or notes..."
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    maxLength={500}
-                    rows={4}
-                  />
-                  <p className="text-xs text-muted-foreground mt-2 text-right">
-                    {field.state.value.length}/500
-                  </p>
-                </>
-              )}
-            </form.Field>
+            <Textarea
+              placeholder="Any special instructions or notes..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={500}
+              rows={4}
+            />
+            <p className="text-xs text-muted-foreground mt-2 text-right">
+              {notes.length}/500
+            </p>
           </CardContent>
         </Card>
 
         {selectedDoc && (
-          <form.Subscribe
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            selector={(state: any) => state.values.quantity}
-          >
-            {(quantity: number) => (
-              <Card className="border-primary/20 bg-primary/5">
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Document</span>
-                    <span className="font-medium">{selectedDoc.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Price per copy</span>
-                    <span>₱{selectedDoc.price.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Quantity</span>
-                    <span>{quantity}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-lg font-semibold">
-                    <span>Total</span>
-                    <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </form.Subscribe>
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader>
+              <CardTitle>Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Document</span>
+                <span className="font-medium">{selectedDoc.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Price per copy</span>
+                <span>₱{selectedDoc.price.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Quantity</span>
+                <span>{quantity}</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between text-lg font-semibold">
+                <span>Total</span>
+                <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <div className="flex gap-4">
