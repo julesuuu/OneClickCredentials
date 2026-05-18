@@ -49,7 +49,11 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
         formData.append("quantity", quantity.toString());
         formData.append("notes", notes || "");
 
-        await createDocumentRequest(formData);
+        const result = await createDocumentRequest(formData);
+        if (result.success) {
+          toast.success("Request submitted successfully");
+          router.push("/dashboard/requests");
+        }
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to create request");
       }
