@@ -7,7 +7,10 @@ export async function getDocumentTypes() {
     orderBy: { createdAt: "desc" },
   });
 
-  return types;
+  return types.map((t) => ({
+    ...t,
+    price: Number(t.price),
+  }));
 }
 
 export async function createDocumentType(formData: FormData) {
