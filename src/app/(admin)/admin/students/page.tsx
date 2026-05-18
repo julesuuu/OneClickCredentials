@@ -279,7 +279,7 @@ export default function AdminStudentVerificationPage() {
             ) : (
               <iframe
                 src={selectedUpload.url}
-                className="w-full h-[500px]"
+                className="w-full h-125"
                 title="Proof of Enrollment"
               />
             ))}
@@ -306,7 +306,7 @@ export default function AdminStudentVerificationPage() {
               placeholder="Enter rejection reason..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-25"
             />
           </div>
           <div className="flex justify-end gap-2 mt-4">
