@@ -149,7 +149,7 @@ model DocumentType {
   id          String   @id @default(cuid())
   name        String
   description String?
-  price       Decimal
+  price       Int
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -166,7 +166,7 @@ model DocumentRequest {
   documentTypeId String
   documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
   quantity       Int
-  totalPrice     Decimal
+  totalPrice     Int
   status         String       @default("Pending")
   notes          String?
   declineReason  String?
@@ -189,7 +189,7 @@ model Payment {
   documentRequest   DocumentRequest @relation(fields: [documentRequestId], references: [id], onDelete: Cascade)
   method            String          @default("Cash")
   referenceNumber   String?
-  amount            Decimal
+  amount            Int
   status            String          @default("Pending")
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt

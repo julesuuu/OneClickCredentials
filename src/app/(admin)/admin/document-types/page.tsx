@@ -12,7 +12,7 @@ export default async function DocumentTypesPage() {
         id: d.id,
         name: d.name,
         description: d.description,
-        price: Number(d.price),
+        price: d.price,
         isActive: d.isActive,
         createdAt: d.createdAt,
         updatedAt: d.updatedAt,

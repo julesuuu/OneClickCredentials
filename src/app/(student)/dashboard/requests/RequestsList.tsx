@@ -111,7 +111,7 @@ export function RequestsList({ requests }: RequestsListProps) {
                         )}
                       </TableCell>
                       <TableCell>{request.quantity}</TableCell>
-                      <TableCell>₱{Number(request.totalPrice).toFixed(2)}</TableCell>
+                      <TableCell>₱{request.totalPrice}</TableCell>
                       <TableCell>
                         <Badge variant={statusConfig[request.status]?.variant || "secondary"}>
                           <StatusIcon className="mr-1 h-3 w-3" />

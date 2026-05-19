@@ -3,14 +3,9 @@
 import prisma from "@/lib/prisma";
 
 export async function getDocumentTypes() {
-  const types = await prisma.documentType.findMany({
+  return await prisma.documentType.findMany({
     orderBy: { createdAt: "desc" },
   });
-
-  return types.map((t) => ({
-    ...t,
-    price: Number(t.price),
-  }));
 }
 
 export async function createDocumentType(formData: FormData) {

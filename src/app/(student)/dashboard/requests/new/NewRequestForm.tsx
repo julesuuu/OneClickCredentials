@@ -117,7 +117,7 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
                   {doc.description && (
                     <p className="text-sm text-muted-foreground mt-1">{doc.description}</p>
                   )}
-                  <div className="mt-2 font-semibold text-primary">₱{doc.price.toFixed(2)}</div>
+                  <div className="mt-2 font-semibold text-primary">₱{doc.price}</div>
                 </div>
               ))}
             </div>
@@ -200,7 +200,7 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Price per copy</span>
-                <span>₱{selectedDoc.price.toFixed(2)}</span>
+                <span>₱{selectedDoc.price}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Quantity</span>
@@ -209,7 +209,7 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
               <Separator />
               <div className="flex justify-between text-lg font-semibold">
                 <span>Total</span>
-                <span className="text-primary">₱{(selectedDoc.price * quantity).toFixed(2)}</span>
+                <span className="text-primary">₱{selectedDoc.price * quantity}</span>
               </div>
             </CardContent>
           </Card>

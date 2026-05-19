@@ -34,7 +34,7 @@ export default async function NewRequestPage() {
         id: d.id,
         name: d.name,
         description: d.description,
-        price: Number(d.price),
+        price: d.price,
       }))}
     />
   );

@@ -69,7 +69,7 @@ export function DocumentTypesManager({ documentTypes: initialData }: DocumentTyp
         id: item.id,
         name: item.name,
         description: item.description,
-        price: Number(item.price),
+        price: item.price,
         isActive: item.isActive,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
@@ -282,7 +282,7 @@ export function DocumentTypesManager({ documentTypes: initialData }: DocumentTyp
                     <TableCell className="text-muted-foreground">
                       {type.description || "-"}
                     </TableCell>
-                    <TableCell>₱{type.price.toFixed(2)}</TableCell>
+                    <TableCell>₱{type.price}</TableCell>
                     <TableCell>
                       <Badge variant={type.isActive ? "default" : "secondary"}>
                         {type.isActive ? "Active" : "Inactive"}

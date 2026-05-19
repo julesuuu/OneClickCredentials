@@ -81,7 +81,7 @@ export async function createDocumentRequest(formData: FormData) {
     throw new Error("Invalid document type");
   }
 
-  const totalPrice = Number(documentType.price) * quantity;
+  const totalPrice = documentType.price * quantity;
 
   await prisma.documentRequest.create({
     data: {

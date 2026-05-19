@@ -40,7 +40,7 @@ export default async function RequestsPage() {
         userId: r.userId,
         documentTypeId: r.documentTypeId,
         quantity: r.quantity,
-        totalPrice: Number(r.totalPrice),
+        totalPrice: r.totalPrice,
         notes: r.notes,
         declineReason: r.declineReason,
         status: r.status,
@@ -49,7 +49,7 @@ export default async function RequestsPage() {
         documentType: {
           name: r.documentType.name,
           description: r.documentType.description,
-          price: Number(r.documentType.price),
+          price: r.documentType.price,
         },
         payment: r.payment,
         appointment: r.appointment,
