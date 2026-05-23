@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   GraduationCap,
+  ClipboardList,
   FileText,
   CreditCard,
   Calendar,
@@ -35,6 +36,7 @@ const mainNavigation = [
     items: [
       { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
       { title: "Students", url: "/admin/students", icon: GraduationCap },
+      { title: "Requests", url: "/admin/requests", icon: ClipboardList },
       { title: "Document Types", url: "/admin/document-types", icon: FileText },
       { title: "Payments", url: "/admin/payments", icon: CreditCard },
       { title: "Appointments", url: "/admin/appointments", icon: Calendar },
