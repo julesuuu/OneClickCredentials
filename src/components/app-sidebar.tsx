@@ -90,7 +90,7 @@ const legalNavigation = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
 
   return (
@@ -132,7 +132,10 @@ export function AppSidebar() {
                       return (
                         <SidebarMenuItem key={item.title} className="pb-1">
                           <SidebarMenuButton asChild isActive={isActive}>
-                            <Link href={item.url}>
+                            <Link
+                              href={item.url}
+                              onClick={() => setOpenMobile(false)}
+                            >
                               <item.icon className="h-4 w-4" />
                               <span>{item.title}</span>
                             </Link>
