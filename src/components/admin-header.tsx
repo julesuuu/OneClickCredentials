@@ -14,6 +14,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
+import { Home } from "lucide-react";
 
 const routeLabels: Record<string, string> = {
   students: "Students",
@@ -40,7 +41,17 @@ export function AdminHeader() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/admin">Admin</Link>
+                  <Link href="/admin">
+                    {currentLabel ? (
+                      <>
+                        <Home className="h-4 w-4 md:hidden" />
+                        <span className="hidden md:inline">Admin</span>
+                      </>
+                    ) : (
+                      "Admin"
+                    )}
+                    <span className="sr-only">Admin</span>
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               {currentLabel && (
