@@ -12,6 +12,7 @@ export const courseOptions = [
   "BSIT",
   "BSHM",
   "BSBA",
+  "BEED",
   "BSED",
   "BSCRIM",
 ] as const;
