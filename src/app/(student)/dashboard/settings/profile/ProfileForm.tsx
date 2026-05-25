@@ -170,7 +170,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   setFormData({ ...formData, gender: v })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,7 +204,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   setFormData({ ...formData, course: v })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,7 +224,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   setFormData({ ...formData, yearLevel: v })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
