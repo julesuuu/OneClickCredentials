@@ -47,6 +47,8 @@ export async function submitVerificationAction(data: VerificationSubmitData) {
         title: "Verification Resubmitted",
         message: "Your verification has been resubmitted for review. We'll notify you once processed.",
         type: "PENDING",
+        relatedEntityType: "verification",
+        relatedEntityId: studentProfile.id,
       },
     });
 

@@ -94,6 +94,8 @@ export async function updateRequestStatus(
           notificationData[status]?.message ??
           `Your request status has been updated to ${status}.`,
         type: status.toUpperCase(),
+        relatedEntityType: "document_request",
+        relatedEntityId: requestId,
       },
     }),
   ]);
@@ -130,6 +132,8 @@ export async function rejectRequest(requestId: string, reason: string) {
         title: "Request Rejected",
         message: `Your request for ${request.documentType.name} was rejected. Reason: ${reason}`,
         type: "REJECTED",
+        relatedEntityType: "document_request",
+        relatedEntityId: requestId,
       },
     }),
   ]);

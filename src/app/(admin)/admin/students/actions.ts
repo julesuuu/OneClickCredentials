@@ -39,6 +39,8 @@ export async function verifyStudent(studentId: string, isVerified: boolean, decl
         title: "Verification Rejected",
         message: `Your verification was rejected. Reason: ${declineReason}. Please re-upload your proof of enrollment.`,
         type: "REJECTED",
+        relatedEntityType: "verification",
+        relatedEntityId: studentId,
       },
     });
   }
@@ -50,6 +52,8 @@ export async function verifyStudent(studentId: string, isVerified: boolean, decl
         title: "Verification Approved",
         message: "Congratulations! Your verification has been approved.",
         type: "VERIFIED",
+        relatedEntityType: "verification",
+        relatedEntityId: studentId,
       },
     });
   }
