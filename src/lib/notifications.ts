@@ -1,4 +1,4 @@
-import type { Notification as PrismaNotification } from "@prisma/client";
+import type { Notification as PrismaNotification } from "@/generated/prisma/client";
 
 export type Notification = Pick<
   PrismaNotification,
