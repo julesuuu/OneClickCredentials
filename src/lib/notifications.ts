@@ -7,8 +7,8 @@ export type Notification = Pick<
 
 export async function fetchNotifications(): Promise<Notification[]> {
   const res = await fetch("/api/notifications");
-  if (!res.ok) throw new Error("Failed to fetch notifications");
-  return res.json();
+  if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+  return res.json() as Promise<Notification[]>;
 }
 
 export async function markAsRead(id: string): Promise<void> {
