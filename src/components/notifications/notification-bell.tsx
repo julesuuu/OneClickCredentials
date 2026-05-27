@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,36 +10,46 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatDistanceToNow } from "date-fns";
+import { NotificationItem } from "@/components/notifications/notification-item";
+import { fetchNotifications, markAsRead, markAllAsRead, type Notification } from "@/lib/notifications";
 
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  isRead: boolean;
-  type: string;
-  createdAt: string;
-}
-
-async function getNotifications(): Promise<Notification[]> {
-  const res = await fetch("/api/notifications");
-  if (!res.ok) throw new Error("Failed to fetch notifications");
-  return res.json();
+function getNotificationUrl(notification: Notification): string {
+  if (notification.relatedEntityType === "document_request") {
+    return "/dashboard/requests";
+  }
+  return "/dashboard/verification";
 }
 
 export function NotificationBell() {
   const router = useRouter();
-  
+  const queryClient = useQueryClient();
+
   const { data: notifications, isLoading } = useQuery({
     queryKey: ["notifications"],
-    queryFn: getNotifications,
+    queryFn: fetchNotifications,
+    refetchInterval: 30_000,
   });
 
   const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (notification.type === "REJECTED" || notification.type === "VERIFIED" || notification.type === "PENDING") {
-      router.push("/dashboard/verification");
+  const handleNotificationClick = async (notification: Notification) => {
+    if (!notification.isRead) {
+      try {
+        await markAsRead(notification.id);
+        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      } catch {
+        // Silently fail — navigation still works
+      }
+    }
+    router.push(getNotificationUrl(notification));
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    } catch {
+      // Silently fail
     }
   };
 
@@ -58,6 +68,16 @@ export function NotificationBell() {
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h4 className="font-medium">Notifications</h4>
+          {unreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto px-2 py-1 text-xs"
+              onClick={handleMarkAllAsRead}
+            >
+              Mark all as read
+            </Button>
+          )}
         </div>
         <ScrollArea className="h-[300px]">
           {isLoading ? (
@@ -71,23 +91,11 @@ export function NotificationBell() {
           ) : (
             <div className="divide-y">
               {notifications?.map((notification) => (
-                <div
+                <NotificationItem
                   key={notification.id}
-                  onClick={() => handleNotificationClick(notification)}
-                  className={`px-4 py-3 hover:bg-muted/50 cursor-pointer ${
-                    !notification.isRead ? "bg-muted/30" : ""
-                  }`}
-                >
-                  <p className="text-sm font-medium">{notification.title}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {formatDistanceToNow(new Date(notification.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
-                </div>
+                  notification={notification}
+                  onClick={handleNotificationClick}
+                />
               ))}
             </div>
           )}

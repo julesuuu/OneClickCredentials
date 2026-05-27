@@ -8,6 +8,7 @@ import {
   FileText,
   ClipboardList,
   Calendar,
+  Bell,
   Settings,
   Lock,
   Scale,
@@ -55,6 +56,11 @@ const mainNavigation = [
         title: "Appointment",
         url: "/dashboard/appointments",
         icon: Calendar,
+      },
+      {
+        title: "Notifications",
+        url: "/dashboard/notifications",
+        icon: Bell,
       },
       {
         title: "Settings",
