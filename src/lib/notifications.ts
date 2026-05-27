@@ -21,8 +21,14 @@ export async function markAllAsRead(): Promise<void> {
   if (!res.ok) throw new Error("Failed to mark all notifications as read");
 }
 
-export function getNotificationUrl(notification: Pick<Notification, "relatedEntityType">): string {
+export function getNotificationUrl(notification: Pick<Notification, "relatedEntityType" | "type">): string {
   if (notification.relatedEntityType === "document_request") {
+    return "/dashboard/requests";
+  }
+  if (notification.relatedEntityType === "verification") {
+    return "/dashboard/verification";
+  }
+  if (["PROCESSING", "READY", "COMPLETED"].includes(notification.type)) {
     return "/dashboard/requests";
   }
   return "/dashboard/verification";
