@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { NotificationItem } from "@/components/notifications/notification-item";
-import { fetchNotifications, markAsRead, markAllAsRead } from "@/lib/notifications";
+import { fetchNotifications, markAsRead, markAllAsRead, getNotificationUrl, type Notification } from "@/lib/notifications";
 
 export default function NotificationsPage() {
   const router = useRouter();
@@ -25,11 +25,7 @@ export default function NotificationsPage() {
       ? notifications?.filter((n) => !n.isRead)
       : notifications;
 
-  const handleNotificationClick = async (notification: {
-    id: string;
-    isRead: boolean;
-    relatedEntityType: string | null;
-  }) => {
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.isRead) {
       try {
         await markAsRead(notification.id);
@@ -39,11 +35,7 @@ export default function NotificationsPage() {
       }
     }
 
-    const url =
-      notification.relatedEntityType === "document_request"
-        ? "/dashboard/requests"
-        : "/dashboard/verification";
-    router.push(url);
+    router.push(getNotificationUrl(notification));
   };
 
   return (

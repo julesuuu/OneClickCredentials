@@ -11,14 +11,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { NotificationItem } from "@/components/notifications/notification-item";
-import { fetchNotifications, markAsRead, markAllAsRead, type Notification } from "@/lib/notifications";
-
-function getNotificationUrl(notification: Notification): string {
-  if (notification.relatedEntityType === "document_request") {
-    return "/dashboard/requests";
-  }
-  return "/dashboard/verification";
-}
+import { fetchNotifications, markAsRead, markAllAsRead, getNotificationUrl, type Notification } from "@/lib/notifications";
 
 export function NotificationBell() {
   const router = useRouter();

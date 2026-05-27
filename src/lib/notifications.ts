@@ -20,3 +20,10 @@ export async function markAllAsRead(): Promise<void> {
   const res = await fetch("/api/notifications/read-all", { method: "PATCH" });
   if (!res.ok) throw new Error("Failed to mark all notifications as read");
 }
+
+export function getNotificationUrl(notification: Pick<Notification, "relatedEntityType">): string {
+  if (notification.relatedEntityType === "document_request") {
+    return "/dashboard/requests";
+  }
+  return "/dashboard/verification";
+}
