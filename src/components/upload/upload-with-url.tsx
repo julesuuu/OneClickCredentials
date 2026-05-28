@@ -17,8 +17,6 @@ export function UploadWithUrl({
   onUploadIdComplete,
   onPreview,
   className,
-  studentProfileId,
-  paymentId,
 }: UploadWithUrlProps) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(
     existingUrl ||
