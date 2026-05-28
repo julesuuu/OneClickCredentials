@@ -33,21 +33,27 @@ export async function getProfile() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user?.id) return null;
 
-  const profile = await prisma.studentProfile.findUnique({
-    where: { userId: session.user.id },
-    select: {
-      fullName: true,
-      gender: true,
-      birthDate: true,
-      phoneNumber: true,
-      lrn: true,
-      studentNumber: true,
-      course: true,
-      yearLevel: true,
-      isVerified: true,
-      declineReason: true,
-    },
-  });
+  const [profile, user] = await Promise.all([
+    prisma.studentProfile.findUnique({
+      where: { userId: session.user.id },
+      select: {
+        fullName: true,
+        gender: true,
+        birthDate: true,
+        phoneNumber: true,
+        lrn: true,
+        studentNumber: true,
+        course: true,
+        yearLevel: true,
+        isVerified: true,
+        declineReason: true,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, image: true },
+    }),
+  ]);
 
   if (!profile) return null;
 
@@ -55,6 +61,8 @@ export async function getProfile() {
     ...profile,
     birthDate: profile.birthDate.toISOString().split("T")[0],
     email: session.user.email,
+    name: user?.name ?? session.user.name,
+    image: user?.image ?? null,
   };
 }
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { updateProfile } from "./actions";
+import { updateProfileImage } from "../actions";
+import { UploadWithUrl } from "@/components/upload/upload-with-url";
 import { course, yearLevel, gender } from "../../onboarding/data";
 import {
   User,
@@ -35,10 +39,13 @@ interface ProfileFormProps {
     isVerified: boolean;
     declineReason: string | null;
     email: string;
+    name: string | null;
+    image: string | null;
   };
 }
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: initialData.fullName,
     phoneNumber: initialData.phoneNumber,
@@ -48,8 +55,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     yearLevel: initialData.yearLevel,
   });
   const [saving, setSaving] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(initialData.image);
 
-  const initials = initialData.fullName
+  const initials = (initialData.name ?? initialData.fullName)
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -92,8 +101,48 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary shrink-0">
-              {initials}
+            <div className="relative shrink-0">
+              <div
+                className="size-16 rounded-full overflow-hidden cursor-pointer group"
+                onClick={() => setShowUpload(!showUpload)}
+              >
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={initialData.name ?? "Avatar"}
+                    width={64}
+                    height={64}
+                    className="size-16 object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="size-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
+                    {initials}
+                  </div>
+                )}
+                <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-white font-medium">Change</span>
+                </div>
+              </div>
+              {showUpload && (
+                <div className="absolute top-20 left-0 z-10 w-56">
+                  <UploadWithUrl
+                    endpoint="profileImage"
+                    field={{
+                      state: { value: "" },
+                      handleChange: () => {},
+                    }}
+                    onUploadComplete={async (url) => {
+                      const result = await updateProfileImage(url);
+                      if (result.success) {
+                        setImageUrl(url);
+                        setShowUpload(false);
+                        router.refresh();
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
             <div className="min-w-0">
               <p className="font-semibold text-lg truncate">
