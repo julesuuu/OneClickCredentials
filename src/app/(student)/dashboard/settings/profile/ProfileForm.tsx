@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { updateProfile } from "./actions";
 import { updateProfileImage } from "../actions";
-import { UploadButton } from "@/utils/uploadthing";
+import { useUploadThing } from "@/utils/uploadthing";
 import { course, yearLevel, gender } from "../../onboarding/data";
 import {
   User,
@@ -56,6 +56,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   });
   const [saving, setSaving] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(initialData.image);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { startUpload } = useUploadThing("profileImage");
 
   const initials = (initialData.name ?? initialData.fullName)
     .split(" ")
@@ -100,7 +102,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-5">
-            <div className="relative shrink-0 group">
+            <div
+              className="relative shrink-0 group cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
               <div className="size-16 rounded-full overflow-hidden">
                 {imageUrl ? (
                   <Image
@@ -120,24 +125,30 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <span className="text-xs text-white font-medium">Change</span>
               </div>
-              <UploadButton
-                endpoint="profileImage"
-                input={{}}
-                onClientUploadComplete={async (res) => {
-                  if (res?.[0]?.ufsUrl) {
-                    const url = res[0].ufsUrl;
-                    const result = await updateProfileImage(url);
-                    if (result.success) {
-                      setImageUrl(url);
-                      router.refresh();
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const res = await startUpload([file], {});
+                    if (res?.[0]?.ufsUrl) {
+                      const url = res[0].ufsUrl;
+                      const result = await updateProfileImage(url);
+                      if (result.success) {
+                        setImageUrl(url);
+                        router.refresh();
+                      }
                     }
+                  } catch (error) {
+                    toast.error("Failed to upload image");
+                    console.error("Upload error:", error);
                   }
+                  e.target.value = "";
                 }}
-                onUploadError={(error: Error) => {
-                  toast.error("Failed to upload image");
-                  console.error("Upload error:", error);
-                }}
-                className="absolute inset-0 z-10 ut-button:bg-transparent ut-button:text-transparent ut-button:border-none ut-button:shadow-none ut-button:w-full ut-button:h-full ut-button:absolute ut-button:inset-0 ut-button:cursor-pointer ut-button:rounded-full ut-allowed-content:hidden"
               />
             </div>
             <div className="min-w-0">
