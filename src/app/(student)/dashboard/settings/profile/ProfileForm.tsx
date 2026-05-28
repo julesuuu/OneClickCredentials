@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { updateProfile } from "./actions";
 import { updateProfileImage } from "../actions";
-import { UploadWithUrl } from "@/components/upload/upload-with-url";
+import { UploadButton } from "@/utils/uploadthing";
 import { course, yearLevel, gender } from "../../onboarding/data";
 import {
   User,
@@ -55,7 +55,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     yearLevel: initialData.yearLevel,
   });
   const [saving, setSaving] = useState(false);
-  const [showUpload, setShowUpload] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(initialData.image);
 
   const initials = (initialData.name ?? initialData.fullName)
@@ -101,11 +100,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-5">
-            <div className="relative shrink-0">
-              <div
-                className="size-16 rounded-full overflow-hidden cursor-pointer group"
-                onClick={() => setShowUpload(!showUpload)}
-              >
+            <div className="relative shrink-0 group">
+              <div className="size-16 rounded-full overflow-hidden">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
@@ -120,29 +116,29 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                     {initials}
                   </div>
                 )}
-                <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="text-xs text-white font-medium">Change</span>
-                </div>
               </div>
-              {showUpload && (
-                <div className="absolute top-20 left-0 z-10 w-56">
-                  <UploadWithUrl
-                    endpoint="profileImage"
-                    field={{
-                      state: { value: "" },
-                      handleChange: () => {},
-                    }}
-                    onUploadComplete={async (url) => {
-                      const result = await updateProfileImage(url);
-                      if (result.success) {
-                        setImageUrl(url);
-                        setShowUpload(false);
-                        router.refresh();
-                      }
-                    }}
-                  />
-                </div>
-              )}
+              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <span className="text-xs text-white font-medium">Change</span>
+              </div>
+              <UploadButton
+                endpoint="profileImage"
+                input={{}}
+                onClientUploadComplete={async (res) => {
+                  if (res?.[0]?.ufsUrl) {
+                    const url = res[0].ufsUrl;
+                    const result = await updateProfileImage(url);
+                    if (result.success) {
+                      setImageUrl(url);
+                      router.refresh();
+                    }
+                  }
+                }}
+                onUploadError={(error: Error) => {
+                  toast.error("Failed to upload image");
+                  console.error("Upload error:", error);
+                }}
+                className="absolute inset-0 opacity-0 cursor-pointer ut-button:opacity-0 ut-button:absolute ut-button:inset-0 ut-button:cursor-pointer ut-button:w-full ut-button:h-full ut-allowed-content:hidden"
+              />
             </div>
             <div className="min-w-0">
               <p className="font-semibold text-lg truncate">
