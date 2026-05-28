@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { course, yearLevel } from "../data";
 import {
   Card,
@@ -43,14 +44,12 @@ interface OnboardingStep2Props {
   form: any;
   onNext: () => void;
   onBack: () => void;
-  studentProfileId: string;
 }
 
 export const OnboardingStep2 = ({
   form,
   onNext,
   onBack,
-  studentProfileId,
 }: OnboardingStep2Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const handleNext = async () => {
@@ -211,7 +210,6 @@ export const OnboardingStep2 = ({
                         </span>
                       </>
                     }
-                    studentProfileId={studentProfileId}
                     onPreview={(url) => setPreviewUrl(url)}
                   />
                   <FieldDescription>
@@ -243,10 +241,13 @@ export const OnboardingStep2 = ({
           </DialogHeader>
           {previewUrl &&
             (previewUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-              <img
+              <Image
                 src={previewUrl}
                 alt="Proof of Enrollment"
+                width={800}
+                height={600}
                 className="w-full h-auto object-contain max-h-[70vh]"
+                unoptimized
               />
             ) : (
               <iframe

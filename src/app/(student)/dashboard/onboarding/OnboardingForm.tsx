@@ -114,7 +114,7 @@ export function OnboardingForm({ studentProfileId }: OnboardingFormProps) {
             <OnboardingStep1 form={form} onNext={nextStep} />
           )}
           {currentStep === 2 && (
-            <OnboardingStep2 form={form} onNext={nextStep} onBack={prevStep} studentProfileId={studentProfileId} />
+            <OnboardingStep2 form={form} onNext={nextStep} onBack={prevStep} />
           )}
           {currentStep === 3 && (
             <OnboardingStep3 form={form} onBack={prevStep} />
