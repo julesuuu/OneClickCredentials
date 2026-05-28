@@ -137,7 +137,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   toast.error("Failed to upload image");
                   console.error("Upload error:", error);
                 }}
-                className="absolute inset-0 opacity-0 cursor-pointer ut-button:opacity-0 ut-button:absolute ut-button:inset-0 ut-button:cursor-pointer ut-button:w-full ut-button:h-full ut-allowed-content:hidden"
+                className="absolute inset-0 z-10 ut-button:bg-transparent ut-button:text-transparent ut-button:border-none ut-button:shadow-none ut-button:w-full ut-button:h-full ut-button:absolute ut-button:inset-0 ut-button:cursor-pointer ut-button:rounded-full ut-allowed-content:hidden"
               />
             </div>
             <div className="min-w-0">
