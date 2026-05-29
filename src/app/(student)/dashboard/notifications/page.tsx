@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationItem } from "@/components/notifications/notification-item";
 import { fetchNotifications, markAsRead, markAllAsRead, getNotificationUrl, type Notification } from "@/lib/notifications";
 
@@ -85,8 +86,17 @@ export default function NotificationsPage() {
       </div>
 
       {isLoading ? (
-        <div className="rounded-lg border p-8 text-center text-muted-foreground">
-          Loading notifications...
+        <div className="divide-y rounded-lg border">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="px-4 py-3 flex items-start gap-3">
+              <Skeleton className="mt-1.5 h-2.5 w-2.5 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-72" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : !filteredNotifications || filteredNotifications.length === 0 ? (
         <div className="rounded-lg border p-8 text-center text-muted-foreground">

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -166,8 +167,13 @@ export function DocumentTypesManager({ documentTypes: initialData }: DocumentTyp
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-10">
-        <div className="text-center py-10">Loading...</div>
+      <div className="container mx-auto py-10 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     );
   }

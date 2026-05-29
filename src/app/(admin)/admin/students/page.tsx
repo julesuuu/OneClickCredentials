@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -62,12 +63,12 @@ export default function AdminStudentVerificationPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-10">
-        <h1 className="text-2xl font-bold tracking-tight mb-6">
-          Student Verification
-        </h1>
-        <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center">
-          Loading students...
+      <div className="container mx-auto py-10 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-lg" />
+          ))}
         </div>
       </div>
     );
