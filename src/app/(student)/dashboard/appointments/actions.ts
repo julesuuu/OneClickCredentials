@@ -82,7 +82,7 @@ export async function createAppointment(
     throw new Error("Time slot must be AM or PM");
   }
 
-  const appointmentDate = new Date(date);
+  const appointmentDate = new Date(date + "T00:00:00");
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -100,34 +100,38 @@ export async function createAppointment(
 
   if (!profile) throw new Error("Student profile not found");
 
-  const appointment = await prisma.appointment.create({
-    data: {
-      documentRequestId,
-      date: appointmentDate,
-      timeSlot,
-    },
-    include: {
-      documentRequest: {
-        select: {
-          documentType: {
-            select: {
-              name: true,
+  const [appointment] = await prisma.$transaction(async (tx) => {
+    const appointment = await tx.appointment.create({
+      data: {
+        documentRequestId,
+        date: appointmentDate,
+        timeSlot,
+      },
+      include: {
+        documentRequest: {
+          select: {
+            documentType: {
+              select: {
+                name: true,
+              },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  await prisma.notification.create({
-    data: {
-      studentProfileId: profile.id,
-      title: "Appointment Confirmed",
-      message: `Your appointment for ${request.documentType.name} on ${appointmentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} (${timeSlot === "AM" ? "AM Session (8:00 - 12:00)" : "PM Session (1:00 - 5:00)"}) has been scheduled.`,
-      type: "APPOINTMENT_SCHEDULED",
-      relatedEntityType: "appointment",
-      relatedEntityId: appointment.id,
-    },
+    await tx.notification.create({
+      data: {
+        studentProfileId: profile.id,
+        title: "Appointment Confirmed",
+        message: `Your appointment for ${request.documentType.name} on ${appointmentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} (${timeSlot === "AM" ? "AM Session (8:00 - 12:00)" : "PM Session (1:00 - 5:00)"}) has been scheduled.`,
+        type: "APPOINTMENT_SCHEDULED",
+        relatedEntityType: "appointment",
+        relatedEntityId: appointment.id,
+      },
+    });
+
+    return [appointment];
   });
 
   return appointment;
@@ -187,7 +191,7 @@ export async function cancelAppointment(appointmentId: string) {
       data: {
         studentProfileId: profile.id,
         title: "Appointment Cancelled",
-        message: `Your appointment for ${appointment.documentRequest.documentType.name} on ${new Date(appointment.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} has been cancelled.`,
+        message: `Your appointment for ${appointment.documentRequest.documentType.name} on ${appointment.date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} has been cancelled.`,
         type: "APPOINTMENT_CANCELLED",
         relatedEntityType: "appointment",
         relatedEntityId: appointment.id,
