@@ -28,6 +28,9 @@ export function getNotificationUrl(notification: Pick<Notification, "relatedEnti
   if (notification.relatedEntityType === "verification") {
     return "/dashboard/verification";
   }
+  if (notification.relatedEntityType === "appointment") {
+    return "/dashboard/appointments";
+  }
   if (["PROCESSING", "READY", "COMPLETED"].includes(notification.type)) {
     return "/dashboard/requests";
   }
