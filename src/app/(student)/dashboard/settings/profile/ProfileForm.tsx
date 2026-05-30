@@ -19,12 +19,7 @@ import { updateProfile } from "./actions";
 import { updateProfileImage } from "../actions";
 import { useUploadThing } from "@/utils/uploadthing";
 import { course, yearLevel, gender } from "../../onboarding/data";
-import {
-  User,
-  GraduationCap,
-  FileText,
-  ShieldCheck,
-} from "lucide-react";
+import { User, GraduationCap, FileText, ShieldCheck } from "lucide-react";
 
 interface ProfileFormProps {
   initialData: {
@@ -222,9 +217,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               <label className="text-sm font-medium">Gender</label>
               <Select
                 value={formData.gender}
-                onValueChange={(v) =>
-                  setFormData({ ...formData, gender: v })
-                }
+                onValueChange={(v) => setFormData({ ...formData, gender: v })}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
@@ -256,9 +249,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               <label className="text-sm font-medium">Course</label>
               <Select
                 value={formData.course}
-                onValueChange={(v) =>
-                  setFormData({ ...formData, course: v })
-                }
+                onValueChange={(v) => setFormData({ ...formData, course: v })}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
