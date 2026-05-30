@@ -58,6 +58,7 @@ function AppointmentCard({
 }) {
   const date = new Date(appointment.date);
   const config = statusConfig[appointment.status] ?? { variant: "outline" as const, label: appointment.status };
+  const canCancel = appointment.status === "Scheduled" && date >= new Date(new Date().toDateString());
 
   return (
     <Card>
@@ -86,7 +87,7 @@ function AppointmentCard({
 
         <div className="flex items-center gap-2">
           <Badge variant={config.variant}>{config.label}</Badge>
-          {appointment.status === "Scheduled" && (
+          {canCancel && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" size="sm">
