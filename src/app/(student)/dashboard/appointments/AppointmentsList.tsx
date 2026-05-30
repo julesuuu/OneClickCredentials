@@ -52,9 +52,11 @@ function getTimeSlotLabel(timeSlot: string): string {
 function AppointmentCard({
   appointment,
   onCancel,
+  isCancelling,
 }: {
   appointment: Appointment;
   onCancel: (id: string) => void;
+  isCancelling?: boolean;
 }) {
   const date = new Date(appointment.date);
   const config = statusConfig[appointment.status] ?? { variant: "outline" as const, label: appointment.status };
@@ -90,8 +92,8 @@ function AppointmentCard({
           {canCancel && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  Cancel
+                <Button variant="outline" size="sm" disabled={isCancelling}>
+                  {isCancelling ? "Cancelling..." : "Cancel"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -156,13 +158,18 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
     (a) => a.status !== "Scheduled" || new Date(a.date) < todayStart
   );
 
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+
   const handleCancel = async (id: string) => {
+    setCancellingId(id);
     try {
       await cancelAppointment(id);
       toast.success("Appointment cancelled successfully");
       router.refresh();
     } catch {
       toast.error("Failed to cancel appointment");
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -191,9 +198,11 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
         />
       ) : (
         <>
-          <div className="flex gap-1 mb-6 bg-muted rounded-lg p-1 w-fit">
+          <div className="flex gap-1 mb-6 bg-muted rounded-lg p-1 w-fit" role="tablist">
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === "upcoming"}
               onClick={() => setActiveTab("upcoming")}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "upcoming"
@@ -210,6 +219,8 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
             </button>
             <button
               type="button"
+              role="tab"
+              aria-selected={activeTab === "past"}
               onClick={() => setActiveTab("past")}
               className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === "past"
@@ -240,6 +251,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                     key={appointment.id}
                     appointment={appointment}
                     onCancel={handleCancel}
+                    isCancelling={cancellingId === appointment.id}
                   />
                 ))}
               </div>
@@ -256,6 +268,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                   key={appointment.id}
                   appointment={appointment}
                   onCancel={handleCancel}
+                  isCancelling={cancellingId === appointment.id}
                 />
               ))}
             </div>
