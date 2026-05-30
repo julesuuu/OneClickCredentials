@@ -120,7 +120,7 @@ function BookingFormInner({ eligibleRequests }: { eligibleRequests: EligibleRequ
     if (!selectedRequestId || !date || !timeSlot) return;
     setSubmitting(true);
     try {
-      await createAppointment(selectedRequestId, date.toISOString(), timeSlot);
+      await createAppointment(selectedRequestId, format(date, "yyyy-MM-dd"), timeSlot);
       toast.success("Appointment booked successfully!");
       router.push("/dashboard/appointments");
       router.refresh();
