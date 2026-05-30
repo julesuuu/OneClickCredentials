@@ -152,6 +152,12 @@ export function RequestsList({ requests }: RequestsListProps) {
                             <div>{format(new Date(request.appointment.date), "MMM d, yyyy")}</div>
                             <div className="text-xs text-muted-foreground">{request.appointment.timeSlot}</div>
                           </div>
+                        ) : request.status === "Ready" ? (
+                          <Button asChild variant="outline" size="sm">
+                            <Link href={`/dashboard/appointments/new?requestId=${request.id}`}>
+                              Book Appointment
+                            </Link>
+                          </Button>
                         ) : (
                           <span className="text-muted-foreground text-sm">Not scheduled</span>
                         )}
