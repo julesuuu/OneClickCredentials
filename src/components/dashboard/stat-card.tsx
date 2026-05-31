@@ -1,15 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
-import Link from "next/link";
 
 interface StatCardProps {
   label: string;
   value: number;
   icon: LucideIcon;
   colorVariant?: "blue" | "yellow" | "green" | "red";
-  subtitle?: string;
-  href?: string;
 }
 
 const colorMap = {
@@ -36,21 +33,16 @@ export function StatCard({
   value,
   icon: Icon,
   colorVariant = "blue",
-  subtitle,
-  href,
 }: StatCardProps) {
   const colors = colorMap[colorVariant];
 
-  const content = (
-    <Card className={cn(href && "hover:shadow-md transition-shadow cursor-pointer")}>
+  return (
+    <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <p className="text-3xl font-bold mt-1">{value}</p>
-            {subtitle && (
-              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
-            )}
           </div>
           <div className={cn("rounded-full p-3", colors.bg)}>
             <Icon className={cn("h-5 w-5", colors.icon)} />
@@ -59,10 +51,4 @@ export function StatCard({
       </CardContent>
     </Card>
   );
-
-  if (href) {
-    return <Link href={href}>{content}</Link>;
-  }
-
-  return content;
 }
