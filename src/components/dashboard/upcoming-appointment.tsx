@@ -9,7 +9,9 @@ interface Appointment {
   date: Date;
   timeSlot: string;
   documentRequest: {
-    documentType: { name: string };
+    documentType: {
+      name: string;
+    };
   };
 }
 
@@ -26,7 +28,9 @@ export function UpcomingAppointment({ appointment }: UpcomingAppointmentProps) {
         </CardHeader>
         <CardContent className="pt-0 text-center py-6">
           <Calendar className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">No upcoming appointments</p>
+          <p className="text-sm text-muted-foreground">
+            No upcoming appointments
+          </p>
           <Button asChild variant="link" className="mt-1">
             <Link href="/dashboard/appointments/new">Book one now</Link>
           </Button>
@@ -41,22 +45,20 @@ export function UpcomingAppointment({ appointment }: UpcomingAppointmentProps) {
         <CardTitle className="text-base">Upcoming Appointment</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center">
-            <Calendar className="h-6 w-6 text-indigo-600" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
               {format(new Date(appointment.date), "EEEE, MMMM d, yyyy")}
-            </p>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-              <Clock className="h-3 w-3" />
-              <span>{appointment.timeSlot === "AM" ? "AM Session (8:00 - 12:00)" : "PM Session (1:00 - 5:00)"}</span>
-            </div>
+            </span>
           </div>
-        </div>
-        <div className="bg-muted/50 rounded-lg px-3 py-2 text-xs text-muted-foreground">
-          For: <span className="font-medium text-foreground">{appointment.documentRequest.documentType.name}</span>
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">{appointment.timeSlot}</span>
+          </div>
+          <div className="text-xs text-muted-foreground pt-1 border-t">
+            For: {appointment.documentRequest.documentType.name}
+          </div>
         </div>
       </CardContent>
     </Card>
