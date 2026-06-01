@@ -115,10 +115,10 @@ export default function PrivacyPage() {
                     Payment Information
                   </h3>
                   <p className="text-muted-foreground">
-                    Payment data is processed directly through Xendit. We do not
+                    Payment data is processed directly through PayMongo. We do not
                     store your credit card or banking details on our servers. We
                     only receive transaction confirmation and history from
-                    Xendit.
+                    PayMongo.
                   </p>
                 </div>
                 <div>
@@ -173,7 +173,7 @@ export default function PrivacyPage() {
                     <span className="text-primary mt-1">4.</span>
                     <span>
                       <strong>Payment Processing</strong> - To process payments
-                      through Xendit and maintain transaction records
+                      through PayMongo and maintain transaction records
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
@@ -226,10 +226,10 @@ export default function PrivacyPage() {
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <h4 className="font-semibold text-foreground mb-2">
-                      Xendit (Payment Processor)
+                      PayMongo (Payment Processor)
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      Payment transactions are processed through Xendit. They
+                      Payment transactions are processed through PayMongo. They
                       collect and process your payment information directly. We
                       only receive confirmation of successful payments.
                     </p>

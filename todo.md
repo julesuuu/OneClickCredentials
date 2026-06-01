@@ -557,7 +557,7 @@ Timeline: Request creation → Admin approval/mark Ready → User prompt/unlock 
 **Payment Methods:**
 
 - Cash on pickup (default)
-- Online payment via Payrex (GCash, Maya, Cards, QRPh)
+- Online payment via PayMongo (GCash, Maya, Cards, QRPh)
 
 **Payment Schema:**
 
@@ -582,29 +582,28 @@ Timeline: Request creation → Admin approval/mark Ready → User prompt/unlock 
 - Payment method toggle (unlocks after request approval)
 - UploadThing integration for payment proof uploads
 - Admin verification workflow
-- Payrex SDK integration for online payments
+- PayMongo SDK integration for online payments
 
-### 4.2 Payrex Integration
+### 4.2 PayMongo Integration
 
-**Payment Gateway**: Payrex
+**Payment Gateway**: PayMongo
 
-**Why Payrex for Capstone:**
+**Why PayMongo for Capstone:**
 
 - ✅ No business verification required for test mode
-- ✅ Developer-focused platform (built for startups/SMEs)
-- ✅ Fast integration (~10 minutes claimed)
-- ✅ Supports GCash, Maya, Cards, QRPh (perfect for students)
-- ✅ Lower card fees (2.9% vs 3.5% compared to competitors)
-- ✅ Modern API with unified Payment Intents
+- ✅ Developer-friendly REST API
+- ✅ Supports GCash, Maya, Cards, GrabPay
+- ✅ Lower card fees (2.9% + PHP 15 vs competitors)
 - ✅ Sandbox environment with test payment methods
+- ✅ Popular choice for PH-based capstone projects
 
 **Integration Tasks:**
 
-- Install Payrex SDK or use REST API
-- Configure test mode API keys (no business verification required for sandbox)
+- Install PayMongo SDK or use REST API
+- Configure test mode API keys (already in `.env`)
 - Implement Payment Intents API for GCash, Maya, Cards
 - Handle webhooks for payment status callbacks
-- Test with Payrex sandbox (test cards, e-wallets, QRPh)
+- Test with PayMongo sandbox (test cards, e-wallets)
 
 **For Production:**
 
@@ -900,10 +899,10 @@ model Notification {
 - Unique constraint checks (LRN, student number)
 - File type and size validation for uploads
 
-### Payment Integration (Payrex)
+### Payment Integration (PayMongo)
 
-- Install `payrex-node` SDK or use REST API
-- Test mode API keys (no business verification required)
+- Use PayMongo REST API (fetch-based, no SDK needed)
+- Test mode API keys (already configured in `.env`)
 - Payment Intents API for GCash, Maya, Cards
 - Webhook handler for payment status callbacks
 - Sandbox testing with test cards and e-wallets
@@ -917,7 +916,7 @@ model Notification {
 3. **Document Requests** - Core functionality with profile checks
 4. **Notification System** - Enables status update alerts
 5. **Appointments** - Unlocks when request is `Approved`/`Ready`
-6. **Payments** - Payment method toggle + proof upload + Payrex integration
+6. **Payments** - Payment method toggle + proof upload + PayMongo integration
 7. **Admin Dashboard** - Manage all operations
 
 ---

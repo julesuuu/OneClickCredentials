@@ -80,7 +80,7 @@ export default function DataProtection() {
                   </h3>
                   <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     <li>
-                      Payment method details (processed securely via Xendit)
+                      Payment method details (processed securely via PayMongo)
                     </li>
                     <li>Transaction history</li>
                     <li>Billing address (for payment verification)</li>
@@ -168,7 +168,7 @@ export default function DataProtection() {
                       Payment Processors
                     </h4>
                     <p className="text-sm text-muted-foreground">
-                      Payment data is processed securely by Xendit. We do not
+                      Payment data is processed securely by PayMongo. We do not
                       store your complete payment details.
                     </p>
                   </div>
@@ -258,7 +258,7 @@ export default function DataProtection() {
                     <span className="text-primary mt-1">✓</span>
                     <span>
                       <strong>PCI-DSS Compliance</strong> - Secure payment
-                      processing via Xendit (PCI-DSS Level 1 compliant)
+                      processing via PayMongo (PCI-DSS Level 1 compliant)
                     </span>
                   </li>
                   <li className="flex items-start gap-2">

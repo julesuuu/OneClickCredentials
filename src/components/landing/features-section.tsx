@@ -19,7 +19,7 @@ const features = [
     icon: CreditCard,
     title: "Hybrid Payment",
     description:
-      "Pay online via Xendit or choose cash on pickup. Flexible options for your convenience.",
+      "Pay online via PayMongo or choose cash on pickup. Flexible options for your convenience.",
     badge: "Flexible",
   },
   {

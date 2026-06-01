@@ -20,7 +20,7 @@ const faqs = [
   {
     question: "What payment methods are accepted?",
     answer:
-      "We accept online payments via Xendit (credit/debit cards, GCash, PayMaya) or cash on pickup.",
+      "We accept online payments via PayMongo (credit/debit cards, GCash, PayMaya) or cash on pickup.",
   },
   {
     question: "How will I know when my documents are ready?",

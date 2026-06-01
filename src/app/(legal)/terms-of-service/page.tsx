@@ -131,7 +131,7 @@ export default function TermsPage() {
                   </h3>
                   <p className="text-muted-foreground">
                     All document fees must be paid at the time of request
-                    submission. We accept payments via Xendit (credit/debit
+                    submission. We accept payments via PayMongo (credit/debit
                     cards, GCash, PayMaya) or cash on pickup. Additional fees
                     may apply for expedited processing.
                   </p>
