@@ -1,3 +1,5 @@
+import AppointmentsManager from "./AppointmentsManager";
+
 export default function AdminAppointmentsPage() {
-  return <p>Admin Appointments</p>;
+  return <AppointmentsManager />;
 }
