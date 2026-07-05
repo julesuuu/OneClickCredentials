@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar, Clock, Plus } from "lucide-react";
+import { Calendar, CalendarIcon, Clock, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { cancelAppointment } from "./actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { cancelAppointment, rescheduleAppointment } from "./actions";
 
 interface Appointment {
   id: string;
@@ -52,10 +69,12 @@ function getTimeSlotLabel(timeSlot: string): string {
 function AppointmentCard({
   appointment,
   onCancel,
+  onReschedule,
   isCancelling,
 }: {
   appointment: Appointment;
   onCancel: (id: string) => void;
+  onReschedule?: (appointment: Appointment) => void;
   isCancelling?: boolean;
 }) {
   const date = new Date(appointment.date);
@@ -90,33 +109,183 @@ function AppointmentCard({
         <div className="flex items-center gap-2">
           <Badge variant={config.variant}>{config.label}</Badge>
           {canCancel && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" disabled={isCancelling}>
-                  {isCancelling ? "Cancelling..." : "Cancel"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to cancel your appointment for{" "}
-                    {appointment.documentRequest.documentType.name} on{" "}
-                    {format(date, "EEEE, MMMM d, yyyy")}?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onCancel(appointment.id)}>
-                    Yes, Cancel
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReschedule?.(appointment);
+                }}
+              >
+                Reschedule
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" disabled={isCancelling}>
+                    {isCancelling ? "Cancelling..." : "Cancel"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to cancel your appointment for{" "}
+                      {appointment.documentRequest.documentType.name} on{" "}
+                      {format(date, "EEEE, MMMM d, yyyy")}?
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onCancel(appointment.id)}>
+                      Yes, Cancel
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
           )}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function RescheduleDialog({
+  appointment,
+  open,
+  onOpenChange,
+}: {
+  appointment: Appointment | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const router = useRouter();
+  const [date, setDate] = useState<Date | undefined>(
+    appointment ? new Date(appointment.date) : undefined
+  );
+  const [timeSlot, setTimeSlot] = useState(appointment?.timeSlot ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + 30);
+
+  useEffect(() => {
+    if (appointment) {
+      setDate(new Date(appointment.date));
+      setTimeSlot(appointment.timeSlot);
+    }
+  }, [appointment]);
+
+  async function handleSave() {
+    if (!appointment || !date || !timeSlot) return;
+    setSubmitting(true);
+    try {
+      await rescheduleAppointment(appointment.id, date.toISOString(), timeSlot);
+      toast.success("Appointment rescheduled successfully");
+      onOpenChange(false);
+      router.refresh();
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to reschedule appointment"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Reschedule Appointment</DialogTitle>
+          <DialogDescription>
+            {appointment?.documentRequest.documentType.name}
+            &ensp;&middot;&ensp;
+            Currently{" "}
+            {appointment
+              ? `${format(new Date(appointment.date), "MMM d, yyyy")} \u00B7 ${appointment.timeSlot === "AM" ? "AM Session (8:00 - 12:00)" : "PM Session (1:00 - 5:00)"}`
+              : ""}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <div className="space-y-2">
+            <Label>New Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "MMMM d, yyyy") : "Pick a date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={(d) => d < today || d > maxDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label>New Time Slot</Label>
+            <RadioGroup value={timeSlot} onValueChange={setTimeSlot}>
+              <div className="flex gap-2">
+                <Label
+                  htmlFor="reschedule-am"
+                  className="flex-1 flex items-center gap-3 p-4 border rounded-lg cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5 hover:bg-muted/50 transition-colors"
+                >
+                  <RadioGroupItem value="AM" id="reschedule-am" />
+                  <div>
+                    <div className="font-medium">AM Session</div>
+                    <div className="text-sm text-muted-foreground">
+                      8:00 AM - 12:00 PM
+                    </div>
+                  </div>
+                </Label>
+                <Label
+                  htmlFor="reschedule-pm"
+                  className="flex-1 flex items-center gap-3 p-4 border rounded-lg cursor-pointer has-[:checked]:border-primary has-[:checked]:bg-primary/5 hover:bg-muted/50 transition-colors"
+                >
+                  <RadioGroupItem value="PM" id="reschedule-pm" />
+                  <div>
+                    <div className="font-medium">PM Session</div>
+                    <div className="text-sm text-muted-foreground">
+                      1:00 PM - 5:00 PM
+                    </div>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!date || !timeSlot || submitting}>
+            {submitting ? "Saving..." : "Save Changes"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -159,6 +328,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
   );
 
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [rescheduling, setRescheduling] = useState<Appointment | null>(null);
 
   const handleCancel = async (id: string) => {
     setCancellingId(id);
@@ -251,6 +421,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                     key={appointment.id}
                     appointment={appointment}
                     onCancel={handleCancel}
+                    onReschedule={setRescheduling}
                     isCancelling={cancellingId === appointment.id}
                   />
                 ))}
@@ -268,6 +439,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
                   key={appointment.id}
                   appointment={appointment}
                   onCancel={handleCancel}
+                  onReschedule={setRescheduling}
                   isCancelling={cancellingId === appointment.id}
                 />
               ))}
@@ -275,6 +447,14 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
           )}
         </>
       )}
+
+      <RescheduleDialog
+        appointment={rescheduling}
+        open={!!rescheduling}
+        onOpenChange={(open) => {
+          if (!open) setRescheduling(null);
+        }}
+      />
     </div>
   );
 }
