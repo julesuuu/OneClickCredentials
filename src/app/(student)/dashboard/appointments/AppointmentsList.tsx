@@ -183,7 +183,7 @@ function RescheduleDialog({
     if (!appointment || !date || !timeSlot) return;
     setSubmitting(true);
     try {
-      await rescheduleAppointment(appointment.id, date.toISOString(), timeSlot);
+      await rescheduleAppointment(appointment.id, format(date, "yyyy-MM-dd"), timeSlot);
       toast.success("Appointment rescheduled successfully");
       onOpenChange(false);
       router.refresh();
@@ -449,6 +449,7 @@ export function AppointmentsList({ appointments }: AppointmentsListProps) {
       )}
 
       <RescheduleDialog
+        key={rescheduling?.id ?? "closed"}
         appointment={rescheduling}
         open={!!rescheduling}
         onOpenChange={(open) => {
