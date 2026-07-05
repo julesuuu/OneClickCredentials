@@ -187,6 +187,10 @@ export async function cancelAppointment(appointmentId: string) {
         },
       },
     }),
+    prisma.documentRequest.update({
+      where: { id: appointment.documentRequestId },
+      data: { appointmentId: null },
+    }),
     prisma.notification.create({
       data: {
         studentProfileId: profile.id,
