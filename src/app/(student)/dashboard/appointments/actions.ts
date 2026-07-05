@@ -205,3 +205,92 @@ export async function cancelAppointment(appointmentId: string) {
 
   return updatedAppointment;
 }
+
+export async function rescheduleAppointment(
+  appointmentId: string,
+  date: string,
+  timeSlot: string
+) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error("Not authenticated");
+
+  const appointment = await prisma.appointment.findFirst({
+    where: {
+      id: appointmentId,
+      status: "Scheduled",
+      documentRequest: {
+        userId: session.user.id,
+      },
+    },
+    include: {
+      documentRequest: {
+        select: {
+          id: true,
+          documentType: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (!appointment) throw new Error("Appointment not found or cannot be rescheduled");
+
+  if (!["AM", "PM"].includes(timeSlot)) {
+    throw new Error("Time slot must be AM or PM");
+  }
+
+  const newDate = new Date(date + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const maxDate = new Date(today);
+  maxDate.setDate(maxDate.getDate() + 30);
+
+  if (newDate < today || newDate > maxDate) {
+    throw new Error("Date must be between today and 30 days from now");
+  }
+
+  const profile = await prisma.studentProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { id: true },
+  });
+
+  if (!profile) throw new Error("Student profile not found");
+
+  const formattedDate = newDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const timeSlotLabel =
+    timeSlot === "AM"
+      ? "AM Session (8:00 - 12:00)"
+      : "PM Session (1:00 - 5:00)";
+
+  const [updated] = await prisma.$transaction([
+    prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { date: newDate, timeSlot },
+      include: {
+        documentRequest: {
+          select: {
+            documentType: { select: { name: true } },
+          },
+        },
+      },
+    }),
+    prisma.notification.create({
+      data: {
+        studentProfileId: profile.id,
+        title: "Appointment Rescheduled",
+        message: `Your appointment for ${appointment.documentRequest.documentType.name} has been rescheduled to ${formattedDate} (${timeSlotLabel}).`,
+        type: "APPOINTMENT_RESCHEDULED",
+        relatedEntityType: "appointment",
+        relatedEntityId: appointment.id,
+      },
+    }),
+  ]);
+
+  return updated;
+}
