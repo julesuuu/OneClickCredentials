@@ -10,11 +10,11 @@ erDiagram
         string name
         string email UK
         boolean emailVerified
-        string image "nullable"
-        string role "user | admin"
+        string image
+        string role
         boolean banned
-        string banReason "nullable"
-        datetime banExpires "nullable"
+        string banReason
+        datetime banExpires
         boolean twoFactorEnabled
         datetime createdAt
         datetime updatedAt
@@ -24,9 +24,9 @@ erDiagram
         string id PK
         string token UK
         datetime expiresAt
-        string ipAddress "nullable"
-        string userAgent "nullable"
-        string impersonatedBy "nullable"
+        string ipAddress
+        string userAgent
+        string impersonatedBy
         string userId FK
     }
 
@@ -35,9 +35,9 @@ erDiagram
         string accountId
         string providerId
         string userId FK
-        string accessToken "nullable"
-        string refreshToken "nullable"
-        string password "nullable"
+        string accessToken
+        string refreshToken
+        string password
     }
 
     Verification {
@@ -63,15 +63,15 @@ erDiagram
 
     Passkey {
         string id PK
-        string name "nullable"
+        string name
         string publicKey
         string userId FK
         string credentialID
         int counter
         string deviceType
         boolean backedUp
-        string transports "nullable"
-        string aaguid "nullable"
+        string transports
+        string aaguid
     }
 
     %% ──────────────────────────────────────────────
@@ -79,26 +79,26 @@ erDiagram
     %% ──────────────────────────────────────────────
     StudentProfile {
         string id PK
-        string userId FK UK
+        string userId FK
         string fullName
-        string gender "MALE | FEMALE | NON_BINARY | PREFER_NOT_TO_SAY | OTHER"
+        string gender
         datetime birthDate
         string phoneNumber
-        string lrn UK "12-digit Learner Ref No."
+        string lrn UK
         string studentNumber
-        string course "BSIT | BSHM | BSBA | BEED | BSED | BSCRIM"
-        string yearLevel "FIRST_YEAR | SECOND_YEAR | THIRD_YEAR | FOURTH_YEAR | GRADUATE | IRREGULAR"
+        string course
+        string yearLevel
         boolean isProfileComplete
         boolean isVerified
-        string declineReason "nullable"
+        string declineReason
         datetime createdAt
         datetime updatedAt
     }
 
     DocumentType {
         string id PK
-        string name "e.g. Transcript of Records"
-        string description "nullable"
+        string name
+        string description
         int price
         boolean isActive
         datetime createdAt
@@ -109,35 +109,35 @@ erDiagram
         string id PK
         string userId FK
         string documentTypeId FK
-        int quantity "1-5"
-        int totalPrice "price * qty"
-        string status "Pending | Processing | Ready | Completed | Rejected | Cancelled"
-        string notes "nullable"
-        string declineReason "nullable"
-        string paymentId FK UK "nullable, 1-1"
-        string appointmentId FK UK "nullable, 1-1"
+        int quantity
+        int totalPrice
+        string status
+        string notes
+        string declineReason
+        string paymentId UK
+        string appointmentId UK
         datetime createdAt
         datetime updatedAt
     }
 
     Payment {
         string id PK
-        string documentRequestId FK UK "1-1 with DocumentRequest"
-        string method "Cash | Online"
-        string referenceNumber "nullable"
-        int amount "matches totalPrice"
-        string status "Pending | Paid | Failed | Refunded"
+        string documentRequestId UK
+        string method
+        string referenceNumber
+        int amount
+        string status
         datetime createdAt
         datetime updatedAt
     }
 
     Appointment {
         string id PK
-        string documentRequestId FK UK "1-1 with DocumentRequest"
+        string documentRequestId UK
         datetime date
-        string timeSlot "AM | PM"
-        string status "Scheduled | Completed | Cancelled | No-show"
-        string notes "nullable"
+        string timeSlot
+        string status
+        string notes
         datetime createdAt
         datetime updatedAt
     }
@@ -148,9 +148,9 @@ erDiagram
         string url
         string fileType
         int fileSize
-        string category "proofOfEnrollment | paymentProof | profileImage | other"
-        string studentProfileId FK "nullable"
-        string paymentId FK "nullable"
+        string category
+        string studentProfileId FK
+        string paymentId FK
         datetime createdAt
     }
 
@@ -159,10 +159,10 @@ erDiagram
         string studentProfileId FK
         string title
         string message
-        string type "VERIFIED | REJECTED | PROCESSING | READY | COMPLETED | APPOINTMENT_*"
+        string type
         boolean isRead
-        string relatedEntityId "nullable"
-        string relatedEntityType "nullable"
+        string relatedEntityId
+        string relatedEntityType
         datetime createdAt
         datetime updatedAt
     }
@@ -183,8 +183,8 @@ erDiagram
     StudentProfile  ||--o{ Upload            : "has proof / avatar"
     StudentProfile  ||--o{ Notification      : "receives"
     DocumentType    ||--o{ DocumentRequest   : "classified as"
-    DocumentRequest ||--|| Payment           : "has"  "1-1, optional"
-    DocumentRequest ||--|| Appointment       : "has"  "1-1, optional"
+    DocumentRequest ||--o| Payment           : "has (optional)"
+    DocumentRequest ||--o| Appointment       : "has (optional)"
     Payment         ||--o{ Upload            : "has payment proof"
 ```
 
