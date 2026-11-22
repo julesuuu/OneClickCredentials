@@ -139,11 +139,7 @@ Replace the entire existing `onSubmit` block inside `useForm({ ... })` with:
           // token so a later submit (e.g. navigation failed and the user edited
           // the form) is treated as a new order.
           submitTokenRef.current = null;
-          toast.success(
-            result.duplicate
-              ? "This request was already submitted"
-              : "Request submitted successfully",
-          );
+          toast.success("Request submitted successfully");
           router.push("/dashboard/requests");
         }
       } catch (error) {
@@ -189,6 +185,7 @@ At this point the client already prevents ordinary double-clicks. The server sti
 
 **Files:**
 - Modify: `src/app/(student)/dashboard/requests/actions.ts` (`createDocumentRequest`)
+- Modify: `src/app/(student)/dashboard/requests/new/NewRequestForm.tsx` (duplicate-aware toast)
 
 - [ ] **Step 1: Replace `createDocumentRequest`**
 
@@ -282,7 +279,25 @@ export async function createDocumentRequest(formData: FormData) {
 }
 ```
 
-- [ ] **Step 2: Lint**
+- [ ] **Step 2: Make the success toast duplicate-aware**
+
+In `NewRequestForm.tsx`, replace:
+
+```tsx
+          toast.success("Request submitted successfully");
+```
+
+with:
+
+```tsx
+          toast.success(
+            result.duplicate
+              ? "This request was already submitted"
+              : "Request submitted successfully",
+          );
+```
+
+- [ ] **Step 3: Lint**
 
 Run:
 
@@ -292,10 +307,10 @@ npm run lint
 
 Expected: no errors.
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add "src/app/(student)/dashboard/requests/actions.ts"
+git add "src/app/(student)/dashboard/requests/actions.ts" "src/app/(student)/dashboard/requests/new/NewRequestForm.tsx"
 git commit -m "feat: reject duplicate document request submissions"
 ```
 
