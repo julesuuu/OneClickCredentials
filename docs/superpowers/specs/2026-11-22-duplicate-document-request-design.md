@@ -75,7 +75,15 @@ onSubmit: async ({ value }) => {
 
     const result = await createDocumentRequest(formData);
     if (result.success) {
-      toast.success("Request submitted successfully");
+      // A received response means this submit attempt is settled. Clear the
+      // token so a later submit (e.g. navigation failed and the user edited
+      // the form) is treated as a new order.
+      submitTokenRef.current = null;
+      toast.success(
+        result.duplicate
+          ? "This request was already submitted"
+          : "Request submitted successfully",
+      );
       router.push("/dashboard/requests");
     }
   } catch (error) {
@@ -95,18 +103,23 @@ Notes:
 - `finally` releases the lock on the validation early-return and on thrown
   errors, so the form never gets stuck.
 - The token is created lazily on first submit, avoiding any SSR/hydration
-  mismatch. It stays stable for retries on this page; a fresh page load gets a
-  new token.
+  mismatch. It stays stable while no response has been received, which covers
+  retries after a lost response. It is cleared only after a success response
+  arrives, so a later submit is treated as a new order.
+- `crypto.randomUUID()` requires a secure context. The app is served over HTTPS
+  in production and `localhost` is treated as secure, so no fallback is needed.
 - Keep the existing `disabled` expression. It is still useful visual feedback;
   the ref is now the functional gate.
-- A `duplicate: true` response is handled by the same `result.success` branch:
-  the original request already exists, so navigating to the list is correct.
+- A `duplicate: true` response is a success: the original request already
+  exists. The toast wording reflects that, then navigation proceeds.
 
 ## Server Changes — `requests/actions.ts`
 
 In `createDocumentRequest`:
 
-1. Read and validate the token:
+1. Read and validate the token. Place this with the other form-field
+   validations, before the `documentType` lookup, so a stale page fails fast
+   without a database query:
 
 ```ts
 const submitToken = formData.get("submitToken");
@@ -119,7 +132,8 @@ if (
 }
 ```
 
-2. Pass it to the existing create call:
+2. Pass it to the existing create call, and return an explicit
+   `duplicate: false` so the client can read the field on both branches:
 
 ```ts
 await prisma.documentRequest.create({
@@ -133,6 +147,8 @@ await prisma.documentRequest.create({
     submitToken,
   },
 });
+
+return { success: true, duplicate: false };
 ```
 
 3. Wrap the create in `try / catch` and follow the `P2002` pattern already used
@@ -173,6 +189,7 @@ All other errors are rethrown so genuine failures still surface.
 | Rapid double-click | Second click rejected by `submittingRef` before any request |
 | Slow network, user clicks again | Same token; server returns `duplicate: true`; no second row |
 | Server succeeded but response was lost, user retries | Same token; `P2002`; treated as success |
+| Success response received but navigation failed, user edits and resubmits | Token was cleared on success, so the edited submission creates a new request |
 | Two different browser tabs | **Not covered** — each tab has its own token, so both can create a row |
 | Browser back, then submit again | New page mount → new token → creates a new request (intentional re-order) |
 | Stale cached page without a token | Server rejects with "Please refresh the page and try again." |
@@ -186,6 +203,13 @@ All other errors are rethrown so genuine failures still surface.
 - Applying the same pattern to payment, appointment, or onboarding forms.
 - Cleaning up duplicate rows already in the database.
 
+## Follow-up
+
+`getMyDocumentRequests()` returns full rows, so it will include `submitToken`
+once the column exists. The token is not a credential and the list page maps
+fields explicitly, so nothing leaks today. If that helper is later wired
+directly into UI, add an explicit `select` or `omit` to exclude `submitToken`.
+
 ## Testing
 
 Manual:
@@ -195,7 +219,10 @@ Manual:
 3. In DevTools, throttle the network to Slow 3G, open
    `/dashboard/requests/new`, and double-click Submit. Confirm exactly one row
    appears in `/dashboard/requests`.
-4. Submit once, then use the browser back button to return to the form and
+4. To exercise the server path specifically (the P2002 branch), temporarily
+   comment out the `submittingRef` guard, double-click Submit, and confirm only
+   one row is created. Restore the guard afterward.
+5. Submit once, then use the browser back button to return to the form and
    submit again. Confirm a second request is created (expected).
 
 ## Files Touched
