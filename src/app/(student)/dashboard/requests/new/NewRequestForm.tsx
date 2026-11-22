@@ -30,6 +30,8 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
   const [selectedType, setSelectedType] = React.useState<string | null>(null);
   const [quantity, setQuantity] = React.useState(1);
   const [notes, setNotes] = React.useState("");
+  const submittingRef = React.useRef(false);
+  const submitTokenRef = React.useRef<string | null>(null);
 
   const selectedDoc = documentTypes.find((d) => d.id === selectedType);
 
@@ -38,24 +40,40 @@ export function NewRequestForm({ documentTypes }: NewRequestFormProps) {
       documentTypeId: "",
     },
     onSubmit: async ({ value }) => {
-      if (!value.documentTypeId) {
-        toast.error("Please select a document type");
-        return;
-      }
+      if (submittingRef.current) return;
+      submittingRef.current = true;
 
       try {
+        if (!value.documentTypeId) {
+          toast.error("Please select a document type");
+          return;
+        }
+
+        if (!submitTokenRef.current) {
+          submitTokenRef.current = crypto.randomUUID();
+        }
+
         const formData = new FormData();
         formData.append("documentTypeId", value.documentTypeId);
         formData.append("quantity", quantity.toString());
         formData.append("notes", notes || "");
+        formData.append("submitToken", submitTokenRef.current);
 
         const result = await createDocumentRequest(formData);
         if (result.success) {
+          // A received response means this submit attempt is settled. Clear the
+          // token so a later submit (e.g. navigation failed and the user edited
+          // the form) is treated as a new order.
+          submitTokenRef.current = null;
           toast.success("Request submitted successfully");
           router.push("/dashboard/requests");
         }
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Failed to create request");
+        toast.error(
+          error instanceof Error ? error.message : "Failed to create request",
+        );
+      } finally {
+        submittingRef.current = false;
       }
     },
   });
