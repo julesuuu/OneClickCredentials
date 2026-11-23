@@ -78,8 +78,8 @@ failureReason     String?
 Existing fields stay as-is:
 
 - `amount Int` — pesos, matching `DocumentRequest.totalPrice`.
-- `referenceNumber String?` — stores the PayMongo reference (the local payment
-  id is used as the reference).
+- `referenceNumber String?` — set to the local payment id at creation and
+  reused as PayMongo's `reference_number`.
 - `method String @default("Cash")`.
 - `status String @default("Pending")`.
 - `uploads Upload[]` — receipt images/PDFs (`category = "paymentProof"`).
@@ -112,16 +112,22 @@ Request created ──► Payment(Pending, Cash)
 Rules:
 
 1. `createDocumentRequest` creates the request and its payment in one
-   transaction, with `status: "Pending"`, `method: "Cash"`, and
-   `amount: totalPrice`.
+   transaction, with `status: "Pending"`, `method: "Cash"`,
+   `amount: totalPrice`, and `referenceNumber` set to the new payment's id
+   (create the payment, then update the reference in the same transaction).
 2. Payment status is independent of request status. A request can be
    `Processing` or `Ready` while its payment is `Pending`.
-3. Online payment is allowed while the payment is `Pending` and the request is
-   not `Rejected`, `Cancelled`, or `Completed`.
-4. `rejectRequest` must check for a `Paid` payment and throw before changing
-   anything. Rejecting an unpaid request sets its payment to `Cancelled`.
-5. `Paid` is terminal except for an admin `Refunded`.
-6. Every transition is idempotent: conditional update plus notification only
+3. Online payment is allowed while the payment is `Pending` or `Failed` and
+   the request is not `Rejected`, `Cancelled`, or `Completed`.
+4. `rejectRequest` must check for a `Paid` or `Refunded` payment and throw
+   before changing anything. Rejecting a request with a `Pending`/`Failed`
+   payment sets that payment to `Cancelled`; terminal payments are never
+   overwritten.
+5. A request cannot be marked `Completed` while its payment is not `Paid`.
+   The admin records the cash payment first, then completes the request.
+6. `Paid` is terminal except for an admin `Refunded`. `Cancelled` and
+   `Refunded` are never auto-revived by a late webhook or stale return page.
+7. Every transition is idempotent: conditional update plus notification only
    on the actual transition, so webhook retries and a webhook/return-page race
    are harmless.
 
@@ -139,15 +145,19 @@ Rules:
 | `src/app/(student)/dashboard/payments/PaymentsList.tsx` | Create — client table |
 | `src/app/(student)/dashboard/payments/PaymentActions.tsx` | Create — pay/upload buttons |
 | `src/app/(student)/dashboard/payments/success/page.tsx` | Create — return page |
-| `src/app/(admin)/admin/payments/actions.ts` | Create — admin queries and transitions |
+| `src/app/(admin)/admin/payments/actions.ts` | Create — admin queries and `adminMarkPaymentPaid` / `adminMarkPaymentRefunded` |
 | `src/app/(admin)/admin/payments/page.tsx` | Replace placeholder |
 | `src/app/(admin)/admin/payments/PaymentsManager.tsx` | Create — client table |
 | `src/app/(admin)/admin/payments/PaymentDetailDialog.tsx` | Create — proof review and actions |
 | `src/app/api/paymongo/webhook/route.ts` | Create |
 | `src/app/api/uploadthing/core.ts` | Modify — ownership check on `paymentProof` |
+| `src/components/upload/upload-with-url.tsx` | Modify — forward an `input` prop |
+| `src/components/upload/upload-with-url.types.ts` | Modify — add `input` prop |
 | `src/app/(student)/dashboard/requests/actions.ts` | Modify — create payment in transaction |
-| `src/app/(admin)/admin/requests/actions.ts` | Modify — block reject when paid, cancel payment |
+| `src/app/(admin)/admin/requests/actions.ts` | Modify — block reject when paid/refunded, block completion while unpaid, cancel payment |
 | `src/app/(student)/dashboard/requests/RequestsList.tsx` | Modify — `Paid` badge |
+| `src/app/(student)/dashboard/actions.ts` | Modify — outstanding total includes `Pending` + `Failed` |
+| `src/components/dashboard/balance-card.tsx` | Modify — label "Outstanding Balance" |
 | `src/lib/notifications.ts` | Modify — map payment notifications |
 | `prisma/schema.prisma` | Modify — new payment fields |
 
@@ -174,7 +184,7 @@ Exports:
 |---|---|
 | `createCheckoutSession(input)` | POST `/checkout_sessions`; returns `{ id, checkoutUrl }` |
 | `retrieveCheckoutSession(id)` | GET `/checkout_sessions/{id}`; returns the session |
-| `verifyWebhookSignature(rawBody, header, secret)` | Parses `t`, `te`, `li`; returns `boolean` |
+| `verifyWebhookSignature(rawBody, header, secret, livemode)` | Parses `t`, `te`, `li`; picks the test or live signature; returns `boolean` |
 
 `createCheckoutSession` input:
 
@@ -206,18 +216,18 @@ Exports:
 - Expected signature: hex HMAC-SHA256 of `` `${t}.${rawBody}` `` using
   `PAYMONGO_WEBHOOK_SECRET`.
 - Compare with `crypto.timingSafeEqual`, checking buffer lengths first.
-- Use `te` when `livemode` is false, `li` when true. If the header is missing
-  a value, return `false`.
+- Use `te` when `livemode` is false, `li` when true; `livemode` is passed in
+  by the route. If the header is missing a value, return `false`.
 - The verifier receives the raw body string, never a re-serialized object.
 
 ### `src/lib/payments.ts`
 
-`markPaymentPaid(paymentId, details)`:
+`confirmPaymentPaid(paymentId, details)`:
 
 ```ts
 const result = await prisma.$transaction(async (tx) => {
   const updated = await tx.payment.updateMany({
-    where: { id: paymentId, status: { not: "Paid" } },
+    where: { id: paymentId, status: { in: ["Pending", "Failed"] } },
     data: {
       status: "Paid",
       paidAt: details.paidAt ?? new Date(),
@@ -261,11 +271,17 @@ const result = await prisma.$transaction(async (tx) => {
 });
 ```
 
-`markPaymentFailed(paymentId, reason)` follows the same pattern: update only
-when the status is `Pending`, set `failureReason`, and create a
-`PAYMENT_FAILED` notification.
+`confirmPaymentFailed(paymentId, reason)` follows the same pattern: update only
+from `Pending`, set `failureReason`, and create a `PAYMENT_FAILED`
+notification.
 
-Both helpers return `true` only when a transition happened.
+Both helpers return `true` only when a transition happened. They never touch a
+`Cancelled` or `Refunded` payment. A late webhook for one of those is logged
+for manual reconciliation — money received for a rejected request must be
+refunded by an admin.
+
+The admin actions import these as `confirmPaymentPaid` /
+`confirmPaymentFailed` to avoid a name collision with the action names below.
 
 ### Student actions
 
@@ -282,12 +298,14 @@ Both helpers return `true` only when a transition happened.
 2. Load the payment with its request and document type.
 3. Verify `payment.documentRequest.userId === session.user.id`; otherwise throw
    `Unauthorized`.
-4. Verify the payment is `Pending` and the request status is payable.
+4. Verify the payment is `Pending` or `Failed` and the request status is
+   payable.
 5. If `checkoutSessionId` exists, retrieve it. If it is still `active`, return
    its `checkout_url` without creating a new session. If retrieval fails or it
    is expired, continue.
 6. Create a Checkout Session (payload above).
-7. Update the payment with `checkoutSessionId` and `method: "Online"`.
+7. Update the payment with `checkoutSessionId`, `referenceNumber: payment.id`,
+   `method: "Online"`, and clear `failureReason`.
 8. Return `{ checkoutUrl }`.
 
 The client calls `window.location.assign(checkoutUrl)`.
@@ -301,15 +319,15 @@ The client calls `window.location.assign(checkoutUrl)`.
   number), and proof uploads.
 - Order by `createdAt desc`.
 
-`markPaymentPaid(paymentId)`:
+`adminMarkPaymentPaid(paymentId)`:
 
 - `requireAdmin`.
 - Allowed only from `Pending` or `Failed`.
-- Calls `markPaymentPaid` from `src/lib/payments.ts` with `method: "Cash"` and
-  no PayMongo ids.
+- Calls `confirmPaymentPaid` from `src/lib/payments.ts` with `method: "Cash"`
+  and no PayMongo ids.
 - Returns `{ success: true }`.
 
-`markPaymentRefunded(paymentId)`:
+`adminMarkPaymentRefunded(paymentId)`:
 
 - `requireAdmin`.
 - Allowed only from `Paid`.
@@ -317,33 +335,49 @@ The client calls `window.location.assign(checkoutUrl)`.
 - The actual refund is performed manually in the PayMongo dashboard; the UI
   states this.
 
+`updateRequestStatus` and `rejectRequest` (existing actions) are retrofitted:
+
+- Both call `requireAdmin`.
+- `rejectRequest` throws when the request's payment is `Paid` or `Refunded`;
+  otherwise it sets a `Pending`/`Failed` payment to `Cancelled` in the same
+  transaction as the rejection.
+- `updateRequestStatus` throws when the target status is `Completed` and the
+  payment is not `Paid`.
+
 ### Webhook route
 
 `POST /api/paymongo/webhook`:
 
 1. `const raw = await req.text()`.
-2. Read `Paymongo-Signature`. If missing or invalid, return `401`.
-3. If `PAYMONGO_WEBHOOK_SECRET` is missing or still the placeholder
+2. If `PAYMONGO_WEBHOOK_SECRET` is missing or still the placeholder
    `whsec_your_webhook_secret_here`, log an error and return `500`. Never
    process an unverified event.
-4. Parse JSON and read `data.attributes.type`.
+3. Parse JSON to read `livemode` and `data.attributes.type`. Parsing happens
+   before verification only to choose `te` vs `li`; nothing is acted on until
+   step 4 passes.
+4. Read `Paymongo-Signature` and verify it over the raw body using `livemode`.
+   If missing or invalid, return `401`.
 5. `checkout_session.payment.paid`:
    - `session = data.attributes.data`.
    - `paymentId = session.attributes.metadata?.paymentId ?? session.attributes.reference_number`.
    - Load the payment. If missing, log and return `200`.
    - Find the entry in `session.attributes.payments` with `status === "paid"`.
    - Verify its `amount === payment.amount * 100` and `currency === "PHP"`.
-     On mismatch, log, leave the payment `Pending`, return `200`.
-   - Call `markPaymentPaid(paymentId, { paymongoPaymentId: entry.id,
+     On mismatch, log, set `failureReason` (status stays `Pending`), and return
+     `200` so an admin can reconcile it from the payments page.
+   - Call `confirmPaymentPaid(paymentId, { paymongoPaymentId: entry.id,
      paymentIntentId: session.attributes.payment_intent?.id,
      paymentMethodType: entry.attributes.source?.type })`.
-6. `payment.failed`:
-   - Load the payment by `metadata.paymentId` when present; otherwise ignore.
-   - Call `markPaymentFailed` with the event's failure message.
+6. `payment.failed` (best effort): the payload is a Payment resource and may
+   not carry our metadata. Try `metadata.paymentId`, then a payment whose
+   `paymentIntentId` matches. If neither resolves, log and return `200`.
+   `paymentIntentId` is only stored on success in v1, so this fallback rarely
+   matches; failure detection is a convenience, not a requirement. An
+   unresolved payment stays `Pending` and remains retryable.
 7. Unknown event types return `200`.
 8. Always return a JSON body so PayMongo sees a successful delivery.
 
-Replay safety comes from the conditional update in `markPaymentPaid`, so no
+Replay safety comes from the conditional update in `confirmPaymentPaid`, so no
 event-id table is needed in v1.
 
 ### Return page
@@ -356,8 +390,13 @@ event-id table is needed in v1.
 2. Load the payment and verify ownership.
 3. If `Paid`, render the success card.
 4. Otherwise, if `checkoutSessionId` exists, retrieve the session:
-   - paid entry present → `markPaymentPaid`, then render success.
-   - session expired → render "Checkout expired" with a retry link.
+   - paid entry present → `confirmPaymentPaid`; render success only if it
+     returned `true`, otherwise re-read the payment and render its current
+     state (a `Refunded` payment must not show "confirmed").
+   - failed entry present → `confirmPaymentFailed`; render "Payment failed"
+     only if it returned `true`, otherwise re-read and render current state.
+   - session expired → render "Checkout expired" with a retry link (the
+     payment stays `Pending`, so retrying is allowed).
    - still active → render "We're confirming your payment" with a refresh link.
 5. If retrieval fails, render the confirming state and log the error. The
    webhook still settles the payment.
@@ -372,18 +411,19 @@ Server page shell:
 
 - `requireStudent`, fetch payments.
 - Header: "Payments" + subtitle.
-- Outstanding balance card: sum of `Pending` payments.
+- Outstanding balance card: sum of `Pending` + `Failed` payments.
 - If `?canceled=1`, an inline alert: "Checkout canceled — no payment was
   taken."
 - Renders `<PaymentsList payments={…} />`.
 
 `PaymentsList` (client, table like `RequestsList`):
 
-- Segmented filter: **All / Outstanding / Paid** (default All).
+- Segmented filter: **All / Outstanding / Paid** (default All). "Outstanding"
+  means `Pending` or `Failed`; both are still owed and retryable.
 - Columns: Document (name + request date), Amount, Method, Status, Action.
 - Status badges: `Pending` secondary, `Paid` default, `Failed` destructive,
   `Refunded` outline, `Cancelled` outline.
-- Actions for `Pending`:
+- Actions for `Pending` or `Failed`:
   - **Pay Online** — calls `startOnlinePayment`, then redirects to PayMongo.
   - **Upload Receipt** — opens a receipt dialog (cash flow).
 - `Paid` with uploads: **View Receipt** link.
@@ -394,8 +434,12 @@ Server page shell:
 Receipt dialog:
 
 - Uses the existing `UploadWithUrl` component with `endpoint="paymentProof"`.
-- Extend `paymentProof`'s client input to pass `paymentId`; the endpoint's
-  middleware verifies ownership.
+- `UploadWithUrl` and `UploadWithUrlProps` gain an optional
+  `input?: Record<string, unknown>` prop forwarded to `UploadButton` (today
+  they forward nothing, so `paymentId` cannot reach the server).
+- `paymentProof`'s input changes from `paymentId: z.string().optional()` to
+  `paymentId: z.string()`; its middleware loads the payment, verifies it
+  belongs to the signed-in user, and rejects missing/foreign ids.
 - On upload complete, `router.refresh()` and toast "Receipt uploaded. An admin
   will verify it."
 - Copy explains that uploading is optional and that cash is also accepted at
@@ -403,12 +447,13 @@ Receipt dialog:
 
 ### Success page
 
-Centered card with one of three states:
+Centered card with one of four states:
 
 | State | Content |
 |---|---|
 | Paid | Check icon, "Payment confirmed", amount, document name, "Back to payments" |
 | Confirming | Clock icon, "We're confirming your payment", refresh button, "Back to payments" |
+| Failed | Warning icon, "Payment failed", reason if available, "Try again" button to payments |
 | Expired | Warning icon, "Checkout expired", "Try again" button to payments |
 
 ### Admin payments page — `/admin/payments`
@@ -417,7 +462,8 @@ Server page shell:
 
 - `requireAdmin`, fetch payments.
 - Header: "Payments" + subtitle "Review payments and verify cash receipts".
-- Summary line: outstanding count and amount, collected this month.
+- Summary line: outstanding (`Pending` + `Failed`) count and amount, collected
+  this month.
 - Renders `<PaymentsManager payments={…} />`.
 
 `PaymentsManager` (client):
@@ -452,7 +498,9 @@ Server page shell:
 - `rejectRequest`: server-side guard (see lifecycle rule 4). The dialog can
   hide/disable Reject when `payment.status === "Paid"` for a clearer UX.
 - Dashboard balance card and request payment badges start working
-  automatically once payments are created; no component change needed.
+  automatically once payments are created. The dashboard aggregate is updated
+  to count `Pending` + `Failed`, and the card label becomes "Outstanding
+  Balance".
 
 ## Notifications
 
@@ -473,16 +521,21 @@ skipped.
 
 - The PayMongo secret key is server-only. It is never exposed to the client and
   is not prefixed with `NEXT_PUBLIC_`.
-- Every student action verifies payment ownership through
-  `documentRequest.userId`. Every admin action calls `requireAdmin`.
+- Every new student action verifies payment ownership through
+  `documentRequest.userId`. Every new admin payment action calls
+  `requireAdmin`. `rejectRequest` and `updateRequestStatus` are retrofitted
+  with `requireAdmin` because this spec changes them; the remaining legacy
+  admin actions are left for the separate auth-guards cleanup noted in
+  `docs/implementation-gaps.md`.
 - The webhook verifies the raw-body signature with a timing-safe comparison and
   refuses to process when the secret is not configured.
 - The webhook verifies amount and currency before marking a payment paid.
-- `paymentProof` middleware rejects uploads whose `paymentId` does not belong
-  to the signed-in user (currently it trusts the client input).
+- `paymentProof` middleware requires `paymentId` and rejects uploads whose
+  payment does not belong to the signed-in user (currently it trusts an
+  optional client input).
 - PayMongo API errors surface as a toast ("Could not start checkout. Please
   try again.") and are logged with the payment id. The payment stays `Pending`.
-- `markPaymentPaid` is idempotent, so duplicate webhooks and the return page
+- `confirmPaymentPaid` is idempotent, so duplicate webhooks and the return page
   cannot double-credit or double-notify.
 
 ## Environment and setup
@@ -523,8 +576,13 @@ the browser before returning.
 `npx prisma generate`.
 
 All new columns are nullable, so existing rows are unaffected. No existing
-`Payment` rows are expected (the audit found none), but if any exist with
-`status = "Completed"`, backfill them to `Paid` as part of the migration.
+`Payment` rows are expected (the audit found none). If any are found with
+`status = "Completed"`, run an explicit backfill after the migration (Prisma
+does not generate data updates):
+
+```sql
+UPDATE "payment" SET "status" = 'Paid' WHERE "status" = 'Completed';
+```
 
 ## Testing (manual, sandbox)
 
@@ -543,8 +601,8 @@ All new columns are nullable, so existing rows are unaffected. No existing
 5. **Return fallback** — disable/unregister the webhook, pay, return, and
    confirm the success page still marks the payment paid.
 6. **Amount mismatch** — send a test `checkout_session.payment.paid` with a
-   different amount; confirm the payment stays `Pending` and the mismatch is
-   logged.
+   different amount; confirm the payment stays `Pending`, `failureReason` is
+   set, and the mismatch is visible in the admin dialog.
 7. **Bad signature** — POST to the webhook with a wrong signature; confirm
    `401` and no status change.
 8. **Cash flow** — upload a receipt from the payments page; confirm the admin
@@ -552,12 +610,19 @@ All new columns are nullable, so existing rows are unaffected. No existing
 9. **Rejection rules** — reject an unpaid request; confirm the payment becomes
    `Cancelled`. Attempt to reject a paid request; confirm the server action
    throws and the status does not change.
-10. **Authorization** — call `startOnlinePayment` with another student's
+10. **Completion guard** — attempt to mark a request `Completed` while its
+    payment is `Pending`; confirm it throws. Mark the payment Paid, then
+    Complete; confirm it succeeds.
+11. **Failed retry** — mark a payment `Failed` (admin or return-page path) and
+    confirm Pay Online is still available, a new checkout can be started, and
+    the amount still counts toward the outstanding balance.
+12. **Authorization** — call `startOnlinePayment` with another student's
     payment id; confirm it throws. Upload a receipt with another user's
-    `paymentId`; confirm the upload is rejected.
-11. **Admin page** — filter by each status, search by name/number, and verify
+    `paymentId`; confirm the upload is rejected. Call an admin payment action
+    as a student; confirm it throws.
+13. **Admin page** — filter by each status, search by name/number, and verify
     refund recording from `Paid`.
-12. `npm run lint` and `npm run build`.
+14. `npm run lint` and `npm run build`.
 
 ## Risks and open items
 
@@ -572,6 +637,11 @@ All new columns are nullable, so existing rows are unaffected. No existing
   shows the enabled ones.
 - **Refunds** are manual in v1. The app records the outcome, not the
   transaction.
+- **Amount mismatches** leave the payment `Pending` with `failureReason` set.
+  An admin must reconcile and mark it Paid manually.
+- **Late webhooks after rejection** are ignored for `Cancelled` payments. If a
+  student completed checkout during a rejection race, the admin refunds
+  manually.
 - **Signup verification** is a separate spec. Payment eligibility is isolated
   in `startOnlinePayment` so it can be re-gated with a one-line change if
   needed.
@@ -601,8 +671,12 @@ All new columns are nullable, so existing rows are unaffected. No existing
 - `src/app/(student)/dashboard/requests/actions.ts`
 - `src/app/(admin)/admin/requests/actions.ts`
 - `src/app/(student)/dashboard/requests/RequestsList.tsx`
+- `src/app/(student)/dashboard/actions.ts`
+- `src/components/dashboard/balance-card.tsx`
 - `src/app/(admin)/admin/requests/RequestDetailDialog.tsx`
 - `src/app/api/uploadthing/core.ts`
+- `src/components/upload/upload-with-url.tsx`
+- `src/components/upload/upload-with-url.types.ts`
 - `src/lib/notifications.ts`
 
 **Remove**
