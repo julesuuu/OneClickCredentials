@@ -23,10 +23,11 @@ exact code and a commit step. Do not redesign what the spec already decided.
 
 ## Current state
 
-- Branch: `fix/duplicate-document-requests` (leftover name from prior work — it
-  contains the spec + plan commits; consider a fresh branch for implementation).
+- Branch: `feat/paymongo-payments`, created from `fix/duplicate-document-requests`
+  (the branch that carries the spec, plan, and handoff commits).
 - Working tree is clean.
-- Commits: `1f63534` (spec), `c6c9e0c` (spec revisions), `a7180a0` (plan).
+- Commits: `1f63534` (spec), `c6c9e0c` (spec revisions), `a7180a0` (plan),
+  `d16266b` (handoff).
 - Nothing in the payment module is implemented yet. Existing pages are
   placeholders:
   - `src/app/(student)/dashboard/payments/page.tsx`
