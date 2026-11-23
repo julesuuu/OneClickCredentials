@@ -192,6 +192,12 @@ model Payment {
   referenceNumber   String?
   amount            Int
   status            String          @default("Pending")
+  checkoutSessionId String?  @unique
+  paymentIntentId   String?
+  paymongoPaymentId String?  @unique
+  paymentMethodType String?
+  paidAt            DateTime?
+  failureReason     String?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
