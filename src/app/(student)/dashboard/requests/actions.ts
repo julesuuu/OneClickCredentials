@@ -83,15 +83,31 @@ export async function createDocumentRequest(formData: FormData) {
 
   const totalPrice = documentType.price * quantity;
 
-  await prisma.documentRequest.create({
-    data: {
-      userId: session.user.id,
-      documentTypeId,
-      quantity,
-      totalPrice,
-      notes: notes || null,
-      status: "Pending",
-    },
+  await prisma.$transaction(async (tx) => {
+    const request = await tx.documentRequest.create({
+      data: {
+        userId: session.user.id,
+        documentTypeId,
+        quantity,
+        totalPrice,
+        notes: notes || null,
+        status: "Pending",
+      },
+    });
+
+    const payment = await tx.payment.create({
+      data: {
+        documentRequestId: request.id,
+        method: "Cash",
+        amount: totalPrice,
+        status: "Pending",
+      },
+    });
+
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: { referenceNumber: payment.id },
+    });
   });
 
   return { success: true };

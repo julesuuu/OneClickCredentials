@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-guards";
 
 export async function getAllRequests() {
   const requests = await prisma.documentRequest.findMany({
@@ -49,9 +50,12 @@ export async function updateRequestStatus(
   requestId: string,
   status: string
 ) {
+  await requireAdmin();
+
   const request = await prisma.documentRequest.findUnique({
     where: { id: requestId },
     include: {
+      payment: { select: { status: true } },
       user: {
         select: {
           studentProfile: { select: { id: true } },
@@ -62,6 +66,10 @@ export async function updateRequestStatus(
   });
 
   if (!request) throw new Error("Request not found");
+
+  if (status === "Completed" && request.payment?.status !== "Paid") {
+    throw new Error("Mark the payment as paid before completing this request.");
+  }
 
   const studentProfileId = request.user.studentProfile?.id;
   if (!studentProfileId) throw new Error("Student profile not found");
@@ -104,9 +112,12 @@ export async function updateRequestStatus(
 }
 
 export async function rejectRequest(requestId: string, reason: string) {
+  await requireAdmin();
+
   const request = await prisma.documentRequest.findUnique({
     where: { id: requestId },
     include: {
+      payment: { select: { id: true, status: true } },
       user: {
         select: {
           studentProfile: { select: { id: true } },
@@ -118,15 +129,34 @@ export async function rejectRequest(requestId: string, reason: string) {
 
   if (!request) throw new Error("Request not found");
 
+  if (
+    request.payment?.status === "Paid" ||
+    request.payment?.status === "Refunded"
+  ) {
+    throw new Error("This request has been paid and cannot be rejected.");
+  }
+
   const studentProfileId = request.user.studentProfile?.id;
   if (!studentProfileId) throw new Error("Student profile not found");
 
-  await prisma.$transaction([
-    prisma.documentRequest.update({
+  await prisma.$transaction(async (tx) => {
+    await tx.documentRequest.update({
       where: { id: requestId },
       data: { status: "Rejected", declineReason: reason },
-    }),
-    prisma.notification.create({
+    });
+
+    if (
+      request.payment &&
+      (request.payment.status === "Pending" ||
+        request.payment.status === "Failed")
+    ) {
+      await tx.payment.update({
+        where: { id: request.payment.id },
+        data: { status: "Cancelled" },
+      });
+    }
+
+    await tx.notification.create({
       data: {
         studentProfileId,
         title: "Request Rejected",
@@ -135,8 +165,8 @@ export async function rejectRequest(requestId: string, reason: string) {
         relatedEntityType: "document_request",
         relatedEntityId: requestId,
       },
-    }),
-  ]);
+    });
+  });
 
   return { success: true };
 }
