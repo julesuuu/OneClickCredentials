@@ -17,6 +17,7 @@ interface PayMongoEvent {
         attributes: {
           reference_number?: string | null;
           metadata?: { paymentId?: string } | null;
+          checkout_session_id?: string | null;
           payment_intent?: { id: string } | null;
           status?: string;
           failure_message?: string | null;
@@ -122,14 +123,23 @@ export async function POST(req: Request) {
       });
     } else if (type === "payment.failed") {
       const attributes = resource.attributes;
-      const paymentId = attributes.metadata?.paymentId;
+      let paymentId = attributes.metadata?.paymentId ?? null;
+
+      if (!paymentId && attributes.checkout_session_id) {
+        const payment = await prisma.payment.findUnique({
+          where: { checkoutSessionId: attributes.checkout_session_id },
+          select: { id: true },
+        });
+        paymentId = payment?.id ?? null;
+      }
+
       const reason =
         attributes.failure_message ?? attributes.status ?? "Payment failed";
 
       if (paymentId) {
         await confirmPaymentFailed(paymentId, reason);
       } else {
-        console.warn("payment.failed without payment metadata", {
+        console.warn("payment.failed without a resolvable payment", {
           eventId: event.data.id,
         });
       }
