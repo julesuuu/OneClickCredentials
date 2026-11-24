@@ -170,6 +170,7 @@ model DocumentRequest {
   status         String       @default("Pending")
   notes          String?
   declineReason  String?
+  submitToken    String?      @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
