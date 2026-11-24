@@ -81,7 +81,7 @@ export async function getDashboardData() {
         documentRequest: {
           userId,
         },
-        status: "Pending",
+        status: { in: ["Pending", "Failed"] },
       },
       _sum: {
         amount: true,

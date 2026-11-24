@@ -105,6 +105,14 @@ export function RequestDetailDialog({
                 {request.status}
               </Badge>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Payment</p>
+              <p className="font-medium">
+                {request.payment
+                  ? `${request.payment.method} — ${request.payment.status}`
+                  : "Not paid"}
+              </p>
+            </div>
           </div>
 
           {request.notes && (
@@ -171,14 +179,22 @@ export function RequestDetailDialog({
                   );
                   form?.classList.toggle("hidden");
                 }}
-                disabled={isPending}
+                disabled={
+                  isPending ||
+                  request.payment?.status === "Paid" ||
+                  request.payment?.status === "Refunded"
+                }
               >
                 Reject
               </Button>
               <Button
                 variant={action.variant}
                 onClick={() => onStatusUpdate(request.id, action.nextStatus)}
-                disabled={isPending}
+                disabled={
+                  isPending ||
+                  (action.nextStatus === "Completed" &&
+                    request.payment?.status !== "Paid")
+                }
               >
                 {action.label}
               </Button>

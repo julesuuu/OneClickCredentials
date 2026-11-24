@@ -11,7 +11,7 @@ export function BalanceCard({ pendingAmount }: BalanceCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Pending Balance</CardTitle>
+        <CardTitle className="text-base">Outstanding Balance</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         {pendingAmount > 0 ? (
