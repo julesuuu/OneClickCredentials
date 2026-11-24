@@ -10,6 +10,7 @@ export interface UploadWithUrlProps {
     };
     handleChange: (value: string) => void;
   };
+  input?: Record<string, unknown>;
   label?: string;
   description?: React.ReactNode;
   existingUrl?: string;

@@ -39,13 +39,26 @@ export const ourFileRouter = {
     image: { maxFileSize: "4MB", maxFileCount: 1 },
     pdf: { maxFileSize: "4MB", maxFileCount: 1 },
   })
-    .input(z.object({ paymentId: z.string().optional() }))
+    .input(z.object({ paymentId: z.string() }))
     .middleware(async ({ req, input }) => {
       const session = await auth.api.getSession({ headers: req.headers });
       if (!session) {
         throw new Error("Unauthorized: You must be signed in to upload files.");
       }
-      return { paymentId: input.paymentId };
+
+      const payment = await prisma.payment.findUnique({
+        where: { id: input.paymentId },
+        select: {
+          id: true,
+          documentRequest: { select: { userId: true } },
+        },
+      });
+
+      if (!payment || payment.documentRequest.userId !== session.user.id) {
+        throw new Error("Payment not found.");
+      }
+
+      return { paymentId: payment.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       const upload = await prisma.upload.create({
