@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
-const PAYMONGO_BASE_URL = "https://api.paymongo.com/v2";
+const PAYMONGO_API_URL = "https://api.paymongo.com";
 
 export interface CreateCheckoutSessionInput {
   name: string;
@@ -36,7 +36,7 @@ async function paymongoRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${PAYMONGO_BASE_URL}${path}`, {
+  const response = await fetch(`${PAYMONGO_API_URL}${path}`, {
     ...init,
     headers: {
       Authorization: `Basic ${Buffer.from(`${getSecretKey()}:`).toString(
@@ -70,7 +70,7 @@ export async function createCheckoutSession(
       id: string;
       attributes: { checkout_url: string };
     };
-  }>("/checkout_sessions", {
+  }>("/v2/checkout_sessions", {
     method: "POST",
     body: JSON.stringify({
       data: {
@@ -121,7 +121,7 @@ export async function retrieveCheckoutSession(
         }>;
       };
     };
-  }>(`/checkout_sessions/${sessionId}`);
+  }>(`/v1/checkout_sessions/${sessionId}`);
 
   const attributes = json.data.attributes;
 
