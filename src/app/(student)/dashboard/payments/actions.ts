@@ -63,13 +63,22 @@ export async function startOnlinePayment(paymentId: string) {
       );
 
       if (existing.status === "active" && existing.checkoutUrl) {
-        if (payment.method !== "Online") {
-          await prisma.payment.update({
-            where: { id: payment.id },
-            data: { method: "Online" },
-          });
+        // Sessions created before the paymaya fix carry the invalid "maya"
+        // identifier and fail at checkout, so never reuse those.
+        if (existing.paymentMethodTypes.includes("maya")) {
+          console.warn(
+            "Discarding checkout session created with the invalid maya method",
+            { checkoutSessionId: existing.id },
+          );
+        } else {
+          if (payment.method !== "Online") {
+            await prisma.payment.update({
+              where: { id: payment.id },
+              data: { method: "Online" },
+            });
+          }
+          return { checkoutUrl: existing.checkoutUrl };
         }
-        return { checkoutUrl: existing.checkoutUrl };
       }
     } catch (error) {
       console.error("Could not reuse PayMongo checkout session", error);

@@ -16,6 +16,7 @@ export interface CheckoutSessionSummary {
   id: string;
   checkoutUrl: string | null;
   status: string;
+  paymentMethodTypes: string[];
   paymentIntentId: string | null;
   payments: Array<{
     id: string;
@@ -109,6 +110,7 @@ export async function retrieveCheckoutSession(
       attributes: {
         checkout_url?: string | null;
         status: string;
+        payment_method_types?: string[];
         payment_intent?: { id: string } | null;
         payments?: Array<{
           id: string;
@@ -129,6 +131,7 @@ export async function retrieveCheckoutSession(
     id: json.data.id,
     checkoutUrl: attributes.checkout_url ?? null,
     status: attributes.status,
+    paymentMethodTypes: attributes.payment_method_types ?? [],
     paymentIntentId: attributes.payment_intent?.id ?? null,
     payments: (attributes.payments ?? []).map((payment) => ({
       id: payment.id,
