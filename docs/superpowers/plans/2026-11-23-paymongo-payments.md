@@ -38,6 +38,9 @@ Deviations from the steps below, all deliberate:
    returns 404.
 5. **`payment.failed` resolves the payment via `checkout_session_id`** when the
    event has no `paymentId` metadata.
+6. **Maya is `paymaya`, not `maya`.** Checkout session creation accepts `maya`,
+   but the hosted page rejects it when the customer selects it. Fixed after a
+   manual report; the identifier list now uses `paymaya`.
 
 Known pre-existing issue, unrelated to this work: `npm run lint` reports two
 errors in `src/app/(student)/dashboard/onboarding/page.tsx` (`prefer-const` and
@@ -208,7 +211,7 @@ export async function createCheckoutSession(
               quantity: 1,
             },
           ],
-          payment_method_types: ["gcash", "maya", "card", "qrph"],
+          payment_method_types: ["gcash", "paymaya", "card", "qrph"],
           reference_number: input.referenceNumber,
           metadata: { paymentId: input.paymentId },
           success_url: input.successUrl,

@@ -83,7 +83,7 @@ export async function createCheckoutSession(
               quantity: 1,
             },
           ],
-          payment_method_types: ["gcash", "maya", "card", "qrph"],
+          payment_method_types: ["gcash", "paymaya", "card", "qrph"],
           reference_number: input.referenceNumber,
           metadata: { paymentId: input.paymentId },
           success_url: input.successUrl,

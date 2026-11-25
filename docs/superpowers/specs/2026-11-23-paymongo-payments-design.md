@@ -634,7 +634,9 @@ UPDATE "payment" SET "status" = 'Paid' WHERE "status" = 'Completed';
   `NEXT_PUBLIC_BASE_URL` during testing.
 - **Account capabilities** determine which payment methods appear in test mode
   (GCash, Maya, cards, QRPh). The checkout request lists all four; PayMongo
-  shows the enabled ones.
+  shows the enabled ones. The Maya identifier is `paymaya`, not `maya` — the
+  session is created either way, but the hosted page fails when `maya` is
+  selected.
 - **Refunds** are manual in v1. The app records the outcome, not the
   transaction.
 - **Amount mismatches** leave the payment `Pending` with `failureReason` set.
