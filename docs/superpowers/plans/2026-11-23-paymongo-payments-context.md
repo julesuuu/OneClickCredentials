@@ -23,17 +23,39 @@ exact code and a commit step. Do not redesign what the spec already decided.
 
 ## Current state
 
+**Implementation is complete** on `feat/paymongo-payments`; only the manual
+browser checks remain.
+
 - Branch: `feat/paymongo-payments`, created from `fix/duplicate-document-requests`
   (the branch that carries the spec, plan, and handoff commits).
 - Working tree is clean.
-- Commits: `1f63534` (spec), `c6c9e0c` (spec revisions), `a7180a0` (plan),
-  `d16266b` (handoff).
-- Nothing in the payment module is implemented yet. Existing pages are
-  placeholders:
-  - `src/app/(student)/dashboard/payments/page.tsx`
-  - `src/app/(admin)/admin/payments/page.tsx`
-- Empty directories `src/app/api/paymongo/create-intent/` and
-  `src/app/api/paymongo/webhook/` exist; the plan removes `create-intent`.
+- `npx tsc --noEmit` and `npm run build` both pass.
+- `npm run lint` reports two **pre-existing** errors in
+  `src/app/(student)/dashboard/onboarding/page.tsx` (`prefer-const` and an
+  impure call during render). They are unrelated to payments.
+- Verified against the PayMongo sandbox: checkout creation (`POST
+  /v2/checkout_sessions`) succeeds, and retrieval works only on
+  `GET /v1/checkout_sessions/{id}` (the v2 route 404s).
+- The webhook route was exercised with signed payloads: valid signature → 200,
+  bad/missing signature → 401, invalid JSON → 400.
+- The webhook signature verifier was unit-checked for test/live mode, tampered
+  body, missing header, and wrong secret.
+- `src/app/api/paymongo/create-intent/` has been removed.
+
+## Remaining work
+
+Run the manual checklist in Task 15 of the plan (browser, signed-in student and
+admin). It has not been run because it needs real sessions:
+
+1. Create a request; confirm the dashboard balance and the request payment badge.
+2. Pay online with test card `4343434343434345`, any future expiry, CVV `123`.
+3. Upload a cash receipt; verify it in the admin dialog.
+4. Admin marks a cash payment paid; student notification appears.
+5. Reject an unpaid request (payment becomes `Cancelled`); confirm rejecting a
+   paid request and completing an unpaid request are both blocked.
+6. Revisit the success URL for an already-paid payment; confirm no duplicate
+   notification.
+7. Optional: tunnel + real `PAYMONGO_WEBHOOK_SECRET` to test the webhook path.
 
 ## Decisions already made (do not re-litigate)
 
@@ -71,17 +93,17 @@ exact code and a commit step. Do not redesign what the spec already decided.
 - `.env.local` already has test PayMongo keys, but
   `PAYMONGO_WEBHOOK_SECRET=whsec_your_webhook_secret_here` is a placeholder —
   the webhook route treats that value as unconfigured.
-- `UploadButton`'s `input` prop is a union of every endpoint's input type, so
-  `UploadWithUrl` forwards it as `input as never`.
+- `UploadButton`'s props drop `input` when `endpoint` is a union, so
+  `UploadWithUrl` re-types the component as `UploadButtonWithInput`.
+- Checkout creation is `POST /v2/checkout_sessions`; retrieval is
+  `GET /v1/checkout_sessions/{id}` (v2 retrieval 404s).
 - Test card for sandbox: `4343434343434345`, any future expiry, CVV `123`.
 
 ## Next step
 
-Execute the plan task by task. Recommended: subagent-driven development (fresh
-subagent per task, review between tasks). Inline execution also works.
+Implementation is done. Run the manual checklist above, then open a PR for
+`feat/paymongo-payments`.
 
-Start with Task 1 (schema + migration) and work in order — later tasks depend on
-earlier ones (notably Task 4's helpers and Task 7's upload `input` prop).
-
-Do not start a new plan or rewrite the spec unless implementation reveals a real
-contradiction; if that happens, surface it before changing course.
+If a check fails, fix it on this branch and commit; do not start a new plan or
+rewrite the spec unless a real contradiction surfaces. If one does, surface it
+before changing course.
