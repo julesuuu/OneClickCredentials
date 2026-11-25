@@ -107,12 +107,17 @@ events PaymentEvent[]
 - `metadata` holds structured details such as checkout session IDs, PayMongo
   payment IDs, expected/received centavos, or a rejection reason.
 - `externalEventId` deduplicates webhook retries and return-page refreshes.
-  Values are namespaced, for example:
-  - `webhook:<eventId>:paid`
-  - `webhook:<eventId>:mismatch`
-  - `return:<checkoutSessionId>:<paymentId>:paid`
-  - `return:<checkoutSessionId>:<paymentId>:mismatch`
-  - `checkout:<checkoutSessionId>`
+  Callers build it with `buildExternalEventId(source, reference, suffix?)` from
+  `src/lib/payment-events.ts`; `recordPaymentEvent` stores the value verbatim.
+  The suffix is selected by the event type at the call site:
+  - `buildExternalEventId("webhook", eventId, "paid")` →
+    `webhook:<eventId>:paid`
+  - `buildExternalEventId("webhook", eventId, "mismatch")` →
+    `webhook:<eventId>:mismatch`
+  - `buildExternalEventId("return", checkoutSessionId + ":" + paymentId, "paid")`
+    → `return:<checkoutSessionId>:<paymentId>:paid`
+  - `buildExternalEventId("checkout", checkoutSessionId)` →
+    `checkout:<checkoutSessionId>`
 
 The table is append-only. Application code never updates or deletes events.
 Events cascade-delete only when the payment itself is deleted.
@@ -124,9 +129,14 @@ Add
 table, unique index on `externalEventId`, composite index on
 `(paymentId, createdAt)`, and the foreign key to `payment`.
 
-The local dev database was created with `db push` and has no migration history,
-so apply the SQL locally with `prisma db execute`. Do not run `prisma migrate
-dev`; it would offer to reset the database. Run `npx prisma generate` afterward.
+The **local dev database's** `_prisma_migrations` table is empty even though the
+repository contains migrations, because the database was created with `db push`.
+Apply the SQL locally with `prisma db execute`. Do not run `prisma migrate dev`;
+it would offer to reset the database. Run `npx prisma generate` afterward.
+
+The migration file is still a normal migration. It must remain deployable with
+`prisma migrate deploy` on a database that already has the earlier migrations
+applied.
 
 ## Event recording
 
@@ -134,6 +144,8 @@ Create `src/lib/payment-events.ts` with:
 
 - Event type, source, and actor type unions.
 - A `PaymentActor` shape: `{ type, userId?, name? }`.
+- `buildExternalEventId(source, reference, suffix?)` that joins the parts with
+  `:` and returns the fully namespaced value.
 - `recordPaymentEvent(tx, input)` that writes one row with
   `createMany({ skipDuplicates: true })` inside the caller's transaction.
 
@@ -164,17 +176,42 @@ interface PaymentTransitionContext {
 }
 ```
 
-Defaults are `{ type: "System" }` and `system`. Callers pass:
+Signatures:
 
-- Webhook: `PayMongo` actor, `webhook` source, and the PayMongo event ID.
-- Return page: `System` actor, `return_page` source, and a synthetic ID based on
-  the checkout session and PayMongo payment.
+```ts
+confirmPaymentPaid(paymentId, details?, context?)
+confirmPaymentFailed(paymentId, reason?, context?)
+```
+
+Defaults are `{ type: "System" }` and `system`. Callers pass fully namespaced
+IDs built with `buildExternalEventId`:
+
+- Webhook: `PayMongo` actor, `webhook` source, and
+  `buildExternalEventId("webhook", event.data.id, "paid")` or `"failed"` or
+  `"mismatch"`.
+- Return page: `System` actor, `return_page` source, and
+  `buildExternalEventId("return", checkoutSessionId + ":" + paymongoPaymentId, "paid")`
+  or `"failed"` or `"mismatch"`.
 - Admin actions: `Admin` actor with the signed-in admin's ID and name, `admin`
-  source.
+  source, and no external event ID.
 
-`confirmPaymentPaid` fetches the payment with its request, document type, and
-student profile once. It uses that row for the status guard, amount snapshot,
-notification context, and event data. `confirmPaymentFailed` does the same.
+`confirmPaymentPaid` loads the payment with its request, document type, and
+student profile once **before** the update. That row supplies the `fromStatus`
+snapshot, amount, and notification/event context. It is **not** the guard.
+
+The authoritative guard is the atomic update:
+
+```ts
+tx.payment.updateMany({
+  where: { id: paymentId, status: { in: ["Pending", "Failed"] } },
+  data: { status: "Paid", ... },
+});
+```
+
+If `count === 0`, the function returns false without writing an event or
+notification. `confirmPaymentFailed` uses the same pattern with
+`status: "Pending"`. The pre-fetch only supplies snapshots; `updateMany` decides
+whether the transition happens.
 
 ## Payment rules
 
@@ -198,6 +235,18 @@ Predicates:
 
 `canRejectRequest` returns false for `Paid` and `Refunded`, matching the current
 guard. `canCompleteRequest` returns true only for `Paid`.
+
+Production call sites must use these predicates instead of inline status arrays:
+
+| Call site | Predicate(s) |
+|---|---|
+| `startOnlinePayment` | `canStartCheckout` |
+| `updateRequestStatus` | `canCompleteRequest` |
+| `rejectRequest` | `canRejectRequest`, `canCancelPayment` |
+| `adminMarkPaymentPaid` | `canTransitionToPaid` |
+| `adminMarkPaymentRefunded` | `canRefund` |
+| `confirmPaymentPaid` / `confirmPaymentFailed` | `canTransitionToPaid` / `canTransitionToFailed` |
+| `recordAmountMismatch` | `PAYABLE_PAYMENT_STATUSES` |
 
 ### Amount validation
 
@@ -223,8 +272,20 @@ manually by an admin do not use it.
 
 ## Mismatch handling
 
-Add `recordAmountMismatch(paymentId, input)` to `src/lib/payments.ts`. In one
-transaction it:
+Add `recordAmountMismatch(paymentId, input)` to `src/lib/payments.ts`:
+
+```ts
+recordAmountMismatch(paymentId, {
+  expectedCentavos,
+  receivedCentavos,
+  currency,
+  source: "webhook" | "return_page",
+  externalEventId,
+  metadata?,
+});
+```
+
+In one transaction it:
 
 1. Loads the payment.
 2. Returns false if the payment is missing or no longer `Pending`/`Failed`.
@@ -232,7 +293,9 @@ transaction it:
    already identical.
 4. Appends an `AMOUNT_MISMATCH` event with `fromStatus` set and `toStatus` null.
 
-The payment status is never changed by a mismatch.
+The actor is derived from `source`: `PayMongo` for `webhook`, `System` for
+`return_page`. The caller supplies the fully namespaced `externalEventId` built
+with `buildExternalEventId`. The payment status is never changed by a mismatch.
 
 Webhook behavior:
 
@@ -255,18 +318,30 @@ the PayMongo dashboard.
 `src/app/(student)/dashboard/payments/success/page.tsx` gains a `review` view
 state and changes its confirmation logic:
 
-- `Paid` shows the existing success state.
-- `Refunded` and `Cancelled` show the existing "other" state.
-- `Pending` with a checkout session is re-checked.
-- `Failed` with a checkout session is also re-checked, so a successful retry is
-  confirmed even if the webhook is delayed.
-- `Failed` without a checkout session shows the existing failure state.
-- No paid/failed entry and an active session shows "confirming".
-- An expired session shows "expired".
-- A failed entry records the failure and shows "failed".
-- A paid entry with a valid amount records the paid transition and shows
-  "paid".
-- A paid entry with an invalid amount records the mismatch and shows "review".
+| Current status | Checkout session | Session contents | Result |
+|---|---|---|---|
+| `Paid` | any | any | `paid` |
+| `Refunded` / `Cancelled` | any | any | `other` |
+| `Pending` | none | — | `confirming` |
+| `Pending` | yes | paid, valid amount | `paid` |
+| `Pending` | yes | paid, invalid amount | `review` |
+| `Pending` | yes | failed entry | record failure, `failed` |
+| `Pending` | yes | no entry, active | `confirming` |
+| `Pending` | yes | no entry, expired | `expired` |
+| `Failed` | yes | paid, valid amount | `paid` |
+| `Failed` | yes | paid, invalid amount | `review` |
+| `Failed` | yes | failed entry | `failed`; no event |
+| `Failed` | yes | no entry, active | `failed`; no event |
+| `Failed` | yes | no entry, expired | `failed`; no event |
+| `Failed` | none | — | `failed` |
+
+For an already-`Failed` payment, the re-check is opportunistic: only a paid
+entry changes the view. A failed entry, active session, or expired session
+keeps the `failed` view and writes no event because the status is already
+`Failed`.
+
+If a transition or mismatch write returns false because the status changed
+concurrently, re-read the payment and render its current state.
 
 The review state displays an amber alert with:
 
@@ -290,6 +365,10 @@ payment detail dialog gain a **History** section below Proof:
 - Timestamp formatted as `MMM dd, yyyy • h:mm a`.
 - A scrollable list so long histories do not stretch the dialog.
 
+`src/app/(admin)/admin/payments/page.tsx` currently whitelists the fields it
+passes to `PaymentsManager`. It must map `events` through explicitly; otherwise
+the dialog receives no history.
+
 The existing failure-reason display stays prominent. No new route or page is
 added.
 
@@ -304,6 +383,9 @@ In `src/app/(student)/dashboard/onboarding/page.tsx`:
 The temporary LRN stays unique because `StudentProfile.userId` is unique. The
 change removes the impure `Date.now()` call during render. `birthDate: new
 Date()` is unchanged.
+
+Commit this fix separately from the payment changes so the payments work stays
+focused.
 
 ## Test suite
 
@@ -346,8 +428,10 @@ Add scripts:
 
 ### `src/lib/payment-events.test.ts`
 
+- `buildExternalEventId` joins source, reference, and suffix with `:`.
 - Writes the expected payment ID, type, status transition, amount, actor,
   source, message, metadata, and external event ID.
+- Stores a caller-supplied external event ID verbatim.
 - Uses `skipDuplicates: true`.
 
 The fake transaction exposes only `paymentEvent.createMany`.
@@ -361,11 +445,13 @@ Uses a mocked `@/lib/prisma` and a fake transaction:
 - Paid transition from `Cancelled` or `Refunded` is rejected without an update.
 - Failed transition from `Pending` writes the event and notification.
 - Failed transition from `Paid` is rejected.
+- The payment pre-fetch runs before `updateMany` and only supplies snapshots.
 - `updateMany` returning `count: 0` is a no-op: no event, no notification.
 - The paid update guard uses `status: { in: ["Pending", "Failed"] }`.
 - The failed update guard uses `status: "Pending"`.
 - `recordAmountMismatch` updates `failureReason` and writes an
   `AMOUNT_MISMATCH` event without changing status.
+- `recordAmountMismatch` stores the caller's external event ID verbatim.
 - `recordAmountMismatch` is a no-op for `Paid`, `Refunded`, and `Cancelled`.
 
 ### Documentation
