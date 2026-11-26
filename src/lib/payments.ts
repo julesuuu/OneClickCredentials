@@ -10,6 +10,7 @@ import {
   type PaymentActor,
   type PaymentEventSource,
 } from "@/lib/payment-events";
+import { sendStudentNotificationEmail } from "@/lib/email";
 
 interface ConfirmPaidInput {
   paymongoPaymentId?: string | null;
@@ -42,7 +43,13 @@ const paymentContextSelect = {
   documentRequest: {
     select: {
       documentType: { select: { name: true } },
-      user: { select: { studentProfile: { select: { id: true } } } },
+      user: {
+        select: {
+          email: true,
+          name: true,
+          studentProfile: { select: { id: true, fullName: true } },
+        },
+      },
     },
   },
 } satisfies Prisma.PaymentSelect;
@@ -62,11 +69,11 @@ export async function confirmPaymentPaid(
   details: ConfirmPaidInput = {},
   context: PaymentTransitionContext = {},
 ): Promise<boolean> {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const payment = await getPaymentContext(tx, paymentId);
 
     if (!payment || !canTransitionToPaid(payment.status)) {
-      return false;
+      return { transitioned: false as const };
     }
 
     const updated = await tx.payment.updateMany({
@@ -83,18 +90,19 @@ export async function confirmPaymentPaid(
     });
 
     if (updated.count === 0) {
-      return false;
+      return { transitioned: false as const };
     }
 
     const studentProfileId =
       payment.documentRequest.user.studentProfile?.id ?? null;
+    const documentName = payment.documentRequest.documentType.name;
 
     if (studentProfileId) {
       await tx.notification.create({
         data: {
           studentProfileId,
           title: "Payment Received",
-          message: `Your payment of ₱${payment.amount.toLocaleString()} for ${payment.documentRequest.documentType.name} has been confirmed.`,
+          message: `Your payment of ₱${payment.amount.toLocaleString()} for ${documentName} has been confirmed.`,
           type: "PAYMENT_PAID",
           relatedEntityType: "payment",
           relatedEntityId: paymentId,
@@ -115,8 +123,43 @@ export async function confirmPaymentPaid(
       externalEventId: context.externalEventId ?? null,
     });
 
-    return true;
+    return {
+      transitioned: true as const,
+      email: payment.documentRequest.user.email ?? null,
+      studentName:
+        payment.documentRequest.user.studentProfile?.fullName ??
+        payment.documentRequest.user.name ??
+        "Student",
+      amount: payment.amount,
+      documentName,
+      method: details.method ?? "Online",
+    };
   });
+
+  if (!result.transitioned) {
+    return false;
+  }
+
+  if (result.email) {
+    await sendStudentNotificationEmail({
+      to: result.email,
+      studentName: result.studentName,
+      subject: `Payment Received: ${result.documentName}`,
+      title: "Payment Received",
+      message: `Your payment of ₱${result.amount.toLocaleString()} for ${result.documentName} has been confirmed.`,
+      tone: "success",
+      badgeText: "Paid",
+      details: [
+        { label: "Document", value: result.documentName },
+        { label: "Amount", value: `₱${result.amount.toLocaleString()}` },
+        { label: "Method", value: result.method },
+      ],
+      actionLabel: "View Payments",
+      actionPath: "/dashboard/payments",
+    });
+  }
+
+  return true;
 }
 
 export async function confirmPaymentFailed(
@@ -124,11 +167,11 @@ export async function confirmPaymentFailed(
   reason?: string | null,
   context: PaymentTransitionContext = {},
 ): Promise<boolean> {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     const payment = await getPaymentContext(tx, paymentId);
 
     if (!payment || !canTransitionToFailed(payment.status)) {
-      return false;
+      return { transitioned: false as const };
     }
 
     const failureReason = reason ?? "Payment failed";
@@ -142,18 +185,19 @@ export async function confirmPaymentFailed(
     });
 
     if (updated.count === 0) {
-      return false;
+      return { transitioned: false as const };
     }
 
     const studentProfileId =
       payment.documentRequest.user.studentProfile?.id ?? null;
+    const documentName = payment.documentRequest.documentType.name;
 
     if (studentProfileId) {
       await tx.notification.create({
         data: {
           studentProfileId,
           title: "Payment Failed",
-          message: `Your payment for ${payment.documentRequest.documentType.name} failed. You can try again.`,
+          message: `Your payment for ${documentName} failed. You can try again.`,
           type: "PAYMENT_FAILED",
           relatedEntityType: "payment",
           relatedEntityId: paymentId,
@@ -174,8 +218,43 @@ export async function confirmPaymentFailed(
       externalEventId: context.externalEventId ?? null,
     });
 
-    return true;
+    return {
+      transitioned: true as const,
+      email: payment.documentRequest.user.email ?? null,
+      studentName:
+        payment.documentRequest.user.studentProfile?.fullName ??
+        payment.documentRequest.user.name ??
+        "Student",
+      amount: payment.amount,
+      documentName,
+      failureReason,
+    };
   });
+
+  if (!result.transitioned) {
+    return false;
+  }
+
+  if (result.email) {
+    await sendStudentNotificationEmail({
+      to: result.email,
+      studentName: result.studentName,
+      subject: `Payment Failed: ${result.documentName}`,
+      title: "Payment Failed",
+      message: `Your payment for ${result.documentName} could not be completed. You can retry the payment from your dashboard.`,
+      tone: "danger",
+      badgeText: "Failed",
+      details: [
+        { label: "Document", value: result.documentName },
+        { label: "Amount", value: `₱${result.amount.toLocaleString()}` },
+      ],
+      reason: result.failureReason,
+      actionLabel: "Retry Payment",
+      actionPath: "/dashboard/payments",
+    });
+  }
+
+  return true;
 }
 
 export async function recordAmountMismatch(

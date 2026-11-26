@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth-guards";
 import { canRefund, canTransitionToPaid } from "@/lib/payment-rules";
 import { recordPaymentEvent } from "@/lib/payment-events";
 import { confirmPaymentPaid } from "@/lib/payments";
+import { sendStudentNotificationEmail } from "@/lib/email";
 
 export async function getAllPayments() {
   await requireAdmin();
@@ -90,7 +91,9 @@ export async function adminMarkPaymentRefunded(paymentId: string) {
           documentType: { select: { name: true } },
           user: {
             select: {
-              studentProfile: { select: { id: true } },
+              email: true,
+              name: true,
+              studentProfile: { select: { id: true, fullName: true } },
             },
           },
         },
@@ -145,6 +148,28 @@ export async function adminMarkPaymentRefunded(paymentId: string) {
       metadata: { manual: true },
     });
   });
+
+  if (payment.documentRequest.user.email) {
+    const documentName = payment.documentRequest.documentType.name;
+    await sendStudentNotificationEmail({
+      to: payment.documentRequest.user.email,
+      studentName:
+        payment.documentRequest.user.studentProfile?.fullName ??
+        payment.documentRequest.user.name ??
+        "Student",
+      subject: `Payment Refunded: ${documentName}`,
+      title: "Payment Refunded",
+      message: `Your payment of ₱${payment.amount.toLocaleString()} for ${documentName} has been refunded.`,
+      tone: "info",
+      badgeText: "Refunded",
+      details: [
+        { label: "Document", value: documentName },
+        { label: "Amount", value: `₱${payment.amount.toLocaleString()}` },
+      ],
+      actionLabel: "View Payments",
+      actionPath: "/dashboard/payments",
+    });
+  }
 
   return { success: true };
 }
