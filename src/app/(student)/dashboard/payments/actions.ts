@@ -6,6 +6,11 @@ import {
   createCheckoutSession,
   retrieveCheckoutSession,
 } from "@/lib/paymongo";
+import { canStartCheckout } from "@/lib/payment-rules";
+import {
+  buildExternalEventId,
+  recordPaymentEvent,
+} from "@/lib/payment-events";
 
 export async function getMyPayments() {
   const session = await requireStudent();
@@ -44,16 +49,8 @@ export async function startOnlinePayment(paymentId: string) {
     throw new Error("Unauthorized");
   }
 
-  if (!["Pending", "Failed"].includes(payment.status)) {
+  if (!canStartCheckout(payment.status, payment.documentRequest.status)) {
     throw new Error("This payment is no longer payable.");
-  }
-
-  if (
-    ["Rejected", "Cancelled", "Completed"].includes(
-      payment.documentRequest.status,
-    )
-  ) {
-    throw new Error("This request is no longer payable.");
   }
 
   if (payment.checkoutSessionId) {
@@ -100,14 +97,36 @@ export async function startOnlinePayment(paymentId: string) {
     cancelUrl: `${baseUrl}/dashboard/payments?canceled=1`,
   });
 
-  await prisma.payment.update({
-    where: { id: payment.id },
-    data: {
-      checkoutSessionId: checkout.id,
-      referenceNumber: payment.id,
-      method: "Online",
-      failureReason: null,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        checkoutSessionId: checkout.id,
+        referenceNumber: payment.id,
+        method: "Online",
+        failureReason: null,
+      },
+    });
+
+    await recordPaymentEvent(tx, {
+      paymentId: payment.id,
+      type: "CHECKOUT_STARTED",
+      fromStatus: payment.status,
+      toStatus: null,
+      amount: payment.amount,
+      actor: {
+        type: "Student",
+        userId: session.user.id,
+        name: session.user.name ?? session.user.email,
+      },
+      source: "student_checkout",
+      message: "PayMongo checkout started.",
+      metadata: {
+        checkoutSessionId: checkout.id,
+        method: "Online",
+      },
+      externalEventId: buildExternalEventId("checkout", checkout.id),
+    });
   });
 
   return { checkoutUrl: checkout.checkoutUrl };

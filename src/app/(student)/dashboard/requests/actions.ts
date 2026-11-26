@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { recordPaymentEvent } from "@/lib/payment-events";
 import { headers } from "next/headers";
 
 export async function getDocumentTypes() {
@@ -107,6 +108,21 @@ export async function createDocumentRequest(formData: FormData) {
     await tx.payment.update({
       where: { id: payment.id },
       data: { referenceNumber: payment.id },
+    });
+
+    await recordPaymentEvent(tx, {
+      paymentId: payment.id,
+      type: "CREATED",
+      fromStatus: null,
+      toStatus: "Pending",
+      amount: payment.amount,
+      actor: {
+        type: "Student",
+        userId: session.user.id,
+        name: session.user.name ?? session.user.email,
+      },
+      source: "request_created",
+      message: "Payment created with document request.",
     });
   });
 
