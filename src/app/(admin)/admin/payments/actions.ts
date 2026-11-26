@@ -27,6 +27,20 @@ export async function getAllPayments() {
       uploads: {
         select: { id: true, name: true, url: true, fileType: true },
       },
+      events: {
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          type: true,
+          fromStatus: true,
+          toStatus: true,
+          amount: true,
+          actorType: true,
+          actorName: true,
+          message: true,
+          createdAt: true,
+        },
+      },
     },
     orderBy: { createdAt: "desc" },
   });

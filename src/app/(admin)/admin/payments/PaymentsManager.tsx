@@ -52,6 +52,17 @@ export interface AdminPayment {
     url: string;
     fileType: string;
   }>;
+  events: Array<{
+    id: string;
+    type: string;
+    fromStatus: string | null;
+    toStatus: string | null;
+    amount: number | null;
+    actorType: string;
+    actorName: string | null;
+    message: string | null;
+    createdAt: Date;
+  }>;
 }
 
 const statusVariant: Record<

@@ -42,6 +42,16 @@ const statusVariant: Record<
   Cancelled: "outline",
 };
 
+const eventLabels: Record<string, string> = {
+  CREATED: "Payment created",
+  CHECKOUT_STARTED: "Checkout started",
+  PAID: "Payment paid",
+  FAILED: "Payment failed",
+  REFUNDED: "Payment refunded",
+  CANCELLED: "Payment cancelled",
+  AMOUNT_MISMATCH: "Amount mismatch",
+};
+
 export function PaymentDetailDialog({
   payment,
   open,
@@ -155,6 +165,45 @@ export function PaymentDetailDialog({
                     >
                       {upload.name}
                     </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div>
+            <p className="mb-2 text-sm text-muted-foreground">History</p>
+            {payment.events.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No history recorded.
+              </p>
+            ) : (
+              <ul className="max-h-64 space-y-3 overflow-y-auto border-l pl-4">
+                {payment.events.map((event) => (
+                  <li key={event.id} className="relative">
+                    <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-border" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium">
+                        {eventLabels[event.type] ?? event.type}
+                      </p>
+                      {event.toStatus && (
+                        <span className="text-xs text-muted-foreground">
+                          {event.fromStatus ?? "—"} → {event.toStatus}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {event.actorName ?? event.actorType} •{" "}
+                      {format(
+                        new Date(event.createdAt),
+                        "MMM dd, yyyy • h:mm a",
+                      )}
+                    </p>
+                    {event.message && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {event.message}
+                      </p>
+                    )}
                   </li>
                 ))}
               </ul>

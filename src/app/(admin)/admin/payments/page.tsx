@@ -30,6 +30,7 @@ export default async function AdminPaymentsPage() {
           },
         },
         uploads: payment.uploads,
+        events: payment.events,
       }))}
     />
   );
