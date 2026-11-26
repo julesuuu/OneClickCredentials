@@ -107,17 +107,23 @@ events PaymentEvent[]
 - `metadata` holds structured details such as checkout session IDs, PayMongo
   payment IDs, expected/received centavos, or a rejection reason.
 - `externalEventId` deduplicates webhook retries and return-page refreshes.
-  Callers build it with `buildExternalEventId(source, reference, suffix?)` from
+  Callers build it with
+  `buildExternalEventId(namespace, reference, suffix?)` from
   `src/lib/payment-events.ts`; `recordPaymentEvent` stores the value verbatim.
-  The suffix is selected by the event type at the call site:
+  `namespace` is a short dedupe namespace (`"webhook"`, `"return"`, or
+  `"checkout"`), **not** the event's `source` field. The suffix is selected by
+  the event type at the call site:
   - `buildExternalEventId("webhook", eventId, "paid")` →
     `webhook:<eventId>:paid`
   - `buildExternalEventId("webhook", eventId, "mismatch")` →
     `webhook:<eventId>:mismatch`
-  - `buildExternalEventId("return", checkoutSessionId + ":" + paymentId, "paid")`
-    → `return:<checkoutSessionId>:<paymentId>:paid`
+  - `buildExternalEventId("return", checkoutSessionId + ":" + paymongoPaymentId, "paid")`
+    → `return:<checkoutSessionId>:<paymongoPaymentId>:paid`
   - `buildExternalEventId("checkout", checkoutSessionId)` →
     `checkout:<checkoutSessionId>`
+
+  The return-page key uses the PayMongo payment ID, not the local payment ID,
+  so it stays stable across refreshes and retries.
 
 The table is append-only. Application code never updates or deletes events.
 Events cascade-delete only when the payment itself is deleted.
@@ -144,10 +150,27 @@ Create `src/lib/payment-events.ts` with:
 
 - Event type, source, and actor type unions.
 - A `PaymentActor` shape: `{ type, userId?, name? }`.
-- `buildExternalEventId(source, reference, suffix?)` that joins the parts with
-  `:` and returns the fully namespaced value.
-- `recordPaymentEvent(tx, input)` that writes one row with
-  `createMany({ skipDuplicates: true })` inside the caller's transaction.
+- A `RecordPaymentEventInput` shape:
+
+```ts
+interface RecordPaymentEventInput {
+  paymentId: string;
+  type: PaymentEventType;
+  fromStatus?: string | null;
+  toStatus?: string | null;
+  amount?: number | null;
+  actor: PaymentActor;
+  source: PaymentEventSource;
+  message?: string | null;
+  metadata?: Prisma.InputJsonValue;
+  externalEventId?: string | null;
+}
+```
+
+- `buildExternalEventId(namespace, reference, suffix?)` that joins the parts
+  with `:` and returns the fully namespaced value.
+- `recordPaymentEvent(tx, input: RecordPaymentEventInput)` that writes one row
+  with `createMany({ skipDuplicates: true })` inside the caller's transaction.
 
 Every caller writes the event in the same transaction as the status change,
 notification, or payment update it describes. If the event write fails, the
@@ -172,6 +195,7 @@ interface PaymentTransitionContext {
   actor?: PaymentActor;
   source?: PaymentEventSource;
   externalEventId?: string | null;
+  message?: string | null;
   metadata?: Prisma.InputJsonValue;
 }
 ```
@@ -195,6 +219,22 @@ IDs built with `buildExternalEventId`:
 - Admin actions: `Admin` actor with the signed-in admin's ID and name, `admin`
   source, and no external event ID.
 
+Message conventions:
+
+| Event | Message |
+|---|---|
+| `CREATED` | `Payment created with document request.` |
+| `CHECKOUT_STARTED` | `PayMongo checkout started.` |
+| `PAID` | `Payment confirmed.` for webhook/return page; `Marked paid manually by admin.` for admin |
+| `FAILED` | The PayMongo failure message, or `Payment failed during checkout.` |
+| `REFUNDED` | `Refund recorded manually by admin.` |
+| `CANCELLED` | `Request rejected: <reason>.` |
+| `AMOUNT_MISMATCH` | The validation reason string |
+
+`confirmPaymentPaid` defaults `message` to `Payment confirmed.` when omitted.
+`confirmPaymentFailed` defaults it to the failure reason. Admin actions pass
+explicit messages.
+
 `confirmPaymentPaid` loads the payment with its request, document type, and
 student profile once **before** the update. That row supplies the `fromStatus`
 snapshot, amount, and notification/event context. It is **not** the guard.
@@ -212,6 +252,19 @@ If `count === 0`, the function returns false without writing an event or
 notification. `confirmPaymentFailed` uses the same pattern with
 `status: "Pending"`. The pre-fetch only supplies snapshots; `updateMany` decides
 whether the transition happens.
+
+`adminMarkPaymentRefunded` uses the same atomic pattern:
+
+```ts
+tx.payment.updateMany({
+  where: { id: paymentId, status: "Paid" },
+  data: { status: "Refunded" },
+});
+```
+
+If `count === 0`, it throws "Only paid payments can be refunded." Only on
+`count === 1` does it write the `REFUNDED` event and notification. This prevents
+duplicate events from concurrent admin clicks.
 
 ## Payment rules
 
@@ -289,9 +342,13 @@ In one transaction it:
 
 1. Loads the payment.
 2. Returns false if the payment is missing or no longer `Pending`/`Failed`.
-3. Writes `failureReason` with the expected/received values, unless it is
-   already identical.
-4. Appends an `AMOUNT_MISMATCH` event with `fromStatus` set and `toStatus` null.
+3. Builds the reason as
+   `Amount mismatch: expected ${expectedCentavos} centavos (PHP), received ${receivedCentavos} ${currency}`.
+4. Writes `failureReason` with that exact string. If the stored reason is
+   already identical, it skips the write; otherwise it overwrites the previous
+   reason so the latest mismatch is visible.
+5. Appends an `AMOUNT_MISMATCH` event with `fromStatus` set and `toStatus` null.
+   The event message is the same reason string.
 
 The actor is derived from `source`: `PayMongo` for `webhook`, `System` for
 `return_page`. The caller supplies the fully namespaced `externalEventId` built
@@ -340,6 +397,9 @@ entry changes the view. A failed entry, active session, or expired session
 keeps the `failed` view and writes no event because the status is already
 `Failed`.
 
+`Refunded` and `Cancelled` initialize directly to `other`, even when
+`checkoutSessionId` is null, before any session retrieval.
+
 If a transition or mismatch write returns false because the status changed
 concurrently, re-read the payment and render its current state.
 
@@ -365,6 +425,18 @@ payment detail dialog gain a **History** section below Proof:
 - Timestamp formatted as `MMM dd, yyyy • h:mm a`.
 - A scrollable list so long histories do not stretch the dialog.
 
+Event labels:
+
+| Event | Label |
+|---|---|
+| `CREATED` | Payment created |
+| `CHECKOUT_STARTED` | Checkout started |
+| `PAID` | Payment paid |
+| `FAILED` | Payment failed |
+| `REFUNDED` | Payment refunded |
+| `CANCELLED` | Payment cancelled |
+| `AMOUNT_MISMATCH` | Amount mismatch |
+
 `src/app/(admin)/admin/payments/page.tsx` currently whitelists the fields it
 passes to `PaymentsManager`. It must map `events` through explicitly; otherwise
 the dialog receives no history.
@@ -385,7 +457,7 @@ change removes the impure `Date.now()` call during render. `birthDate: new
 Date()` is unchanged.
 
 Commit this fix separately from the payment changes so the payments work stays
-focused.
+focused. The implementation plan should sequence it as an isolated first task.
 
 ## Test suite
 
@@ -428,7 +500,9 @@ Add scripts:
 
 ### `src/lib/payment-events.test.ts`
 
-- `buildExternalEventId` joins source, reference, and suffix with `:`.
+- `buildExternalEventId` joins namespace, reference, and suffix with `:`.
+- The return-page key includes both the checkout session ID and the PayMongo
+  payment ID.
 - Writes the expected payment ID, type, status transition, amount, actor,
   source, message, metadata, and external event ID.
 - Stores a caller-supplied external event ID verbatim.
