@@ -2,6 +2,12 @@
 
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guards";
+import {
+  canCancelPayment,
+  canCompleteRequest,
+  canRejectRequest,
+} from "@/lib/payment-rules";
+import { recordPaymentEvent } from "@/lib/payment-events";
 
 export async function getAllRequests() {
   const requests = await prisma.documentRequest.findMany({
@@ -67,7 +73,7 @@ export async function updateRequestStatus(
 
   if (!request) throw new Error("Request not found");
 
-  if (status === "Completed" && request.payment?.status !== "Paid") {
+  if (status === "Completed" && !canCompleteRequest(request.payment?.status)) {
     throw new Error("Mark the payment as paid before completing this request.");
   }
 
@@ -112,7 +118,7 @@ export async function updateRequestStatus(
 }
 
 export async function rejectRequest(requestId: string, reason: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const request = await prisma.documentRequest.findUnique({
     where: { id: requestId },
@@ -129,10 +135,7 @@ export async function rejectRequest(requestId: string, reason: string) {
 
   if (!request) throw new Error("Request not found");
 
-  if (
-    request.payment?.status === "Paid" ||
-    request.payment?.status === "Refunded"
-  ) {
+  if (!canRejectRequest(request.payment?.status)) {
     throw new Error("This request has been paid and cannot be rejected.");
   }
 
@@ -145,15 +148,46 @@ export async function rejectRequest(requestId: string, reason: string) {
       data: { status: "Rejected", declineReason: reason },
     });
 
-    if (
-      request.payment &&
-      (request.payment.status === "Pending" ||
-        request.payment.status === "Failed")
-    ) {
-      await tx.payment.update({
+    if (request.payment) {
+      const currentPayment = await tx.payment.findUnique({
         where: { id: request.payment.id },
-        data: { status: "Cancelled" },
+        select: { status: true, amount: true },
       });
+
+      if (currentPayment && !canRejectRequest(currentPayment.status)) {
+        throw new Error("This request has been paid and cannot be rejected.");
+      }
+
+      if (currentPayment && canCancelPayment(currentPayment.status)) {
+        const cancelled = await tx.payment.updateMany({
+          where: {
+            id: request.payment.id,
+            status: { in: ["Pending", "Failed"] },
+          },
+          data: { status: "Cancelled" },
+        });
+
+        if (cancelled.count === 1) {
+          await recordPaymentEvent(tx, {
+            paymentId: request.payment.id,
+            type: "CANCELLED",
+            fromStatus: currentPayment.status,
+            toStatus: "Cancelled",
+            amount: currentPayment.amount,
+            actor: {
+              type: "Admin",
+              userId: session.user.id,
+              name: session.user.name ?? session.user.email,
+            },
+            source: "admin",
+            message: `Request rejected: ${reason}.`,
+            metadata: {
+              requestId,
+              reason,
+            },
+          });
+        }
+      }
     }
 
     await tx.notification.create({

@@ -2,6 +2,8 @@
 
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-guards";
+import { canRefund, canTransitionToPaid } from "@/lib/payment-rules";
+import { recordPaymentEvent } from "@/lib/payment-events";
 import { confirmPaymentPaid } from "@/lib/payments";
 
 export async function getAllPayments() {
@@ -31,7 +33,7 @@ export async function getAllPayments() {
 }
 
 export async function adminMarkPaymentPaid(paymentId: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
@@ -39,13 +41,24 @@ export async function adminMarkPaymentPaid(paymentId: string) {
   });
 
   if (!payment) throw new Error("Payment not found");
-  if (!["Pending", "Failed"].includes(payment.status)) {
+  if (!canTransitionToPaid(payment.status)) {
     throw new Error("This payment cannot be marked paid.");
   }
 
-  const transitioned = await confirmPaymentPaid(paymentId, {
-    method: "Cash",
-  });
+  const transitioned = await confirmPaymentPaid(
+    paymentId,
+    { method: "Cash" },
+    {
+      actor: {
+        type: "Admin",
+        userId: session.user.id,
+        name: session.user.name ?? session.user.email,
+      },
+      source: "admin",
+      message: "Marked paid manually by admin.",
+      metadata: { manual: true },
+    },
+  );
 
   if (!transitioned) throw new Error("Payment could not be updated.");
 
@@ -53,7 +66,7 @@ export async function adminMarkPaymentPaid(paymentId: string) {
 }
 
 export async function adminMarkPaymentRefunded(paymentId: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
@@ -72,15 +85,19 @@ export async function adminMarkPaymentRefunded(paymentId: string) {
   });
 
   if (!payment) throw new Error("Payment not found");
-  if (payment.status !== "Paid") {
+  if (!canRefund(payment.status)) {
     throw new Error("Only paid payments can be refunded.");
   }
 
   await prisma.$transaction(async (tx) => {
-    await tx.payment.update({
-      where: { id: paymentId },
+    const updated = await tx.payment.updateMany({
+      where: { id: paymentId, status: "Paid" },
       data: { status: "Refunded" },
     });
+
+    if (updated.count === 0) {
+      throw new Error("Only paid payments can be refunded.");
+    }
 
     const studentProfileId =
       payment.documentRequest.user.studentProfile?.id;
@@ -97,6 +114,22 @@ export async function adminMarkPaymentRefunded(paymentId: string) {
         },
       });
     }
+
+    await recordPaymentEvent(tx, {
+      paymentId,
+      type: "REFUNDED",
+      fromStatus: "Paid",
+      toStatus: "Refunded",
+      amount: payment.amount,
+      actor: {
+        type: "Admin",
+        userId: session.user.id,
+        name: session.user.name ?? session.user.email,
+      },
+      source: "admin",
+      message: "Refund recorded manually by admin.",
+      metadata: { manual: true },
+    });
   });
 
   return { success: true };
