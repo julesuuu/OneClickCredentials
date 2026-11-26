@@ -5,17 +5,14 @@
 
 ## 🔴 Not implemented (placeholder / missing entirely)
 
-### 1. Payment system (Module 4) — biggest gap
+### 1. Payment system (Module 4) — implemented
 
-- `src/app/(student)/dashboard/payments/page.tsx` → still `return <p>Payments</p>;`
-- `src/app/(admin)/admin/payments/page.tsx` → still `return <p>Admin Payment</p>;`
-- No `prisma.payment.create` anywhere — Payment rows are never created, so the
-  dashboard balance card (`payment.aggregate`) and request payment badges always
-  show nothing
-- **No PayMongo integration at all** — only mentioned in marketing/legal copy;
-  no API keys, no Payment Intents, no webhook route
-- The `paymentProof` UploadThing endpoint exists but is **never called from any UI**
-- No payment method toggle, no proof-upload page, no admin proof verification flow
+- `/dashboard/payments` and `/admin/payments` are implemented.
+- `Payment` rows are created with every request.
+- Cash receipt upload and admin verification are wired.
+- PayMongo Hosted Checkout covers GCash, Maya, cards, and QRPh.
+- The webhook verifies signatures and the return page provides a fallback.
+- Remaining: automated refunds and email notifications for payment events.
 
 ### 2. `/admin/documents` page
 
@@ -73,11 +70,9 @@ cross-module activity feed. Actual page has:
 
 ## Suggested priority
 
-1. **Payments end-to-end** (student page → Payment record creation → proof
-   upload → admin review) — PayMongo can come after the cash flow works
-2. `/admin/documents` placeholder (or remove it from the sidebar if it's
+1. `/admin/documents` placeholder (or remove it from the sidebar if it's
    redundant with `/admin/requests`)
-3. `requireAdmin`/`requireAuth` + `error.tsx` boundaries (small, high value)
-4. Admin announcements + status-change emails
-5. Appointment slot limits and date blocking
-6. Refresh `todo.md` to match reality
+2. `requireAdmin`/`requireAuth` + `error.tsx` boundaries (small, high value)
+3. Admin announcements + status-change emails
+4. Appointment slot limits and date blocking
+5. Refresh `todo.md` to match reality

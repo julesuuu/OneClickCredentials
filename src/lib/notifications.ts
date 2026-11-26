@@ -22,6 +22,9 @@ export async function markAllAsRead(): Promise<void> {
 }
 
 export function getNotificationUrl(notification: Pick<Notification, "relatedEntityType" | "type">): string {
+  if (notification.relatedEntityType === "payment") {
+    return "/dashboard/payments";
+  }
   if (notification.relatedEntityType === "document_request") {
     return "/dashboard/requests";
   }

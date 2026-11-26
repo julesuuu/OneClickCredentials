@@ -1,15 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import type { ComponentType } from "react";
 import Image from "next/image";
 import { UploadButton } from "@/utils/uploadthing";
-import type { UploadWithUrlProps } from "./upload-with-url.types";
+import type {
+  UploadEndpoint,
+  UploadWithUrlProps,
+} from "./upload-with-url.types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+interface UploadButtonWithInputProps {
+  endpoint: UploadEndpoint;
+  input?: Record<string, unknown>;
+  onClientUploadComplete: (
+    res: Array<{ ufsUrl: string; uploadId?: string }>,
+  ) => void;
+  onUploadError: (error: Error) => void;
+  onUploadBegin: () => void;
+  className?: string;
+}
+
+// UploadButton's props omit `input` when `endpoint` is a union of endpoints, so
+// re-type it to accept the input we forward.
+const UploadButtonWithInput = UploadButton as unknown as ComponentType<
+  UploadButtonWithInputProps
+>;
 
 export function UploadWithUrl({
   endpoint,
   field,
+  input,
   label,
   description,
   existingUrl,
@@ -110,8 +132,9 @@ export function UploadWithUrl({
         </div>
       ) : (
         <div className="border-2 border-dashed rounded-lg p-4 hover:border-primary/50 transition-colors">
-          <UploadButton
+          <UploadButtonWithInput
             endpoint={endpoint}
+            input={input}
             onClientUploadComplete={handleUploadComplete}
             onUploadError={(error: Error) => {
               console.error("Upload error:", error);

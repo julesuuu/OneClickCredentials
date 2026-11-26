@@ -13,6 +13,7 @@ import {
   Lock,
   Scale,
   ShieldCheck,
+  PhilippinePeso,
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,6 +57,11 @@ const mainNavigation = [
         title: "Appointment",
         url: "/dashboard/appointments",
         icon: Calendar,
+      },
+      {
+        title: "Payments",
+        url: "/dashboard/payments",
+        icon: PhilippinePeso,
       },
       {
         title: "Notifications",

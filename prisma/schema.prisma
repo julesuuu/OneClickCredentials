@@ -192,12 +192,40 @@ model Payment {
   referenceNumber   String?
   amount            Int
   status            String          @default("Pending")
+  checkoutSessionId String?  @unique
+  paymentIntentId   String?
+  paymongoPaymentId String?  @unique
+  paymentMethodType String?
+  paidAt            DateTime?
+  failureReason     String?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
   uploads            Upload[]
+  events             PaymentEvent[]
 
   @@map("payment")
+}
+
+model PaymentEvent {
+  id              String   @id @default(cuid())
+  paymentId       String
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  type            String
+  fromStatus      String?
+  toStatus        String?
+  amount          Int?
+  actorType       String
+  actorUserId     String?
+  actorName       String?
+  source          String
+  message         String?
+  metadata        Json?
+  externalEventId String?  @unique
+  createdAt       DateTime @default(now())
+
+  @@index([paymentId, createdAt])
+  @@map("paymentEvent")
 }
 
 model Notification {

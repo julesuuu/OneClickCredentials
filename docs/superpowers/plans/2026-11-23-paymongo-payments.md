@@ -14,6 +14,40 @@
 
 ---
 
+## Execution status
+
+Implemented on branch `feat/paymongo-payments`. All tasks are complete except the
+browser-based manual checks in Task 15, which still need a signed-in student and
+admin session.
+
+Deviations from the steps below, all deliberate:
+
+1. **Task 1 used `migrate diff` + `db execute`, not `migrate dev`.** The dev
+   database was created with `db push` and has no `_prisma_migrations` history,
+   so `migrate dev` would have offered to reset it. The generated migration file
+   is `prisma/migrations/20261123120000_add_paymongo_payment_fields`.
+2. **Tasks 7 and 8 were committed together** (`ac7e5c1`). The `input` prop only
+   exists on `UploadButton` once the endpoint declares an input schema, so the
+   two changes cannot type-check independently.
+3. **`UploadWithUrl` re-types `UploadButton`** as `UploadButtonWithInput`
+   instead of using `input as never`. `UploadButton`'s props drop `input`
+   entirely when `endpoint` is a union of endpoints, so a cast on the value was
+   not enough.
+4. **Checkout retrieval uses `/v1/checkout_sessions/{id}`**, while creation uses
+   `/v2/checkout_sessions`. Verified against the sandbox: the v2 retrieval route
+   returns 404.
+5. **`payment.failed` resolves the payment via `checkout_session_id`** when the
+   event has no `paymentId` metadata.
+6. **Maya is `paymaya`, not `maya`.** Checkout session creation accepts `maya`,
+   but the hosted page rejects it when the customer selects it. Fixed after a
+   manual report; the identifier list now uses `paymaya`.
+
+Known pre-existing issue, unrelated to this work: `npm run lint` reports two
+errors in `src/app/(student)/dashboard/onboarding/page.tsx` (`prefer-const` and
+an impure call during render). Type-check and build are clean.
+
+---
+
 ## Task 1: Add PayMongo fields to the Payment model
 
 **Files:**
@@ -177,7 +211,7 @@ export async function createCheckoutSession(
               quantity: 1,
             },
           ],
-          payment_method_types: ["gcash", "maya", "card", "qrph"],
+          payment_method_types: ["gcash", "paymaya", "card", "qrph"],
           reference_number: input.referenceNumber,
           metadata: { paymentId: input.paymentId },
           success_url: input.successUrl,

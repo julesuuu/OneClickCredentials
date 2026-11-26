@@ -133,11 +133,14 @@ export function RequestsList({ requests }: RequestsListProps) {
                         {request.payment ? (
                           <Badge
                             variant={
-                              request.payment.status === "Completed"
+                              request.payment.status === "Paid"
                                 ? "default"
                                 : request.payment.status === "Failed"
-                                ? "destructive"
-                                : "secondary"
+                                  ? "destructive"
+                                  : request.payment.status === "Refunded" ||
+                                      request.payment.status === "Cancelled"
+                                    ? "outline"
+                                    : "secondary"
                             }
                           >
                             {request.payment.method} - {request.payment.status}
