@@ -1,7 +1,7 @@
 # Implementation Gaps — What's Not Built Yet
 
 > Audit of `todo.md` and the specs/plans against the actual codebase.
-> Last updated: 2026-11-05
+> Last updated: 2026-11-26
 
 ## 🔴 Not implemented (placeholder / missing entirely)
 
@@ -12,7 +12,7 @@
 - Cash receipt upload and admin verification are wired.
 - PayMongo Hosted Checkout covers GCash, Maya, cards, and QRPh.
 - The webhook verifies signatures and the return page provides a fallback.
-- Remaining: automated refunds and email notifications for payment events.
+- Remaining: automated refunds.
 
 ### 2. `/admin/documents` page
 
@@ -25,11 +25,10 @@
 - No admin notification bell (`NotificationBell` is student-scoped only — noted
   as "future spec" in `docs/superpowers/specs/2026-05-21-admin-sidebar-design.md`)
 
-### 4. Email notifications for status changes
+### 4. Email notifications for status changes — implemented
 
-- Resend only sends auth emails (OTP, password reset, delete account)
-- Request approved / payment updated / appointment reminder / verification result
-  → **in-app only, no email**
+- Resend + React Email templates are wired into document request updates/rejections, student verification, appointment status transitions, and payment events (`Paid`, `Failed`, `Refunded`).
+- See [docs/email-notifications.md](./email-notifications.md) for triggers, templates, and env configuration.
 
 ## 🟡 Partially implemented
 
@@ -60,19 +59,19 @@ cross-module activity feed. Actual page has:
 
 | Item | Status |
 |---|---|
-| `requireAdmin()` / `requireAuth()` helpers | ❌ never created — every action re-inlines the session check |
+| `requireAdmin()` / `requireStudent()` helpers | ✅ `src/lib/auth-guards.ts` (`requireAuth()` not separately added) |
 | `error.tsx` / `not-found.tsx` boundaries | ❌ zero in the whole app |
 | Loading skeletons | ⚠️ only 3 (`dashboard`, `admin`, `admin/appointments`) — other routes have none |
-| `.env.example` (required by AGENTS.md) | ❌ doesn't exist |
+| `.env.example` (required by AGENTS.md) | ✅ `.env.example` present |
 | Export CSV/PDF, bulk/batch actions (Module 6) | ❌ not started |
-| Tests | ❌ none configured |
+| Tests | ✅ Vitest configured (`npm test`) |
 | `todo.md` accuracy | ⚠️ heavily stale — many `[ ]` items (layouts, dashboards, admin sub-pages) are actually done |
 
 ## Suggested priority
 
 1. `/admin/documents` placeholder (or remove it from the sidebar if it's
    redundant with `/admin/requests`)
-2. `requireAdmin`/`requireAuth` + `error.tsx` boundaries (small, high value)
-3. Admin announcements + status-change emails
+2. `error.tsx` boundaries across app routes
+3. Admin announcements (`/admin/notifications`)
 4. Appointment slot limits and date blocking
 5. Refresh `todo.md` to match reality
