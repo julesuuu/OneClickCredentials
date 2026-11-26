@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
     redirect("/admin");
   }
 
-  let studentProfile = await prisma.studentProfile.upsert({
+  const studentProfile = await prisma.studentProfile.upsert({
     where: { userId: session.user.id },
     create: {
       userId: session.user.id,
@@ -25,7 +25,7 @@ export default async function OnboardingPage() {
       gender: "MALE",
       birthDate: new Date(),
       phoneNumber: "",
-      lrn: `temp_${session.user.id}_${Date.now()}`,
+      lrn: `temp_${session.user.id}`,
       studentNumber: "",
       course: "BSIT",
       yearLevel: "FIRST_YEAR",
