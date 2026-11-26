@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CheckCircle2, Clock, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,12 +16,28 @@ import {
 import { requireStudent } from "@/lib/auth-guards";
 import prisma from "@/lib/prisma";
 import { retrieveCheckoutSession } from "@/lib/paymongo";
+import { validatePaymentAmount } from "@/lib/payment-rules";
+import { buildExternalEventId } from "@/lib/payment-events";
 import {
   confirmPaymentFailed,
   confirmPaymentPaid,
+  recordAmountMismatch,
 } from "@/lib/payments";
 
-type ViewState = "paid" | "confirming" | "failed" | "expired" | "other";
+type ViewState =
+  | "paid"
+  | "confirming"
+  | "failed"
+  | "expired"
+  | "review"
+  | "other";
+
+function viewStateFor(status: string): ViewState {
+  if (status === "Paid") return "paid";
+  if (status === "Failed") return "failed";
+  if (status === "Refunded" || status === "Cancelled") return "other";
+  return "confirming";
+}
 
 export default async function PaymentSuccessPage({
   searchParams,
@@ -43,16 +64,29 @@ export default async function PaymentSuccessPage({
     redirect("/dashboard/payments");
   }
 
+  const hasCheckoutSession = Boolean(payment.checkoutSessionId);
   let viewState: ViewState =
     payment.status === "Paid"
       ? "paid"
-      : payment.status === "Failed"
-        ? "failed"
-        : "confirming";
+      : payment.status === "Refunded" || payment.status === "Cancelled"
+        ? "other"
+        : payment.status === "Failed" && !hasCheckoutSession
+          ? "failed"
+          : "confirming";
   let failureReason = payment.failureReason;
   let currentStatus = payment.status;
 
-  if (viewState === "confirming" && payment.checkoutSessionId) {
+  const readCurrentState = async () =>
+    prisma.payment.findUnique({
+      where: { id: payment.id },
+      select: { status: true, failureReason: true },
+    });
+
+  const shouldCheck =
+    hasCheckoutSession &&
+    (payment.status === "Pending" || payment.status === "Failed");
+
+  if (shouldCheck && payment.checkoutSessionId) {
     try {
       const checkout = await retrieveCheckoutSession(
         payment.checkoutSessionId,
@@ -61,44 +95,113 @@ export default async function PaymentSuccessPage({
       const failed = checkout.payments.find((p) => p.status === "failed");
 
       if (paid) {
-        const transitioned = await confirmPaymentPaid(payment.id, {
-          paymongoPaymentId: paid.id,
-          paymentIntentId: checkout.paymentIntentId,
-          paymentMethodType: paid.sourceType,
+        const validation = validatePaymentAmount({
+          paymentAmount: payment.amount,
+          paidAmount: paid.amount,
+          currency: paid.currency,
         });
 
-        if (transitioned) {
-          viewState = "paid";
-          currentStatus = "Paid";
-        } else {
-          const current = await prisma.payment.findUnique({
-            where: { id: payment.id },
-            select: { status: true, failureReason: true },
+        if (!validation.valid) {
+          const flagged = await recordAmountMismatch(payment.id, {
+            expectedCentavos: payment.amount * 100,
+            receivedCentavos: paid.amount,
+            currency: paid.currency,
+            source: "return_page",
+            externalEventId: buildExternalEventId(
+              "return",
+              `${payment.checkoutSessionId}:${paid.id}`,
+              "mismatch",
+            ),
+            metadata: {
+              checkoutSessionId: payment.checkoutSessionId,
+              paymongoPaymentId: paid.id,
+            },
           });
-          failureReason = current?.failureReason ?? failureReason;
-          currentStatus = current?.status ?? currentStatus;
-          viewState =
-            current?.status === "Paid"
-              ? "paid"
-              : current?.status === "Failed"
-                ? "failed"
-                : current?.status === "Refunded" ||
-                    current?.status === "Cancelled"
-                  ? "other"
-                  : "confirming";
+
+          if (flagged) {
+            viewState = "review";
+          } else {
+            const current = await readCurrentState();
+            failureReason = current?.failureReason ?? failureReason;
+            currentStatus = current?.status ?? currentStatus;
+            viewState = current ? viewStateFor(current.status) : viewState;
+          }
+        } else {
+          const transitioned = await confirmPaymentPaid(
+            payment.id,
+            {
+              paymongoPaymentId: paid.id,
+              paymentIntentId: checkout.paymentIntentId,
+              paymentMethodType: paid.sourceType,
+            },
+            {
+              actor: { type: "System" },
+              source: "return_page",
+              externalEventId: buildExternalEventId(
+                "return",
+                `${payment.checkoutSessionId}:${paid.id}`,
+                "paid",
+              ),
+              message: "Payment confirmed.",
+              metadata: {
+                checkoutSessionId: payment.checkoutSessionId,
+                paymongoPaymentId: paid.id,
+              },
+            },
+          );
+
+          if (transitioned) {
+            viewState = "paid";
+            currentStatus = "Paid";
+          } else {
+            const current = await readCurrentState();
+            failureReason = current?.failureReason ?? failureReason;
+            currentStatus = current?.status ?? currentStatus;
+            viewState = current ? viewStateFor(current.status) : viewState;
+          }
         }
       } else if (failed) {
-        const transitioned = await confirmPaymentFailed(
-          payment.id,
-          "Payment failed",
-        );
-        viewState = transitioned ? "failed" : "other";
-        if (transitioned) currentStatus = "Failed";
+        if (payment.status === "Pending") {
+          const transitioned = await confirmPaymentFailed(
+            payment.id,
+            "Payment failed",
+            {
+              actor: { type: "System" },
+              source: "return_page",
+              externalEventId: buildExternalEventId(
+                "return",
+                `${payment.checkoutSessionId}:${failed.id}`,
+                "failed",
+              ),
+              message: "Payment failed during checkout.",
+              metadata: {
+                checkoutSessionId: payment.checkoutSessionId,
+              },
+            },
+          );
+
+          if (transitioned) {
+            viewState = "failed";
+            currentStatus = "Failed";
+          } else {
+            const current = await readCurrentState();
+            failureReason = current?.failureReason ?? failureReason;
+            currentStatus = current?.status ?? currentStatus;
+            viewState = current ? viewStateFor(current.status) : viewState;
+          }
+        } else {
+          viewState = "failed";
+        }
       } else if (checkout.status === "expired") {
-        viewState = "expired";
+        viewState = payment.status === "Failed" ? "failed" : "expired";
+      } else {
+        viewState = payment.status === "Failed" ? "failed" : "confirming";
       }
     } catch (error) {
       console.error("Failed to confirm PayMongo checkout session", error);
+      if (payment.status === "Failed") {
+        viewState = "failed";
+      }
     }
   }
 
@@ -115,6 +218,9 @@ export default async function PaymentSuccessPage({
           {viewState === "confirming" && (
             <Clock className="mx-auto mb-3 h-12 w-12 text-amber-500" />
           )}
+          {viewState === "review" && (
+            <AlertTriangle className="mx-auto mb-3 h-12 w-12 text-amber-500" />
+          )}
           {(viewState === "failed" ||
             viewState === "expired" ||
             viewState === "other") && (
@@ -125,6 +231,7 @@ export default async function PaymentSuccessPage({
             {viewState === "confirming" && "We're confirming your payment"}
             {viewState === "failed" && "Payment failed"}
             {viewState === "expired" && "Checkout expired"}
+            {viewState === "review" && "Payment received — under review"}
             {viewState === "other" && "Payment status"}
           </CardTitle>
         </CardHeader>
@@ -153,6 +260,13 @@ export default async function PaymentSuccessPage({
             <p className="text-muted-foreground">
               The checkout session expired. Start a new payment from the
               payments page.
+            </p>
+          )}
+
+          {viewState === "review" && (
+            <p className="text-muted-foreground">
+              We received a payment, but the amount or currency does not match
+              this request. An admin will review it before it is marked paid.
             </p>
           )}
 
