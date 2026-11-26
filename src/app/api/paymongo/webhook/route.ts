@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyWebhookSignature } from "@/lib/paymongo";
+import { validatePaymentAmount } from "@/lib/payment-rules";
+import { buildExternalEventId } from "@/lib/payment-events";
 import {
   confirmPaymentFailed,
   confirmPaymentPaid,
+  recordAmountMismatch,
 } from "@/lib/payments";
 
 interface PayMongoEvent {
@@ -98,29 +101,64 @@ export async function POST(req: Request) {
         return NextResponse.json({ received: true });
       }
 
-      if (
-        paid.attributes.amount !== payment.amount * 100 ||
-        paid.attributes.currency !== "PHP"
-      ) {
+      const validation = validatePaymentAmount({
+        paymentAmount: payment.amount,
+        paidAmount: paid.attributes.amount,
+        currency: paid.attributes.currency,
+      });
+
+      if (!validation.valid) {
         console.error("PayMongo amount mismatch", {
           paymentId,
           expected: payment.amount * 100,
           received: paid.attributes.amount,
+          currency: paid.attributes.currency,
+          reason: validation.reason,
         });
-        await prisma.payment.update({
-          where: { id: paymentId },
-          data: {
-            failureReason: `Amount mismatch: expected ${payment.amount * 100} centavos, received ${paid.attributes.amount}`,
+
+        await recordAmountMismatch(paymentId, {
+          expectedCentavos: payment.amount * 100,
+          receivedCentavos: paid.attributes.amount,
+          currency: paid.attributes.currency,
+          source: "webhook",
+          externalEventId: buildExternalEventId(
+            "webhook",
+            event.data.id,
+            "mismatch",
+          ),
+          metadata: {
+            checkoutSessionId: resource.id,
+            paymongoPaymentId: paid.id,
           },
         });
+
         return NextResponse.json({ received: true });
       }
 
-      await confirmPaymentPaid(paymentId, {
-        paymongoPaymentId: paid.id,
-        paymentIntentId: attributes.payment_intent?.id ?? null,
-        paymentMethodType: paid.attributes.source?.type ?? null,
-      });
+      await confirmPaymentPaid(
+        paymentId,
+        {
+          paymongoPaymentId: paid.id,
+          paymentIntentId: attributes.payment_intent?.id ?? null,
+          paymentMethodType: paid.attributes.source?.type ?? null,
+        },
+        {
+          actor: { type: "PayMongo" },
+          source: "webhook",
+          externalEventId: buildExternalEventId(
+            "webhook",
+            event.data.id,
+            "paid",
+          ),
+          message: "Payment confirmed.",
+          metadata: {
+            checkoutSessionId: resource.id,
+            paymongoPaymentId: paid.id,
+            paymentIntentId: attributes.payment_intent?.id ?? null,
+            paymentMethodType: paid.attributes.source?.type ?? null,
+          },
+        },
+      );
     } else if (type === "payment.failed") {
       const attributes = resource.attributes;
       let paymentId = attributes.metadata?.paymentId ?? null;
@@ -137,7 +175,19 @@ export async function POST(req: Request) {
         attributes.failure_message ?? attributes.status ?? "Payment failed";
 
       if (paymentId) {
-        await confirmPaymentFailed(paymentId, reason);
+        await confirmPaymentFailed(paymentId, reason, {
+          actor: { type: "PayMongo" },
+          source: "webhook",
+          externalEventId: buildExternalEventId(
+            "webhook",
+            event.data.id,
+            "failed",
+          ),
+          message: reason,
+          metadata: {
+            checkoutSessionId: attributes.checkout_session_id ?? null,
+          },
+        });
       } else {
         console.warn("payment.failed without a resolvable payment", {
           eventId: event.data.id,
