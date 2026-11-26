@@ -6,7 +6,7 @@
 
 **Architecture:** A `PaymentEvent` table records every payment lifecycle change. A pure `payment-rules.ts` module owns status predicates and amount validation, and `payments.ts` writes transitions, notifications, and events in one transaction. The webhook and return page share the validator; admin actions use the same atomic guards.
 
-**Tech Stack:** Next.js 16, TypeScript, Prisma 7, PostgreSQL, Vitest 5.
+**Tech Stack:** Next.js 16, TypeScript, Prisma 7, PostgreSQL, Vitest 4.
 
 ---
 
@@ -102,8 +102,11 @@ git commit -m "fix(onboarding): remove impure render call"
 Run:
 
 ```bash
-npm install --save-dev vitest@^5.1.2
+npm install --save-dev vitest@^4.1.12
 ```
+
+Vitest 5 conflicts with `better-auth`'s peer range
+(`^2.0.0 || ^3.0.0 || ^4.0.0`), so pin to Vitest 4.
 
 - [ ] **Step 2: Add test scripts**
 
