@@ -9,7 +9,16 @@ import OTPVerificationEmail from "@/components/emails/otp-verification";
 import DeleteAccountEmail from "@/components/emails/delete-account";
 import { passkey } from "@better-auth/passkey";
 
-const resend = new Resend(process.env.RESEND_API_KEY as string);
+let resend: Resend | null = null;
+export function getResendClient(): Resend {
+  if (resend) return resend;
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not set. Add it to Vercel environment variables.');
+  }
+  resend = new Resend(apiKey);
+  return resend;
+}
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -46,7 +55,7 @@ export const auth = betterAuth({
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
       try {
-        await resend.emails.send({
+        await getResendClient().emails.send({
           from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
           to: user.email,
           subject: "Reset your password",
@@ -69,7 +78,7 @@ export const auth = betterAuth({
       enabled: true,
       async sendDeleteAccountVerification({ user, url }) {
         try {
-          await resend.emails.send({
+          await getResendClient().emails.send({
             from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
             to: user.email,
             subject: "Confirm Account Deletion",
@@ -125,7 +134,7 @@ export const auth = betterAuth({
       otpLength: 6,
       async sendVerificationOTP({ email, otp, type }) {
         try {
-          await resend.emails.send({
+          await getResendClient().emails.send({
             from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
             to: email,
             subject:
@@ -151,7 +160,7 @@ export const auth = betterAuth({
       otpOptions: {
         async sendOTP({ user, otp }) {
           try {
-            await resend.emails.send({
+            await getResendClient().emails.send({
               from: `${process.env.EMAIL_SENDER_NAME} <${process.env.EMAIL_SENDER_ADDRESS}>`,
               to: user.email,
               subject: "Your 2FA Code",
