@@ -68,16 +68,16 @@ export function PaymentDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Payment Details</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
+        <div className="min-w-0 space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0 sm:col-span-2">
               <p className="text-sm text-muted-foreground">Student</p>
-              <p className="font-medium">
+              <p className="font-medium break-words">
                 {payment.documentRequest.user.studentProfile?.fullName ??
                   "Unknown"}
               </p>
@@ -85,39 +85,35 @@ export function PaymentDetailDialog({
                 {payment.documentRequest.user.studentProfile?.studentNumber ??
                   "—"}
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground break-all">
                 {payment.documentRequest.user.email}
               </p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Status</p>
-              <Badge
-                variant={statusVariant[payment.status] ?? "secondary"}
-              >
+              <Badge variant={statusVariant[payment.status] ?? "secondary"}>
                 {payment.status}
               </Badge>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground break-words">
                 {payment.method}
                 {payment.paymentMethodType
                   ? ` • ${payment.paymentMethodType}`
                   : ""}
               </p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Amount</p>
-              <p className="font-medium">
-                ₱{payment.amount.toLocaleString()}
-              </p>
+              <p className="font-medium">₱{payment.amount.toLocaleString()}</p>
             </div>
-            <div>
+            <div className="min-w-0 sm:col-span-2">
               <p className="text-sm text-muted-foreground">Reference</p>
-              <p className="font-medium">
+              <p className="font-mono text-sm font-medium break-all">
                 {payment.referenceNumber ?? "—"}
               </p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Document</p>
-              <p className="font-medium">
+              <p className="font-medium break-words">
                 {payment.documentRequest.documentType.name}
               </p>
               <p className="text-sm text-muted-foreground">
@@ -125,7 +121,7 @@ export function PaymentDetailDialog({
                 {payment.documentRequest.status}
               </p>
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Created</p>
               <p className="font-medium">
                 {format(new Date(payment.createdAt), "MMM dd, yyyy")}
@@ -141,7 +137,7 @@ export function PaymentDetailDialog({
           {payment.failureReason && (
             <div>
               <p className="text-sm text-muted-foreground">Failure Reason</p>
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-destructive break-words">
                 {payment.failureReason}
               </p>
             </div>
@@ -161,7 +157,7 @@ export function PaymentDetailDialog({
                       href={upload.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-blue-600 break-all hover:underline"
                     >
                       {upload.name}
                     </a>
@@ -180,7 +176,7 @@ export function PaymentDetailDialog({
             ) : (
               <ul className="max-h-64 space-y-3 overflow-y-auto border-l pl-4">
                 {payment.events.map((event) => (
-                  <li key={event.id} className="relative">
+                  <li key={event.id} className="relative min-w-0">
                     <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-border" />
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-medium">
@@ -192,7 +188,7 @@ export function PaymentDetailDialog({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground break-words">
                       {event.actorName ?? event.actorType} •{" "}
                       {format(
                         new Date(event.createdAt),
@@ -200,7 +196,7 @@ export function PaymentDetailDialog({
                       )}
                     </p>
                     {event.message && (
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="mt-1 text-sm text-muted-foreground break-words">
                         {event.message}
                       </p>
                     )}
@@ -213,10 +209,7 @@ export function PaymentDetailDialog({
 
         <div className="flex justify-end gap-2 border-t pt-4">
           {canMarkPaid && (
-            <Button
-              onClick={() => onMarkPaid(payment.id)}
-              disabled={isPending}
-            >
+            <Button onClick={() => onMarkPaid(payment.id)} disabled={isPending}>
               Mark as Paid
             </Button>
           )}
@@ -234,8 +227,8 @@ export function PaymentDetailDialog({
                     Mark this payment refunded?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    Refund the transaction in the PayMongo dashboard first,
-                    then record it here. This does not move money by itself.
+                    Refund the transaction in the PayMongo dashboard first, then
+                    record it here. This does not move money by itself.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
