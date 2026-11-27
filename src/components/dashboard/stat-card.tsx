@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { type ReactNode } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { type LucideIcon } from "lucide-react";
@@ -7,6 +9,8 @@ interface StatCardProps {
   value: number;
   icon: LucideIcon;
   colorVariant?: "blue" | "yellow" | "green" | "red";
+  subtitle?: ReactNode;
+  href?: string;
 }
 
 const colorMap = {
@@ -33,22 +37,40 @@ export function StatCard({
   value,
   icon: Icon,
   colorVariant = "blue",
+  subtitle,
+  href,
 }: StatCardProps) {
   const colors = colorMap[colorVariant];
 
-  return (
-    <Card>
+  const card = (
+    <Card className={cn(href && "transition-colors hover:bg-muted/40")}>
       <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <p className="text-sm font-medium text-muted-foreground">{label}</p>
             <p className="text-3xl font-bold mt-1">{value}</p>
+            {subtitle && (
+              <p className="mt-2 truncate text-xs text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
           </div>
-          <div className={cn("rounded-full p-3", colors.bg)}>
+          <div className={cn("shrink-0 rounded-full p-3", colors.bg)}>
             <Icon className={cn("h-5 w-5", colors.icon)} />
           </div>
         </div>
       </CardContent>
     </Card>
+  );
+
+  if (!href) return card;
+
+  return (
+    <Link
+      href={href}
+      className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      {card}
+    </Link>
   );
 }

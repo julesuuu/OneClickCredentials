@@ -1,7 +1,7 @@
 # Implementation Gaps — What's Not Built Yet
 
 > Audit of `todo.md` and the specs/plans against the actual codebase.
-> Last updated: 2026-11-05
+> Last updated: 2026-11-27
 
 ## 🔴 Not implemented (placeholder / missing entirely)
 
@@ -40,15 +40,14 @@
 - ❌ No date blocking (holidays/closures) — no `blockDate`/`blockedDate` model anywhere
 - ❌ No calendar view (table + filters only)
 
-### 6. Admin dashboard ≠ spec
+### 6. Admin dashboard — implemented
 
-Spec (`docs/superpowers/specs/2026-05-23-admin-dashboard-design.md`) calls for 5
-summary cards (students, requests, appointments, payments, doc types) plus a
-cross-module activity feed. Actual page has:
-
-- 4 stat cards (total students, pending verifications, active requests, ready for pickup)
-- 2 panels (recent requests, requests-by-status breakdown)
-- Missing: appointments card, payments card, document-types card, activity feed
+- 7 linked summary cards: total students, pending verification, active
+  requests, ready for pickup, today's appointments, payments pending review,
+  and active document types.
+- Recent Activity feed merges the latest 10 updates across document requests,
+  payments, appointments, and student profiles.
+- Requests-by-status breakdown retained below the feed.
 
 ### 7. Settings / profile re-upload
 
@@ -60,19 +59,19 @@ cross-module activity feed. Actual page has:
 
 | Item | Status |
 |---|---|
-| `requireAdmin()` / `requireAuth()` helpers | ❌ never created — every action re-inlines the session check |
+| `requireAdmin()` / `requireStudent()` helpers | ✅ `src/lib/auth-guards.ts` (`requireAuth()` not separately added) |
 | `error.tsx` / `not-found.tsx` boundaries | ❌ zero in the whole app |
 | Loading skeletons | ⚠️ only 3 (`dashboard`, `admin`, `admin/appointments`) — other routes have none |
-| `.env.example` (required by AGENTS.md) | ❌ doesn't exist |
+| `.env.example` (required by AGENTS.md) | ✅ `.env.example` present |
 | Export CSV/PDF, bulk/batch actions (Module 6) | ❌ not started |
-| Tests | ❌ none configured |
+| Tests | ✅ Vitest configured (`npm test`) |
 | `todo.md` accuracy | ⚠️ heavily stale — many `[ ]` items (layouts, dashboards, admin sub-pages) are actually done |
 
 ## Suggested priority
 
 1. `/admin/documents` placeholder (or remove it from the sidebar if it's
    redundant with `/admin/requests`)
-2. `requireAdmin`/`requireAuth` + `error.tsx` boundaries (small, high value)
+2. `error.tsx` / `not-found.tsx` boundaries (small, high value)
 3. Admin announcements + status-change emails
 4. Appointment slot limits and date blocking
 5. Refresh `todo.md` to match reality
