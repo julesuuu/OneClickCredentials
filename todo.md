@@ -26,12 +26,12 @@
 
 ### Admin Dashboard (`/admin` page)
 
-- [ ] Summary Card: Student Verification (count → links to `/admin/students`)
-- [ ] Summary Card: Document Requests (counts by status → links to `/admin/documents`)
-- [ ] Summary Card: Appointments (today's count → links to `/admin/appointments`)
-- [ ] Summary Card: Payments (pending review count → links to `/admin/payments`)
-- [ ] Summary Card: Document Types (active count → links to `/admin/document-types`)
-- [ ] Recent Activity Feed — latest system events across all modules
+- [x] Summary Card: Student Verification (count → links to `/admin/students`)
+- [x] Summary Card: Document Requests (active and ready counts → links to `/admin/requests`)
+- [x] Summary Card: Appointments (today's count → links to `/admin/appointments`)
+- [x] Summary Card: Payments (pending review count → links to `/admin/payments`)
+- [x] Summary Card: Document Types (active count → links to `/admin/document-types`)
+- [x] Recent Activity Feed — latest system events across all modules
 
 ### Admin Sub-Pages (Placeholders — built out later)
 
