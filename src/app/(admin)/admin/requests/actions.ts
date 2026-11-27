@@ -8,6 +8,7 @@ import {
   canRejectRequest,
 } from "@/lib/payment-rules";
 import { recordPaymentEvent } from "@/lib/payment-events";
+import { sendDocumentRequestStatusEmail } from "@/lib/email";
 
 export async function getAllRequests() {
   const requests = await prisma.documentRequest.findMany({
@@ -64,7 +65,9 @@ export async function updateRequestStatus(
       payment: { select: { status: true } },
       user: {
         select: {
-          studentProfile: { select: { id: true } },
+          email: true,
+          name: true,
+          studentProfile: { select: { id: true, fullName: true } },
         },
       },
       documentType: { select: { name: true } },
@@ -72,6 +75,10 @@ export async function updateRequestStatus(
   });
 
   if (!request) throw new Error("Request not found");
+
+  if (request.status === status) {
+    return { success: true, emailSent: false };
+  }
 
   if (status === "Completed" && !canCompleteRequest(request.payment?.status)) {
     throw new Error("Mark the payment as paid before completing this request.");
@@ -114,11 +121,29 @@ export async function updateRequestStatus(
     }),
   ]);
 
-  return { success: true };
+  const emailResult = request.user.email
+    ? await sendDocumentRequestStatusEmail({
+        to: request.user.email,
+        studentName:
+          request.user.studentProfile?.fullName ??
+          request.user.name ??
+          "Student",
+        requestId,
+        documentName: request.documentType.name,
+        quantity: request.quantity,
+        status,
+      })
+    : { sent: false };
+
+  return { success: true, emailSent: emailResult.sent };
 }
 
 export async function rejectRequest(requestId: string, reason: string) {
   const session = await requireAdmin();
+  const trimmedReason = reason.trim();
+  if (!trimmedReason) {
+    throw new Error("Rejection reason is required.");
+  }
 
   const request = await prisma.documentRequest.findUnique({
     where: { id: requestId },
@@ -126,7 +151,9 @@ export async function rejectRequest(requestId: string, reason: string) {
       payment: { select: { id: true, status: true } },
       user: {
         select: {
-          studentProfile: { select: { id: true } },
+          email: true,
+          name: true,
+          studentProfile: { select: { id: true, fullName: true } },
         },
       },
       documentType: { select: { name: true } },
@@ -145,7 +172,7 @@ export async function rejectRequest(requestId: string, reason: string) {
   await prisma.$transaction(async (tx) => {
     await tx.documentRequest.update({
       where: { id: requestId },
-      data: { status: "Rejected", declineReason: reason },
+      data: { status: "Rejected", declineReason: trimmedReason },
     });
 
     if (request.payment) {
@@ -180,10 +207,10 @@ export async function rejectRequest(requestId: string, reason: string) {
               name: session.user.name ?? session.user.email,
             },
             source: "admin",
-            message: `Request rejected: ${reason}.`,
+            message: `Request rejected: ${trimmedReason}.`,
             metadata: {
               requestId,
-              reason,
+              reason: trimmedReason,
             },
           });
         }
@@ -194,7 +221,7 @@ export async function rejectRequest(requestId: string, reason: string) {
       data: {
         studentProfileId,
         title: "Request Rejected",
-        message: `Your request for ${request.documentType.name} was rejected. Reason: ${reason}`,
+        message: `Your request for ${request.documentType.name} was rejected. Reason: ${trimmedReason}`,
         type: "REJECTED",
         relatedEntityType: "document_request",
         relatedEntityId: requestId,
@@ -202,5 +229,20 @@ export async function rejectRequest(requestId: string, reason: string) {
     });
   });
 
-  return { success: true };
+  const emailResult = request.user.email
+    ? await sendDocumentRequestStatusEmail({
+        to: request.user.email,
+        studentName:
+          request.user.studentProfile?.fullName ??
+          request.user.name ??
+          "Student",
+        requestId,
+        documentName: request.documentType.name,
+        quantity: request.quantity,
+        status: "Rejected",
+        declineReason: trimmedReason,
+      })
+    : { sent: false };
+
+  return { success: true, emailSent: emailResult.sent };
 }

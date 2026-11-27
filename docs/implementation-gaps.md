@@ -12,7 +12,7 @@
 - Cash receipt upload and admin verification are wired.
 - PayMongo Hosted Checkout covers GCash, Maya, cards, and QRPh.
 - The webhook verifies signatures and the return page provides a fallback.
-- Remaining: automated refunds and email notifications for payment events.
+- Remaining: automated refunds.
 
 ### 2. `/admin/documents` page
 
@@ -25,11 +25,10 @@
 - No admin notification bell (`NotificationBell` is student-scoped only — noted
   as "future spec" in `docs/superpowers/specs/2026-05-21-admin-sidebar-design.md`)
 
-### 4. Email notifications for status changes
+### 4. Email notifications for status changes — implemented
 
-- Resend only sends auth emails (OTP, password reset, delete account)
-- Request approved / payment updated / appointment reminder / verification result
-  → **in-app only, no email**
+- Resend + React Email templates are wired into document request updates/rejections, student verification, appointment status transitions, and payment events (`Paid`, `Failed`, `Refunded`).
+- See [docs/email-notifications.md](./email-notifications.md) for triggers, templates, and env configuration.
 
 ## 🟡 Partially implemented
 

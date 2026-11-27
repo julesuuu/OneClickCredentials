@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { getAllRequests, updateRequestStatus, rejectRequest } from "./actions";
 import { RequestDetailDialog } from "./RequestDetailDialog";
 
@@ -97,9 +98,21 @@ export default function RequestsManager() {
       requestId: string;
       status: string;
     }) => updateRequestStatus(requestId, status),
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-requests"] });
       setSelectedRequest(null);
+      toast.success(
+        result.emailSent
+          ? `Request marked as ${variables.status} and email sent.`
+          : `Request marked as ${variables.status}.`,
+      );
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to update request status.",
+      );
     },
   });
 
@@ -111,9 +124,19 @@ export default function RequestsManager() {
       requestId: string;
       reason: string;
     }) => rejectRequest(requestId, reason),
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["admin-requests"] });
       setSelectedRequest(null);
+      toast.success(
+        result.emailSent
+          ? "Request rejected and email sent."
+          : "Request rejected.",
+      );
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reject request.",
+      );
     },
   });
 

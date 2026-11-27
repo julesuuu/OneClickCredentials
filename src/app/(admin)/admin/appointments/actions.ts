@@ -1,6 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-guards";
+import { sendStudentNotificationEmail } from "@/lib/email";
 
 export interface AppointmentWithRelations {
   id: string;
@@ -27,6 +29,8 @@ export interface AppointmentWithRelations {
 }
 
 export async function getAllAppointments(): Promise<AppointmentWithRelations[]> {
+  await requireAdmin();
+
   const appointments = await prisma.appointment.findMany({
     include: {
       documentRequest: {
@@ -73,6 +77,8 @@ export async function updateAppointmentStatus(
   status: AppointmentTransitionStatus,
   options: UpdateAppointmentStatusOptions = {}
 ) {
+  await requireAdmin();
+
   const appointment = await prisma.appointment.findUnique({
     where: { id },
     include: {
@@ -80,7 +86,11 @@ export async function updateAppointmentStatus(
         select: {
           documentType: { select: { name: true } },
           user: {
-            select: { studentProfile: { select: { id: true } } },
+            select: {
+              email: true,
+              name: true,
+              studentProfile: { select: { id: true, fullName: true } },
+            },
           },
         },
       },
@@ -164,6 +174,37 @@ export async function updateAppointmentStatus(
       },
     }),
   ]);
+
+  const recipientEmail = appointment.documentRequest.user.email;
+  const studentName =
+    appointment.documentRequest.user.studentProfile?.fullName ??
+    appointment.documentRequest.user.name ??
+    "Student";
+
+  if (recipientEmail) {
+    const sessionLabel =
+      appointment.timeSlot === "AM"
+        ? "AM Session (8:00 - 12:00)"
+        : "PM Session (1:00 - 5:00)";
+
+    await sendStudentNotificationEmail({
+      to: recipientEmail,
+      studentName,
+      subject: `${content.title}: ${documentName}`,
+      title: content.title,
+      message: content.message,
+      tone: status === "Completed" ? "success" : "danger",
+      badgeText: status,
+      details: [
+        { label: "Document", value: documentName },
+        { label: "Date", value: dateLabel },
+        { label: "Session", value: sessionLabel },
+      ],
+      reason: status === "Cancelled" ? options.reason : undefined,
+      actionLabel: "View Appointments",
+      actionPath: "/dashboard/appointments",
+    });
+  }
 
   return { success: true };
 }

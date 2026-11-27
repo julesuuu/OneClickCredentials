@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { getStudents, verifyStudent } from "./actions";
 import { Search, Eye, Check, X, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import { formatEnumValue } from "@/lib/utils";
 
 export default function AdminStudentVerificationPage() {
@@ -55,9 +56,21 @@ export default function AdminStudentVerificationPage() {
       isVerified: boolean;
       declineReason?: string;
     }) => verifyStudent(studentId, isVerified, declineReason),
-    onSuccess: () => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ["students"] });
       setSelectedStudent(null);
+      setRejectReason("");
+      const action = variables.isVerified ? "approved" : "rejected";
+      toast.success(
+        result.emailSent
+          ? `Student ${action} and email sent.`
+          : `Student ${action}.`,
+      );
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to update student.",
+      );
     },
   });
 
