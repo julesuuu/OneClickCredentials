@@ -1,7 +1,7 @@
 # Implementation Gaps — What's Not Built Yet
 
 > Audit of `todo.md` and the specs/plans against the actual codebase.
-> Last updated: 2026-11-26
+> Last updated: 2026-11-27
 
 ## 🔴 Not implemented (placeholder / missing entirely)
 
@@ -39,15 +39,14 @@
 - ❌ No date blocking (holidays/closures) — no `blockDate`/`blockedDate` model anywhere
 - ❌ No calendar view (table + filters only)
 
-### 6. Admin dashboard ≠ spec
+### 6. Admin dashboard — implemented
 
-Spec (`docs/superpowers/specs/2026-05-23-admin-dashboard-design.md`) calls for 5
-summary cards (students, requests, appointments, payments, doc types) plus a
-cross-module activity feed. Actual page has:
-
-- 4 stat cards (total students, pending verifications, active requests, ready for pickup)
-- 2 panels (recent requests, requests-by-status breakdown)
-- Missing: appointments card, payments card, document-types card, activity feed
+- 7 linked summary cards: total students, pending verification, active
+  requests, ready for pickup, today's appointments, payments pending review,
+  and active document types.
+- Recent Activity feed merges the latest 10 updates across document requests,
+  payments, appointments, and student profiles.
+- Requests-by-status breakdown retained below the feed.
 
 ### 7. Settings / profile re-upload
 
@@ -71,7 +70,7 @@ cross-module activity feed. Actual page has:
 
 1. `/admin/documents` placeholder (or remove it from the sidebar if it's
    redundant with `/admin/requests`)
-2. `error.tsx` boundaries across app routes
-3. Admin announcements (`/admin/notifications`)
+2. `error.tsx` / `not-found.tsx` boundaries (small, high value)
+3. Admin announcements + status-change emails
 4. Appointment slot limits and date blocking
 5. Refresh `todo.md` to match reality
